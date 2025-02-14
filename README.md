@@ -1,4 +1,4 @@
-# Team-H-final-Project
+# Team-Hamburger Helpers-final-Project
 Final Project for COS 420
 
 Vasu Patel - Project Manager 
