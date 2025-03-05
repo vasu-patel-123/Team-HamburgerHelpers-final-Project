@@ -26,7 +26,7 @@ function App() {
         </p>
       </div>
       <p className="read-the-docs">
-        Built by Jaron Durkee[Dev 4], Vasu Patel[Project Manager], Anden Cabral[Dev 1],
+        Built by Jaron Durkee[Dev 4], Vasu Patel[Project Manager], Anden Cabral[Dev 1], Benjamin Cobb[Dev 2]
         
       </p>
     </>
