@@ -25,11 +25,14 @@ Taski is a task/productivity management application built with React and Vite fo
 
 **Install proper Dependencies**
 1. Install node_modules using:
+
    `npm install`
 2. Run Using:
+
    `npm run dev`
 3. Stopping dev environment
-   `use ctrl-c to stop running the environment`
+
+   use `ctrl-c` to stop running the environment
 
   
 
