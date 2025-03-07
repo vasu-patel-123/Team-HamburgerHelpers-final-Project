@@ -13,3 +13,8 @@ Taski is a task/productivity management application built with React and Vite fo
   - [Git](https://git-scm.com/downloads)
   - [GitHub Desktop](https://desktop.github.com/download/)
   - [GitHub CLI](https://cli.github.com/)
+- IDE of your choice ([VSCode](https://code.visualstudio.com/Download))
+
+**Steps to run**
+1. Clone repository
+2. Navigate to the Taski directory using `cd Taski`
