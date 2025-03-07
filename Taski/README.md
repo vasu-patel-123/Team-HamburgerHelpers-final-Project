@@ -23,5 +23,11 @@ Taski is a task/productivity management application built with React and Vite fo
 
    `cd Team-HamburgerHelpers-final-Project/Taski`
 
-**Install dependencies:**
+3. Install npm using:
+
+   `npm install`
+
+4. Run using:
+
+   `npm run dev`
 
