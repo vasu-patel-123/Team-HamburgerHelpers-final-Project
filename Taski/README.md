@@ -17,6 +17,8 @@ Taski is a task/productivity management application built with React and Vite fo
 
 **Steps to run**
 1. Clone repository using:
+
    `git clone https://github.com/vasu-patel-123/Team-HamburgerHelpers-final-Project.git`
 3. Navigate to the Taski directory using:
+
    `cd Team-HamburgerHelpers-final-Project/Taski`
