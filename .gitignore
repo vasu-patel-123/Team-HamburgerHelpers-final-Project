@@ -5,3 +5,4 @@ dist/
 .env
 *.xcuserstate
 *.xcsettings
+/Taski/app/Taskii/Taskii.xcodeproj/project.xcworkspace/xcuserdata
