@@ -3,7 +3,4 @@ node_modules/
 *.log
 dist/
 .env
-*.xcuserstate
-*.xcsettings
-/Taski/app/Taskii/Taskii.xcodeproj/project.xcworkspace/xcuserdata
-/Taski/app/Taskii/Taskii.xcodeproj/project.xcworkspace
+/Taski/app/Taskii.xcworkspace
