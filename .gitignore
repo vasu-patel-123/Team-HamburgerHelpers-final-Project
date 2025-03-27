@@ -6,3 +6,4 @@ dist/
 *.xcuserstate
 *.xcsettings
 /Taski/app/Taskii/Taskii.xcodeproj/project.xcworkspace/xcuserdata
+/Taski/app/Taskii/Taskii.xcodeproj/project.xcworkspace
