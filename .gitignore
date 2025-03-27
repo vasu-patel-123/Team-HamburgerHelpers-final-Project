@@ -4,3 +4,4 @@ node_modules/
 dist/
 .env
 /Taski/app/Taskii.xcworkspace
+/Taski/app/Taskii/Taskii.xcodeproj
