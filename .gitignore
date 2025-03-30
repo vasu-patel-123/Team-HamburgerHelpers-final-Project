@@ -11,7 +11,8 @@ build
 /taskii/ios/flutter
 /taskii/macos/Flutter
 /taskii/build
-
+/taskii/ios/Runner
+/taskii/ios/Runner.xcodeproj
 
 # Annoying CMake cache files
 build/CMakeCache.txt
@@ -24,3 +25,4 @@ build/CMakeFiles/4.0.0/CMakeSystem.cmake
 build/CMakeFiles/4.0.0/CMakeRCCompiler.cmake
 build/CMakeFiles/4.0.0/CMakeDetermineCompilerABI_CXX.bin
 build/.cmake/api/v1/query/client-vscode/query.json
+
