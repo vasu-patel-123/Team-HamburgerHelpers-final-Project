@@ -1,8 +1,10 @@
 .vscode
 .dart_tool
 .idea
+.DS_Store
 pubspec.lock
 build
+
 # Generated plugin/project files
 /taskii/windows/flutter
 /taskii/linux/flutter
