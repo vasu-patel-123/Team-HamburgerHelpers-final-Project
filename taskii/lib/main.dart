@@ -49,7 +49,7 @@ class LoginPageSignUp extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Taski',
+              'Taskii',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 24,
