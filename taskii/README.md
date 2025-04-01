@@ -16,9 +16,9 @@ Android/iOS emulator or physical device for testing
 # Installation
 1. Clone the repository from its source.
 
-2. Install the required dependencies by running the following command in your terminal: flutter pub get
+2. Install the required dependencies by running the following command in your terminal: **flutter pub** get
 
-3. Set up your development environment by ensuring Flutter is configured (use "flutter doctor" to check).
+3. Set up your development environment by ensuring Flutter is configured (use **flutter doctor** to check).
 
 4. Run the app in development mode using your editor or command line interface.
 
