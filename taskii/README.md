@@ -1,4 +1,4 @@
-## Taskii - Task Management App
+# Taskii - Task Management App
 Welcome to Taskii, a modern and efficient task management application built with Flutter. Taskii helps you organize, prioritize, and track your tasks seamlessly, whether you're managing personal to-dos or team projects.
 
 # About Taskii
