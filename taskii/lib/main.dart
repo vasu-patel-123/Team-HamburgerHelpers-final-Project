@@ -194,41 +194,66 @@ class SignUpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          children: [
-            // Status Bar
-            Padding(
-              padding: const EdgeInsets.only(top: 12, bottom: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sign Up'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            children: [
+              // Status Bar
+              Padding(
+                padding: const EdgeInsets.only(top: 12, bottom: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                  ],
+                ),
               ),
-            ),
-            
-            // Logo and Title
-            const SizedBox(height: 80),
-            const Icon(
-              Icons.assignment_outlined,
-              size: 48,
-              color: Color(0xFF171717),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Taskii',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w400,
+              
+              // Logo and Title
+              const SizedBox(height: 80),
+              const Icon(
+                Icons.assignment_outlined,
+                size: 48,
+                color: Color(0xFF171717),
               ),
-            ),
-            
-            
-          ],
+              const SizedBox(height: 16),
+              const Text(
+                'Taskii',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 24,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              
+              // Login Form
+              const SizedBox(height: 48),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Email',
+                  hintStyle: const TextStyle(
+                    color: Color(0xFFADAEBC),
+                    fontSize: 16,
+                    fontFamily: 'Inter',
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
+                  ),
+                ),
+              ),
+          
+            ],
+          ),
         ),
       ),
     );
