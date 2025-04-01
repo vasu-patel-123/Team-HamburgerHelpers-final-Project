@@ -14,10 +14,13 @@ An editor such as VS Code or Android Studio
 Android/iOS emulator or physical device for testing
 
 # Installation
-Clone the repository from its source.
-Install the required dependencies by running the following command in your terminal: flutter pub get
-Set up your development environment by ensuring Flutter is configured (use "flutter doctor" to check).
-Run the app in development mode using your editor or command line interface.
+1. Clone the repository from its source.
+
+2. Install the required dependencies by running the following command in your terminal: flutter pub get
+
+3. Set up your development environment by ensuring Flutter is configured (use "flutter doctor" to check).
+
+4. Run the app in development mode using your editor or command line interface.
 
 # Resources 
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
