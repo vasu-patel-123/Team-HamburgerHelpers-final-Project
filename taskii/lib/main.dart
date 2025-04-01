@@ -161,6 +161,10 @@ class LoginPageSignUp extends StatelessWidget {
             TextButton(
               onPressed: () {
                 print('Sign up pressed');
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignUpPage()),
+                );
               },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
@@ -178,6 +182,52 @@ class LoginPageSignUp extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SignUpPage extends StatelessWidget {
+  const SignUpPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          children: [
+            // Status Bar
+            Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                ],
+              ),
+            ),
+            
+            // Logo and Title
+            const SizedBox(height: 80),
+            const Icon(
+              Icons.assignment_outlined,
+              size: 48,
+              color: Color(0xFF171717),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Taskii',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 24,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            
+            
           ],
         ),
       ),
