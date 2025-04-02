@@ -104,7 +104,7 @@ class LoginPageSignUp extends StatelessWidget {
               width: double.infinity,
               child: TextButton(
                 onPressed: () {
-                  print('Sign In button pressed');
+                  print('Log In button pressed');
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF171717),
@@ -114,7 +114,7 @@ class LoginPageSignUp extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'Sign In',
+                  'Log In',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 16,
