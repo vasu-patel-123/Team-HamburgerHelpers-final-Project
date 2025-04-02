@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'signUp.dart';
 
 void main() {
-  runApp(const FigmaToCodeApp());
+  runApp(const Taskii());
 }
 
-class FigmaToCodeApp extends StatelessWidget {
-  const FigmaToCodeApp({super.key});
+class Taskii extends StatelessWidget {
+  const Taskii({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -13,7 +13,7 @@ import 'package:taskii/main.dart';
 void main() {
   testWidgets('App shows login page', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const FigmaToCodeApp());
+    await tester.pumpWidget(const Taskii());
 
     // Verify that the login page is shown
     expect(find.byType(LoginPageSignUp), findsOneWidget);
