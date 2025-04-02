@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'main.dart';
 
 
 class SignUpPage extends StatelessWidget {
@@ -42,10 +43,31 @@ class SignUpPage extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-              
+
               // Sign Up Form
-              //email box
+              //Name box
               const SizedBox(height: 48),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Name',
+                  hintStyle: const TextStyle(
+                    color: Color(0xFFADAEBC),
+                    fontSize: 16,
+                    fontFamily: 'Inter',
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
+                  ),
+                ),
+              ),
+
+              //email box
+              const SizedBox(height: 16),
               TextField(
                 decoration: InputDecoration(
                   hintText: 'Email',
@@ -94,7 +116,8 @@ class SignUpPage extends StatelessWidget {
               width: double.infinity,
               child: TextButton(
                 onPressed: () {
-                  print('Sign Up button pressed');
+                  print('Sign Up button pressed1 ');
+                  
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF171717),
@@ -114,6 +137,31 @@ class SignUpPage extends StatelessWidget {
                 ),
               ),
             ),
+
+             // Return to sign in
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () {
+                print('Return to Sign In Pressed');
+                Navigator.pop(context);
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Return to Sign In',
+                style: TextStyle(
+                  color: Color(0xFF525252),
+                  fontSize: 14,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+
+            
             ],
           ),
         ),
