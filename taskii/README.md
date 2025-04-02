@@ -30,8 +30,11 @@ Android/iOS emulator or physical device for testing
 (use `flutter doctor` to check).
 
 4. Run the app in development mode using your editor or command line interface.
+5. 
    To run the app in production mode:
+   
    `flutter run` if using the command line interface.
+   
    Or simply by pressing the green play button, to run the emulator in Android Studios.
 
 ## Resources
