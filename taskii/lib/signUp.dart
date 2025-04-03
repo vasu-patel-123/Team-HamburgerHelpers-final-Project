@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'main.dart';
+import 'TermsConditions.dart';
 
 
 class SignUpPage extends StatelessWidget {
@@ -108,6 +108,47 @@ class SignUpPage extends StatelessWidget {
                 ),
               ),
             ),
+
+            //disclaimer
+            const SizedBox(height: 16),
+            const Text(
+                  'By signing up you agree to our terms and conditions',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 31, 31, 31),
+                    fontSize: 16,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
+              ),
+            ),
+            
+            //terms and conditions button
+            const SizedBox(height: 16),
+          
+            TextButton(
+                onPressed: () {
+                  print('Terms and conditions pressed ');
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Termsconditions()),
+                );
+                  
+                },
+                style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text(
+                  'View terms and conditions',
+                  style: TextStyle(
+                    color:  Color.fromARGB(255, 31, 31, 31),
+                    fontSize: 16,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+            
 
 
             //signup button
