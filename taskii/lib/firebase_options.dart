@@ -83,4 +83,5 @@ class DefaultFirebaseOptions {
     authDomain: 'taskii-bf674.firebaseapp.com',
     storageBucket: 'taskii-bf674.firebasestorage.app',
   );
+
 }
