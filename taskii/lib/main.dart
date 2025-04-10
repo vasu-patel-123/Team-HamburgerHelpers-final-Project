@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'signUp.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+
+Future<void> main() async {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.black, // navigation bar color
+    statusBarColor: Colors.white, // status bar color
+    statusBarIconBrightness: Brightness.dark, // status bar icon color
+    systemNavigationBarIconBrightness: Brightness.dark, // color of navigation controls
+  ));
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const Taskii());
 }
 
