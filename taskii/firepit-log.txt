@@ -12,7 +12,7 @@ Checking for npm/bin/npm-cli install at C:\snapshot\firepit\node_modules\npm\bin
 Found npm/bin/npm-cli install.
 Runtime binaries created.
 C:\Users\jaron\AppData\Local\MICROS~1\WinGet\Links\firebase.exe
-C:\Users\jaron\AppData\Local\MICROS~1\WinGet\Links\firebase.exe,C:\snapshot\firepit\firepit.js,apps:sdkconfig,ios,1:246539347393:ios:93f7ce2dc7b2491c697b40,--json
+C:\Users\jaron\AppData\Local\MICROS~1\WinGet\Links\firebase.exe,C:\snapshot\firepit\firepit.js,--version
 Checking for npm/bin/npm-cli install at C:\Users\jaron\.cache\firebase\tools\lib\node_modules\npm\bin\npm-cli
 Checking for npm/bin/npm-cli install at C:\Users\jaron\.cache\firebase\tools\node_modules\npm\bin\npm-cli
 Checking for npm/bin/npm-cli install at C:\snapshot\firepit\node_modules\npm\bin\npm-cli
@@ -21,4 +21,4 @@ Checking for npm/bin/npm-cli install at C:\Users\jaron\.cache\firebase\tools\lib
 Checking for npm/bin/npm-cli install at C:\Users\jaron\.cache\firebase\tools\node_modules\npm\bin\npm-cli
 Checking for npm/bin/npm-cli install at C:\snapshot\firepit\node_modules\npm\bin\npm-cli
 Found npm/bin/npm-cli install.
-ShellJSInternalError: ENOENT: no such file or directory, chmod 'C:\Users\jaron\CACHE~1\firebase\runtime\node'
+ShellJSInternalError: EPERM: operation not permitted, chmod 'C:\Users\jaron\CACHE~1\firebase\runtime\npmrc'
