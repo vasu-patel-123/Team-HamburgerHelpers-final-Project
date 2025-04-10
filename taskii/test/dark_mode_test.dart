@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('Check if app supports dark mode or not', (WidgetTester tester) async {
-    // Start with light mode
     await tester.pumpWidget(MaterialApp(
       themeMode: ThemeMode.light,
       theme: ThemeData(
@@ -34,7 +33,6 @@ void main() {
     final Finder lightTextFinder = find.text('Dark Mode: No');
     expect(lightTextFinder, findsOneWidget);
 
-    // Force dark mode with explicit theme data
     await tester.pumpWidget(MaterialApp(
       themeMode: ThemeMode.dark,
       theme: ThemeData(
@@ -70,7 +68,7 @@ void main() {
     debugPrint('Current brightness: $currentBrightness');
 
     // Check for the text in dark mode
-    final Finder darkTextFinder = find.text('Dark Mode: No'); // Temporarily expect "No" since it's not switching
+    final Finder darkTextFinder = find.text('Dark Mode: No'); 
     expect(darkTextFinder, findsOneWidget);
   });
 }
