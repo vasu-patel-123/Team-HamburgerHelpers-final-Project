@@ -131,11 +131,17 @@ class _NavigationExampleState extends State<NavigationExample> {
             ),
 
             /// Add page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('add page', style: theme.textTheme.titleLarge)),
+            Scaffold(
+              /// top bar
+              appBar: AppBar(
+                shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4
+                  )
+                ),
+                elevation: 4,
+                title: const Text('ADD Task'),
               ),
             ),
 
