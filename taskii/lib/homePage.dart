@@ -37,7 +37,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
+            icon: Icon(Icons.home_outlined), 
             label: 'Home',
           ),
           NavigationDestination(
@@ -45,7 +45,7 @@ class _NavigationExampleState extends State<NavigationExample> {
             label: 'Tasks',
           ),
           NavigationDestination(
-            icon: Icon(Icons.add_circle),
+            icon: Icon(Icons.add_circle, size: 60),
             label: '',
           ),
           NavigationDestination(
