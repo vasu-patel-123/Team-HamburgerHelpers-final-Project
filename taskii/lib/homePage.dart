@@ -34,6 +34,7 @@ class _NavigationExampleState extends State<NavigationExample> {
           });
         },
         indicatorColor: Colors.amber,
+        indicatorShape: CircleBorder(),
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
@@ -47,6 +48,7 @@ class _NavigationExampleState extends State<NavigationExample> {
           NavigationDestination(
             icon: Icon(Icons.add_circle, size: 60),
             label: '',
+            
           ),
           NavigationDestination(
             icon: Icon(Icons.calendar_month),
