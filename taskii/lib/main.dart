@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'signUp.dart';
+import 'homePage.dart';
 
 void main() {
   runApp(const Taskii());
@@ -105,6 +106,10 @@ class LoginPageSignUp extends StatelessWidget {
               child: TextButton(
                 onPressed: () {
                   print('Log In button pressed');
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const homePage()),
+                  );
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF171717),
