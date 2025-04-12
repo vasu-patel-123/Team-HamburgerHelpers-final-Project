@@ -9,7 +9,7 @@ class homePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(theme: ThemeData(useMaterial3: true),  home: const NavigationExample());
+    return MaterialApp(theme: ThemeData(useMaterial3: true), debugShowCheckedModeBanner: false, home: const NavigationExample());
   }
 }
 
@@ -64,6 +64,13 @@ class _NavigationExampleState extends State<NavigationExample> {
             Scaffold(
               /// top bar
               appBar: AppBar(
+                shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4
+                  )
+                ),
+                elevation: 4,
                 title: const Text('Today'),
                 /// profile button
                 actions: <Widget>[
@@ -79,11 +86,47 @@ class _NavigationExampleState extends State<NavigationExample> {
             ),
 
             /// Tasks page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('tasks page', style: theme.textTheme.titleLarge)),
+            Scaffold(
+              /// top bar
+              appBar: AppBar(
+                shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4
+                  )
+                ),
+                elevation: 4,
+                title: const Text('Tasks'),
+                
+                /// profile button
+                actions: <Widget>[
+                  SizedBox(
+                    width: 100,
+                    
+                    child: TextButton(
+                      onPressed: () {
+                        print('add task pushed');
+                        
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 120, 205, 233),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        '+ ADD Task',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
