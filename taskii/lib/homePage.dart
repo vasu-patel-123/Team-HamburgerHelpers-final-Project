@@ -1,7 +1,13 @@
+
+
 import 'package:flutter/material.dart';
 
 /// Flutter code sample for [NavigationBar].
 
+var tasks = [
+  {"title": "Buy milk", "date": "2025-04-12", "priority": "High"},
+  {"title": "Do homework", "date": "2025-04-13", "priority": "Medium"},
+];
 
 
 class homePage extends StatelessWidget {
@@ -15,6 +21,7 @@ class homePage extends StatelessWidget {
 
 class NavigationExample extends StatefulWidget {
   const NavigationExample({super.key});
+
 
   @override
   State<NavigationExample> createState() => _NavigationExampleState();
@@ -130,6 +137,18 @@ class _NavigationExampleState extends State<NavigationExample> {
                   ),
                 ],
               ),
+
+              body: ListView.builder(
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  return ListTile(
+                    title: Text(task['title']!),
+                    subtitle: Text(task['date']!),
+                    trailing: Text(task['priority']!),
+                  );
+                },
+              )
             ),
 
             /// Add task page
