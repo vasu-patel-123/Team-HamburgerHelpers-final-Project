@@ -9,7 +9,7 @@ class homePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(theme: ThemeData(useMaterial3: true), home: const NavigationExample());
+    return MaterialApp(theme: ThemeData(useMaterial3: true),  home: const NavigationExample());
   }
 }
 
@@ -61,14 +61,22 @@ class _NavigationExampleState extends State<NavigationExample> {
       body:
           <Widget>[
             /// Home page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('Home page', style: theme.textTheme.titleLarge)),
+            Scaffold(
+              /// top bar
+              appBar: AppBar(
+                title: const Text('Today'),
+                /// profile button
+                actions: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.person_2_outlined),
+                    
+                    onPressed: () {
+                      // handle the press
+                    },
+                  ),
+                ],
               ),
             ),
-
 
             /// Tasks page
             Card(
