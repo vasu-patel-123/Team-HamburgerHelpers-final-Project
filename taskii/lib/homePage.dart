@@ -9,7 +9,7 @@ class homePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(theme: ThemeData(useMaterial3: true), home: const NavigationExample());
+    return MaterialApp(theme: ThemeData(useMaterial3: true), debugShowCheckedModeBanner: false, home: const NavigationExample());
   }
 }
 
@@ -61,48 +61,136 @@ class _NavigationExampleState extends State<NavigationExample> {
       body:
           <Widget>[
             /// Home page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('Home page', style: theme.textTheme.titleLarge)),
+            Scaffold(
+              /// top bar
+              appBar: AppBar(
+                shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4
+                  )
+                ),
+                elevation: 4,
+                title: const Text('Today'),
+                /// profile button
+                actions: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.person_2_outlined),
+                    
+                    onPressed: () {
+                      // handle the press
+                    },
+                  ),
+                ],
               ),
             ),
-
 
             /// Tasks page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('tasks page', style: theme.textTheme.titleLarge)),
+            Scaffold(
+              /// top bar
+              appBar: AppBar(
+                shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4
+                  )
+                ),
+                elevation: 4,
+                title: const Text('Tasks'),
+                
+                /// profile button
+                actions: <Widget>[
+                  SizedBox(
+                    width: 100,
+                    
+                    child: TextButton(
+                      onPressed: () {
+                        print('add task pushed');
+                        
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 120, 205, 233),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        '+ ADD Task',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: 'Inter',
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 
-            /// Add page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('add page', style: theme.textTheme.titleLarge)),
+            /// Add task page
+            Scaffold(
+              /// top bar
+              appBar: AppBar(
+                shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4
+                  )
+                ),
+                elevation: 4,
+                title: const Text('ADD Task'),
               ),
             ),
 
             /// Calandar page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('calandar page', style: theme.textTheme.titleLarge)),
+            Scaffold(
+              /// top bar
+              appBar: AppBar(
+                shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4
+                  )
+                ),
+                elevation: 4,
+                title: const Text('Calendar'),
+                /// profile button
+                actions: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    
+                    onPressed: () {
+                      // handle the press
+                    },
+                  ),
+
+                  IconButton(
+                    icon: const Icon(Icons.filter_list),
+                    
+                    onPressed: () {
+                      // handle the press
+                    },
+                  ),
+                ],
               ),
             ),
 
             /// Stats page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('Stats page', style: theme.textTheme.titleLarge)),
+            /// Add task page
+            Scaffold(
+              /// top bar
+              appBar: AppBar(
+                shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4
+                  )
+                ),
+                elevation: 4,
+                title: const Text('Stats'),
               ),
             ),
 
