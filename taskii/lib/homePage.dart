@@ -130,7 +130,7 @@ class _NavigationExampleState extends State<NavigationExample> {
               ),
             ),
 
-            /// Add page
+            /// Add task page
             Scaffold(
               /// top bar
               appBar: AppBar(
@@ -146,20 +146,51 @@ class _NavigationExampleState extends State<NavigationExample> {
             ),
 
             /// Calandar page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('calandar page', style: theme.textTheme.titleLarge)),
+            Scaffold(
+              /// top bar
+              appBar: AppBar(
+                shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4
+                  )
+                ),
+                elevation: 4,
+                title: const Text('Calendar'),
+                /// profile button
+                actions: <Widget>[
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    
+                    onPressed: () {
+                      // handle the press
+                    },
+                  ),
+
+                  IconButton(
+                    icon: const Icon(Icons.filter_list),
+                    
+                    onPressed: () {
+                      // handle the press
+                    },
+                  ),
+                ],
               ),
             ),
 
             /// Stats page
-            Card(
-              shadowColor: Colors.transparent,
-              margin: const EdgeInsets.all(8.0),
-              child: SizedBox.expand(
-                child: Center(child: Text('Stats page', style: theme.textTheme.titleLarge)),
+            /// Add task page
+            Scaffold(
+              /// top bar
+              appBar: AppBar(
+                shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4
+                  )
+                ),
+                elevation: 4,
+                title: const Text('Stats'),
               ),
             ),
 
