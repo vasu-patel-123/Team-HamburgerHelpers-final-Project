@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 /// Flutter code sample for [NavigationBar].
 
 var tasks = [
-  {"title": "Buy milk", "date": "2025-04-12", "priority": "High"},
-  {"title": "Do homework", "date": "2025-04-13", "priority": "Medium"},
+  {"title": "Complete Project Proposal", "date": "Due Today, 5:00 PM", "priority": "High"},
+  {"title": "Team Meeting Prep", "date": "Tomorrow, 10:00 AM", "priority": "High"},
+  {"title": "Review Documentation", "date": "Mar 28, 2025", "priority": "Medium"},
+  {"title": "Update Client Presentation", "date": "Mar 28, 2025", "priority": "Medium"},
+  {"title": "Organize Files", "date": "Mar 29, 2025", "priority": "Low"},
 ];
 
 
@@ -139,6 +142,7 @@ class _NavigationExampleState extends State<NavigationExample> {
               ),
 
               body: ListView.builder(
+                padding: EdgeInsets.all(12),
                 itemCount: tasks.length,
                 itemBuilder: (context, index) {
                   final task = tasks[index];
@@ -162,9 +166,14 @@ class _NavigationExampleState extends State<NavigationExample> {
                     margin: EdgeInsets.symmetric(vertical: 8),
                     padding: EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400, width: 1),
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.grey.shade100,
+                      border: Border(
+                        left: BorderSide(color: priorityColor, width: 6), // colored left edge
+                        top: BorderSide(color: Colors.grey.shade400, width: 1),
+                        right: BorderSide(color: Colors.grey.shade400, width: 1),
+                        bottom: BorderSide(color: Colors.grey.shade400, width: 1),
+                      ),
+                  
+                      
                     ),
                     child: Row(
                       children: [
@@ -181,13 +190,31 @@ class _NavigationExampleState extends State<NavigationExample> {
                             ],
                           ),
                         ),
-                        Text(
-                          priority,
-                          style: TextStyle(
-                            color: priorityColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+
+                        // Priority label with oval background
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: priorityColor, // Background color based on priority
+                            borderRadius: BorderRadius.circular(20), // Oval shape
                           ),
+                          child: Text(
+                            priority,
+                            style: TextStyle(
+                              color: Colors.black, // Black text color
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+
+                        /// edit button
+                        IconButton(
+                          icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
+                          onPressed: () {
+                            // Handle edit logic
+                            print("Edit task: ${task['title']}");
+                          },
                         ),
                       ],
                     ),
