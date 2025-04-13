@@ -1,8 +1,11 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-/// Flutter code sample for [NavigationBar].
+
+
+
 
 var tasks = [
   {"title": "Complete Project Proposal", "date": "Due Today, 5:00 PM", "priority": "High"},
@@ -33,6 +36,61 @@ class NavigationExample extends StatefulWidget {
 class _NavigationExampleState extends State<NavigationExample> {
   int currentPageIndex = 0;
 
+
+  /// the following is For add task page
+
+  // Controllers for text fields
+  TextEditingController taskNameController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController categoryController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+  TextEditingController timeController = TextEditingController();
+  
+  // Date and time
+  DateTime selectedDate = DateTime.now();
+  TimeOfDay selectedTime = TimeOfDay.now();
+  
+  // Priority
+  String priority = 'Low'; // Default priority
+  
+  // Reminder
+  bool setReminder = false;
+
+  // Form Key for validation
+  final _formKey = GlobalKey<FormState>();
+
+  // Date Picker
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+        dateController.text = DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
+  }
+
+  // Time Picker
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+    );
+
+    if (picked != null && picked != selectedTime) {
+      setState(() {
+        selectedTime = picked;
+        timeController.text = picked.format(context);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -48,12 +106,14 @@ class _NavigationExampleState extends State<NavigationExample> {
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            icon: Icon(Icons.home_outlined), 
+            icon: Icon(Icons.home), 
             label: 'Home',
+            tooltip: "",
           ),
           NavigationDestination(
             icon: Icon(Icons.checklist_rounded),
             label: 'Tasks',
+            tooltip: "",
           ),
           NavigationDestination(
             icon: Icon(Icons.add_circle, size: 60),
@@ -62,11 +122,13 @@ class _NavigationExampleState extends State<NavigationExample> {
           ),
           NavigationDestination(
             icon: Icon(Icons.calendar_month),
-            label: 'calendar',
+            label: 'Calendar',
+            tooltip: "",
           ),
           NavigationDestination(
             icon: Icon(Icons.show_chart),
-            label: 'stats',
+            label: 'Stats',
+            tooltip: "",
           ),
         ],
       ),
@@ -236,6 +298,158 @@ class _NavigationExampleState extends State<NavigationExample> {
                 elevation: 4,
                 title: const Text('ADD Task'),
               ),
+              body: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formKey,
+                        child: ListView(
+                          children: <Widget>[
+                            // Task Name
+                            TextFormField(
+                              controller: taskNameController,
+                              decoration: InputDecoration(
+                                labelText: 'Task Name',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a task name';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 12),
+
+                            // Task Due Date/Time
+                            Row(
+                              children: <Widget>[
+                                //Date field
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () => _selectDate(context),
+                                    child: AbsorbPointer(
+                                      child: TextFormField(
+                                        controller: dateController,
+                                        decoration: InputDecoration(
+                                          labelText: 'Due Date',
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                
+                                //time field
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () => _selectTime(context),
+                                    child: AbsorbPointer(
+                                      child: TextFormField(
+                                        controller: timeController,
+                                        decoration: InputDecoration(
+                                          labelText: 'Due Time',
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12),
+
+                            // Priority
+                            DropdownButtonFormField<String>(
+                              value: priority,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  priority = newValue!;
+                                });
+                              },
+                              items: ['Low', 'Medium', 'High']
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                labelText: 'Priority',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            SizedBox(height: 12),
+
+                            // Description
+                            TextFormField(
+                              controller: descriptionController,
+                              maxLines: 4,
+                              decoration: InputDecoration(
+                                labelText: 'Description',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            SizedBox(height: 12),
+
+                            // Category
+                            TextFormField(
+                              controller: categoryController,
+                              decoration: InputDecoration(
+                                labelText: 'Category',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            SizedBox(height: 12),
+
+                            // Reminder Section
+                            SwitchListTile(
+                              title: Text('Set Reminder'),
+                              value: setReminder,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  setReminder = value;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 12),
+
+                            // Submit Button
+                            ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState?.validate() ?? false) {
+                                  Map<String, String> newTask = {
+                                    "title": taskNameController.text,
+                                    "date": dateController.text,
+                                    "time": timeController.text,
+                                    "priority": priority,
+                                    "description": descriptionController.text,
+                                    "category": categoryController.text,
+                                    "reminder": setReminder.toString(), // Convert bool to String
+                                  };
+                                  tasks.add(newTask);
+                                    //  CLEAR all form fields
+                                  setState(() {
+                                    taskNameController.clear();
+                                    descriptionController.clear();
+                                    categoryController.clear();
+                                    dateController.clear();
+                                    timeController.clear();
+
+                                    selectedDate = DateTime.now();
+                                    selectedTime = TimeOfDay.now();
+
+                                    priority = 'Low'; // Reset to default
+                                    setReminder = false;
+                                  });
+                                }
+                              },
+                              child: Text('Save Task'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),  
             ),
 
             /// Calandar page
