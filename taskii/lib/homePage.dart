@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 
-/// Flutter code sample for [NavigationBar].
+
+
 
 var tasks = [
   {"title": "Complete Project Proposal", "date": "Due Today, 5:00 PM", "priority": "High"},
@@ -417,23 +418,16 @@ class _NavigationExampleState extends State<NavigationExample> {
                             ElevatedButton(
                               onPressed: () {
                                 if (_formKey.currentState?.validate() ?? false) {
-                                  // If the form is valid, display a message and perform the task addition logic
-                                  String taskName = taskNameController.text;
-                                  String description = descriptionController.text;
-                                  String category = categoryController.text;
-                                  String taskPriority = priority;
-                                  DateTime taskDueDate = selectedDate;
-                                  TimeOfDay taskDueTime = selectedTime;
-                                  bool taskReminder = setReminder;
-
-                                  // Example: Print the task data (replace with actual save logic)
-                                  print('Task Name: $taskName');
-                                  print('Description: $description');
-                                  print('Category: $category');
-                                  print('Priority: $taskPriority');
-                                  print('Due Date: $taskDueDate');
-                                  print('Due Time: ${taskDueTime.format(context)}');
-                                  print('Reminder: $taskReminder');
+                                  Map<String, String> newTask = {
+                                    "title": taskNameController.text,
+                                    "date": dateController.text,
+                                    "time": timeController.text,
+                                    "priority": priority,
+                                    "description": descriptionController.text,
+                                    "category": categoryController.text,
+                                    "reminder": setReminder.toString(), // Convert bool to String
+                                  };
+                                  tasks.add(newTask);
                                 }
                               },
                               child: Text('Save Task'),
