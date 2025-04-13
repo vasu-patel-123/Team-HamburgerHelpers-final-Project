@@ -428,6 +428,20 @@ class _NavigationExampleState extends State<NavigationExample> {
                                     "reminder": setReminder.toString(), // Convert bool to String
                                   };
                                   tasks.add(newTask);
+                                    //  CLEAR all form fields
+                                  setState(() {
+                                    taskNameController.clear();
+                                    descriptionController.clear();
+                                    categoryController.clear();
+                                    dateController.clear();
+                                    timeController.clear();
+
+                                    selectedDate = DateTime.now();
+                                    selectedTime = TimeOfDay.now();
+
+                                    priority = 'Low'; // Reset to default
+                                    setReminder = false;
+                                  });
                                 }
                               },
                               child: Text('Save Task'),
