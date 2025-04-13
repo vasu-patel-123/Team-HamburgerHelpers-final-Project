@@ -50,10 +50,12 @@ class _NavigationExampleState extends State<NavigationExample> {
           NavigationDestination(
             icon: Icon(Icons.home), 
             label: 'Home',
+            tooltip: "",
           ),
           NavigationDestination(
             icon: Icon(Icons.checklist_rounded),
             label: 'Tasks',
+            tooltip: "",
           ),
           NavigationDestination(
             icon: Icon(Icons.add_circle, size: 60),
@@ -62,11 +64,13 @@ class _NavigationExampleState extends State<NavigationExample> {
           ),
           NavigationDestination(
             icon: Icon(Icons.calendar_month),
-            label: 'calendar',
+            label: 'Calendar',
+            tooltip: "",
           ),
           NavigationDestination(
             icon: Icon(Icons.show_chart),
-            label: 'stats',
+            label: 'Stats',
+            tooltip: "",
           ),
         ],
       ),
