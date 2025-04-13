@@ -1,7 +1,16 @@
+
+
 import 'package:flutter/material.dart';
 
 /// Flutter code sample for [NavigationBar].
 
+var tasks = [
+  {"title": "Complete Project Proposal", "date": "Due Today, 5:00 PM", "priority": "High"},
+  {"title": "Team Meeting Prep", "date": "Tomorrow, 10:00 AM", "priority": "High"},
+  {"title": "Review Documentation", "date": "Mar 28, 2025", "priority": "Medium"},
+  {"title": "Update Client Presentation", "date": "Mar 28, 2025", "priority": "Medium"},
+  {"title": "Organize Files", "date": "Mar 29, 2025", "priority": "Low"},
+];
 
 
 class homePage extends StatelessWidget {
@@ -15,6 +24,7 @@ class homePage extends StatelessWidget {
 
 class NavigationExample extends StatefulWidget {
   const NavigationExample({super.key});
+
 
   @override
   State<NavigationExample> createState() => _NavigationExampleState();
@@ -34,10 +44,11 @@ class _NavigationExampleState extends State<NavigationExample> {
           });
         },
         indicatorColor: Colors.amber,
+        indicatorShape: CircleBorder(),
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
+            icon: Icon(Icons.home_outlined), 
             label: 'Home',
           ),
           NavigationDestination(
@@ -45,8 +56,9 @@ class _NavigationExampleState extends State<NavigationExample> {
             label: 'Tasks',
           ),
           NavigationDestination(
-            icon: Icon(Icons.add_circle),
+            icon: Icon(Icons.add_circle, size: 60),
             label: '',
+            
           ),
           NavigationDestination(
             icon: Icon(Icons.calendar_month),
@@ -128,6 +140,87 @@ class _NavigationExampleState extends State<NavigationExample> {
                   ),
                 ],
               ),
+
+              body: ListView.builder(
+                padding: EdgeInsets.all(12),
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  String priority = task['priority']!;
+                  Color priorityColor;
+
+                  switch (priority) {
+                    case 'High':
+                      priorityColor = Colors.red;
+                      break;
+                    case 'Medium':
+                      priorityColor = Colors.orange; // better contrast than yellow
+                      break;
+                    case 'Low':
+                    default:
+                      priorityColor = Colors.green;
+                      break;
+                  }
+
+                  return Container(
+                    margin: EdgeInsets.symmetric(vertical: 8),
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        left: BorderSide(color: priorityColor, width: 6), // colored left edge
+                        top: BorderSide(color: Colors.grey.shade400, width: 1),
+                        right: BorderSide(color: Colors.grey.shade400, width: 1),
+                        bottom: BorderSide(color: Colors.grey.shade400, width: 1),
+                      ),
+                  
+                      
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(task['title'] ?? '',
+                                  style: TextStyle(
+                                      fontSize: 18, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 4),
+                              Text(task['date'] ?? '',
+                                  style: TextStyle(color: Colors.grey.shade700)),
+                            ],
+                          ),
+                        ),
+
+                        // Priority label with oval background
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: priorityColor, // Background color based on priority
+                            borderRadius: BorderRadius.circular(20), // Oval shape
+                          ),
+                          child: Text(
+                            priority,
+                            style: TextStyle(
+                              color: Colors.black, // Black text color
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+
+                        /// edit button
+                        IconButton(
+                          icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
+                          onPressed: () {
+                            // Handle edit logic
+                            print("Edit task: ${task['title']}");
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              )
             ),
 
             /// Add task page
