@@ -142,10 +142,55 @@ class _NavigationExampleState extends State<NavigationExample> {
                 itemCount: tasks.length,
                 itemBuilder: (context, index) {
                   final task = tasks[index];
-                  return ListTile(
-                    title: Text(task['title']!),
-                    subtitle: Text(task['date']!),
-                    trailing: Text(task['priority']!),
+                  String priority = task['priority']!;
+                  Color priorityColor;
+
+                  switch (priority) {
+                    case 'High':
+                      priorityColor = Colors.red;
+                      break;
+                    case 'Medium':
+                      priorityColor = Colors.orange; // better contrast than yellow
+                      break;
+                    case 'Low':
+                    default:
+                      priorityColor = Colors.green;
+                      break;
+                  }
+
+                  return Container(
+                    margin: EdgeInsets.symmetric(vertical: 8),
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade400, width: 1),
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey.shade100,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(task['title'] ?? '',
+                                  style: TextStyle(
+                                      fontSize: 18, fontWeight: FontWeight.bold)),
+                              SizedBox(height: 4),
+                              Text(task['date'] ?? '',
+                                  style: TextStyle(color: Colors.grey.shade700)),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          priority,
+                          style: TextStyle(
+                            color: priorityColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               )
