@@ -328,26 +328,26 @@ class _NavigationExampleState extends State<NavigationExample> {
                                     onTap: () => _selectDate(context),
                                     child: AbsorbPointer(
                                       child: TextFormField(
+                                        controller: dateController,
                                         decoration: InputDecoration(
                                           labelText: 'Due Date',
-                                          hintText: DateFormat('yyyy-MM-dd').format(selectedDate),
                                           border: OutlineInputBorder(),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 12),
-
+                                SizedBox(height: 12),
+                                
                                 //time field
                                 Expanded(
                                   child: InkWell(
                                     onTap: () => _selectTime(context),
                                     child: AbsorbPointer(
                                       child: TextFormField(
+                                        controller: timeController,
                                         decoration: InputDecoration(
                                           labelText: 'Due Time',
-                                          hintText: selectedTime.format(context),
                                           border: OutlineInputBorder(),
                                         ),
                                       ),
