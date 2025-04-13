@@ -1,6 +1,8 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 
 /// Flutter code sample for [NavigationBar].
 
@@ -32,6 +34,61 @@ class NavigationExample extends StatefulWidget {
 
 class _NavigationExampleState extends State<NavigationExample> {
   int currentPageIndex = 0;
+
+
+  /// the following is For add task page
+
+  // Controllers for text fields
+  TextEditingController taskNameController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController categoryController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+  TextEditingController timeController = TextEditingController();
+  
+  // Date and time
+  DateTime selectedDate = DateTime.now();
+  TimeOfDay selectedTime = TimeOfDay.now();
+  
+  // Priority
+  String priority = 'Low'; // Default priority
+  
+  // Reminder
+  bool setReminder = false;
+
+  // Form Key for validation
+  final _formKey = GlobalKey<FormState>();
+
+  // Date Picker
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+        dateController.text = DateFormat('yyyy-MM-dd').format(picked);
+      });
+    }
+  }
+
+  // Time Picker
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+    );
+
+    if (picked != null && picked != selectedTime) {
+      setState(() {
+        selectedTime = picked;
+        timeController.text = picked.format(context);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -240,6 +297,151 @@ class _NavigationExampleState extends State<NavigationExample> {
                 elevation: 4,
                 title: const Text('ADD Task'),
               ),
+              body: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formKey,
+                        child: ListView(
+                          children: <Widget>[
+                            // Task Name
+                            TextFormField(
+                              controller: taskNameController,
+                              decoration: InputDecoration(
+                                labelText: 'Task Name',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a task name';
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: 12),
+
+                            // Task Due Date/Time
+                            Row(
+                              children: <Widget>[
+                                //Date field
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () => _selectDate(context),
+                                    child: AbsorbPointer(
+                                      child: TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText: 'Due Date',
+                                          hintText: DateFormat('yyyy-MM-dd').format(selectedDate),
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+
+                                //time field
+                                Expanded(
+                                  child: InkWell(
+                                    onTap: () => _selectTime(context),
+                                    child: AbsorbPointer(
+                                      child: TextFormField(
+                                        decoration: InputDecoration(
+                                          labelText: 'Due Time',
+                                          hintText: selectedTime.format(context),
+                                          border: OutlineInputBorder(),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12),
+
+                            // Priority
+                            DropdownButtonFormField<String>(
+                              value: priority,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  priority = newValue!;
+                                });
+                              },
+                              items: ['Low', 'Medium', 'High']
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                labelText: 'Priority',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            SizedBox(height: 12),
+
+                            // Description
+                            TextFormField(
+                              controller: descriptionController,
+                              maxLines: 4,
+                              decoration: InputDecoration(
+                                labelText: 'Description',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            SizedBox(height: 12),
+
+                            // Category
+                            TextFormField(
+                              controller: categoryController,
+                              decoration: InputDecoration(
+                                labelText: 'Category',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            SizedBox(height: 12),
+
+                            // Reminder Section
+                            SwitchListTile(
+                              title: Text('Set Reminder'),
+                              value: setReminder,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  setReminder = value;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 12),
+
+                            // Submit Button
+                            ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState?.validate() ?? false) {
+                                  // If the form is valid, display a message and perform the task addition logic
+                                  String taskName = taskNameController.text;
+                                  String description = descriptionController.text;
+                                  String category = categoryController.text;
+                                  String taskPriority = priority;
+                                  DateTime taskDueDate = selectedDate;
+                                  TimeOfDay taskDueTime = selectedTime;
+                                  bool taskReminder = setReminder;
+
+                                  // Example: Print the task data (replace with actual save logic)
+                                  print('Task Name: $taskName');
+                                  print('Description: $description');
+                                  print('Category: $category');
+                                  print('Priority: $taskPriority');
+                                  print('Due Date: $taskDueDate');
+                                  print('Due Time: ${taskDueTime.format(context)}');
+                                  print('Reminder: $taskReminder');
+                                }
+                              },
+                              child: Text('Save Task'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),  
             ),
 
             /// Calandar page
