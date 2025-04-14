@@ -94,6 +94,7 @@ class _NavigationExampleState extends State<NavigationExample> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
+  CalendarFormat _calendarFormat = CalendarFormat.month;
   Map<DateTime, List<Map<String, String>>> _events = {};
 
   void initState() {
@@ -613,8 +614,14 @@ class _NavigationExampleState extends State<NavigationExample> {
                           firstDay: DateTime(2020),
                           lastDay: DateTime(2100),
                           focusedDay: _focusedDay,
-                          selectedDayPredicate: (day) =>
-                              isSameDay(_selectedDay, day),
+                          selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                          calendarFormat: _calendarFormat,
+                          onFormatChanged: (format) {
+                            setState(() {
+                              _calendarFormat = format;
+                            });
+                          },
+
                           eventLoader: _getTasksForDay,
                           onDaySelected: (selectedDay, focusedDay) {
                             setState(() {
@@ -628,7 +635,14 @@ class _NavigationExampleState extends State<NavigationExample> {
                               shape: BoxShape.circle,
                             ),
                           ),
+                          availableCalendarFormats: const {
+                            CalendarFormat.month: 'Month',
+                            CalendarFormat.twoWeeks: '2 Weeks',
+                            CalendarFormat.week: 'Week',
+                          },
                         ),
+
+
                         const SizedBox(height: 8.0),
                         Expanded(
                           child: _buildTaskList(),
