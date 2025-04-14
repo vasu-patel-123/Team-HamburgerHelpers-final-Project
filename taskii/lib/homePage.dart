@@ -8,11 +8,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 
 var tasks = [
-  {"title": "Complete Project Proposal", "date": "Due Today, 5:00 PM", "priority": "High"},
-  {"title": "Team Meeting Prep", "date": "Tomorrow, 10:00 AM", "priority": "High"},
-  {"title": "Review Documentation", "date": "Mar 28, 2025", "priority": "Medium"},
-  {"title": "Update Client Presentation", "date": "Mar 28, 2025", "priority": "Medium"},
-  {"title": "Organize Files", "date": "Mar 29, 2025", "priority": "Low"},
+
 ];
 
 
