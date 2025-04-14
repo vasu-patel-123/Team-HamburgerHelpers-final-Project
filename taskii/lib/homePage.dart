@@ -521,6 +521,9 @@ class _NavigationExampleState extends State<NavigationExample> {
 
                                     priority = 'Low'; // Reset to default
                                     setReminder = false;
+
+
+                                    _generateEvents(); /// for calendar page
                                   });
                                 }
                               },
