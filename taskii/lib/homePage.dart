@@ -129,43 +129,83 @@ class _NavigationExampleState extends State<NavigationExample> {
     }
 
     return ListView.builder(
+      padding: EdgeInsets.all(12),
       itemCount: tasks.length,
       itemBuilder: (context, index) {
-        var task = tasks[index];
-        return Card(
-          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          child: ListTile(
-            title: Text(task['title'] ?? ''),
-            subtitle: Text(task['description'] ?? ''),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(task['priority'] ?? '',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: _priorityColor(task['priority'] ?? ''))),
-                if (task['time'] != null)
-                  Text(task['time']!, style: TextStyle(fontSize: 12)),
-              ],
+        final task = tasks[index];
+        String priority = task['priority'] ?? 'Low';
+        Color priorityColor;
+
+        switch (priority) {
+          case 'High':
+            priorityColor = Colors.red;
+            break;
+          case 'Medium':
+            priorityColor = Colors.orange;
+            break;
+          case 'Low':
+          default:
+            priorityColor = Colors.green;
+            break;
+        }
+
+        return Container(
+          margin: EdgeInsets.symmetric(vertical: 8),
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            border: Border(
+              left: BorderSide(color: priorityColor, width: 6),
+              top: BorderSide(color: Colors.grey.shade400, width: 1),
+              right: BorderSide(color: Colors.grey.shade400, width: 1),
+              bottom: BorderSide(color: Colors.grey.shade400, width: 1),
             ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(task['title'] ?? '',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 4),
+                    Text(task['date'] ?? '',
+                        style: TextStyle(color: Colors.grey.shade700)),
+                  ],
+                ),
+              ),
+
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: priorityColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  priority,
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+
+              IconButton(
+                icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
+                onPressed: () {
+                  // Optional: open edit form
+                },
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  Color _priorityColor(String priority) {
-    switch (priority.toLowerCase()) {
-      case 'high':
-        return Colors.red;
-      case 'medium':
-        return Colors.orange;
-      case 'low':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
+
 
   List<Map<String, String>> _getTasksForDay(DateTime day) {
     return _events[DateTime(day.year, day.month, day.day)] ?? [];
