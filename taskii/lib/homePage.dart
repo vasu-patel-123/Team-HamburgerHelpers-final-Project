@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+import 'package:table_calendar/table_calendar.dart';
 
 
 
@@ -19,6 +19,7 @@ var tasks = [
 class homePage extends StatelessWidget {
   const homePage({super.key});
 
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(theme: ThemeData(useMaterial3: true), debugShowCheckedModeBanner: false, home: const NavigationExample());
@@ -27,6 +28,8 @@ class homePage extends StatelessWidget {
 
 class NavigationExample extends StatefulWidget {
   const NavigationExample({super.key});
+  
+  get calendartasks => tasks;
 
 
   @override
@@ -89,6 +92,87 @@ class _NavigationExampleState extends State<NavigationExample> {
         timeController.text = picked.format(context);
       });
     }
+  }
+
+///THe following is for Calendar page
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+
+  Map<DateTime, List<Map<String, String>>> _events = {};
+
+  void initState() {
+    super.initState();
+    _selectedDay = _focusedDay;
+    _generateEvents();
+  }
+
+  void _generateEvents() {
+    Map<DateTime, List<Map<String, String>>> tempEvents = {};
+
+    for (var task in widget.calendartasks) {
+      if (task['date'] != null) {
+        DateTime date = DateFormat('yyyy-MM-dd').parse(task['date']!);
+
+        if (!tempEvents.containsKey(date)) {
+          tempEvents[date] = [];
+        }
+        tempEvents[date]!.add(task);
+      }
+    }
+
+    setState(() {
+      _events = tempEvents;
+    });
+  }
+
+  Widget _buildTaskList() {
+    final tasks = _getTasksForDay(_selectedDay!);
+
+    if (tasks.isEmpty) {
+      return Center(child: Text('No tasks for this day'));
+    }
+
+    return ListView.builder(
+      itemCount: tasks.length,
+      itemBuilder: (context, index) {
+        var task = tasks[index];
+        return Card(
+          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: ListTile(
+            title: Text(task['title'] ?? ''),
+            subtitle: Text(task['description'] ?? ''),
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(task['priority'] ?? '',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: _priorityColor(task['priority'] ?? ''))),
+                if (task['time'] != null)
+                  Text(task['time']!, style: TextStyle(fontSize: 12)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Color _priorityColor(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'high':
+        return Colors.red;
+      case 'medium':
+        return Colors.orange;
+      case 'low':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  List<Map<String, String>> _getTasksForDay(DateTime day) {
+    return _events[DateTime(day.year, day.month, day.day)] ?? [];
   }
 
   @override
@@ -464,8 +548,9 @@ class _NavigationExampleState extends State<NavigationExample> {
                 ),
                 elevation: 4,
                 title: const Text('Calendar'),
-                /// profile button
+                
                 actions: <Widget>[
+                  /// add button
                   IconButton(
                     icon: const Icon(Icons.add),
                     
@@ -473,7 +558,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                       // handle the press
                     },
                   ),
-
+                  /// filter button
                   IconButton(
                     icon: const Icon(Icons.filter_list),
                     
@@ -483,6 +568,34 @@ class _NavigationExampleState extends State<NavigationExample> {
                   ),
                 ],
               ),
+              body: Column(
+                      children: [
+                        TableCalendar(
+                          firstDay: DateTime(2020),
+                          lastDay: DateTime(2100),
+                          focusedDay: _focusedDay,
+                          selectedDayPredicate: (day) =>
+                              isSameDay(_selectedDay, day),
+                          eventLoader: _getTasksForDay,
+                          onDaySelected: (selectedDay, focusedDay) {
+                            setState(() {
+                              _selectedDay = selectedDay;
+                              _focusedDay = focusedDay;
+                            });
+                          },
+                          calendarStyle: CalendarStyle(
+                            markerDecoration: BoxDecoration(
+                              color: Colors.blue,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8.0),
+                        Expanded(
+                          child: _buildTaskList(),
+                        ),
+                      ],
+                    ),
             ),
 
             /// Stats page
