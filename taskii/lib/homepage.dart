@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
-
-var tasks = [
-
-];
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:uuid/uuid.dart';
+import '../models/task.dart';
+import '../services/task_service.dart';
 
 class homePage extends StatelessWidget {
   const homePage({super.key});
 
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(theme: ThemeData(useMaterial3: true), debugShowCheckedModeBanner: false, home: const NavigationExample());
+    return MaterialApp(
+      theme: ThemeData(useMaterial3: true), 
+      debugShowCheckedModeBanner: false, 
+      home: const NavigationExample()
+    );
   }
 }
 
 class NavigationExample extends StatefulWidget {
   const NavigationExample({super.key});
-  
-  get calendartasks => tasks;
-
 
   @override
   State<NavigationExample> createState() => _NavigationExampleState();
@@ -29,9 +28,26 @@ class NavigationExample extends StatefulWidget {
 
 class _NavigationExampleState extends State<NavigationExample> {
   int currentPageIndex = 0;
+  final TaskService _taskService = TaskService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  List<Task> _tasks = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks();
+  }
 
-  /// the following is For add task page
+  void _loadTasks() {
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      _taskService.getUserTasks(userId).listen((tasks) {
+        setState(() {
+          _tasks = tasks;
+        });
+      });
+    }
+  }
 
   // Controllers for text fields
   TextEditingController taskNameController = TextEditingController();
@@ -103,14 +119,14 @@ class _NavigationExampleState extends State<NavigationExample> {
   void _generateEvents() {
     Map<DateTime, List<Map<String, String>>> tempEvents = {};
 
-    for (var task in widget.calendartasks) {
-      if (task['date'] != null) {
-        DateTime date = DateFormat('yyyy-MM-dd').parse(task['date']!);
+    for (var task in _tasks) {
+      if (task.dueDate != null) {
+        DateTime date = task.dueDate!;
 
         if (!tempEvents.containsKey(date)) {
           tempEvents[date] = [];
         }
-        tempEvents[date]!.add(task);
+        tempEvents[date]!.add(task.toJson());
       }
     }
 
@@ -323,10 +339,10 @@ class _NavigationExampleState extends State<NavigationExample> {
 
               body: ListView.builder(
                 padding: EdgeInsets.all(12),
-                itemCount: tasks.length,
+                itemCount: _tasks.length,
                 itemBuilder: (context, index) {
-                  final task = tasks[index];
-                  String priority = task['priority']!;
+                  final task = _tasks[index];
+                  String priority = task.priority ?? 'Low';
                   Color priorityColor;
 
                   switch (priority) {
@@ -361,11 +377,11 @@ class _NavigationExampleState extends State<NavigationExample> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(task['title'] ?? '',
+                              Text(task.title ?? '',
                                   style: TextStyle(
                                       fontSize: 18, fontWeight: FontWeight.bold)),
                               SizedBox(height: 4),
-                              Text(task['date'] ?? '',
+                              Text(task.dueDate != null ? DateFormat('yyyy-MM-dd').format(task.dueDate!) : '',
                                   style: TextStyle(color: Colors.grey.shade700)),
                             ],
                           ),
@@ -393,7 +409,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
                           onPressed: () {
                             // Handle edit logic
-                            print("Edit task: ${task['title']}");
+                            print("Edit task: ${task.title}");
                           },
                         ),
                       ],
@@ -536,33 +552,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                             ElevatedButton(
                               onPressed: () {
                                 if (_formKey.currentState?.validate() ?? false) {
-                                  Map<String, String> newTask = {
-                                    "title": taskNameController.text,
-                                    "date": dateController.text,
-                                    "time": timeController.text,
-                                    "priority": priority,
-                                    "description": descriptionController.text,
-                                    "category": categoryController.text,
-                                    "reminder": setReminder.toString(), // Convert bool to String
-                                  };
-                                  tasks.add(newTask);
-                                    //  CLEAR all form fields
-                                  setState(() {
-                                    taskNameController.clear();
-                                    descriptionController.clear();
-                                    categoryController.clear();
-                                    dateController.clear();
-                                    timeController.clear();
-
-                                    selectedDate = DateTime.now();
-                                    selectedTime = TimeOfDay.now();
-
-                                    priority = 'Low'; // Reset to default
-                                    setReminder = false;
-
-
-                                    _generateEvents(); /// for calendar page
-                                  });
+                                  _addTask();
                                 }
                               },
                               child: Text('Save Task'),
@@ -666,5 +656,49 @@ class _NavigationExampleState extends State<NavigationExample> {
 
           ][currentPageIndex],
     );
+  }
+
+  Future<void> _addTask() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return;
+
+    final task = Task(
+      id: const Uuid().v4(),
+      title: taskNameController.text,
+      description: descriptionController.text,
+      dueDate: DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        selectedTime.hour,
+        selectedTime.minute,
+      ),
+      priority: priority,
+      userId: userId,
+    );
+
+    await _taskService.createTask(task);
+    
+    // Clear controllers
+    taskNameController.clear();
+    descriptionController.clear();
+    categoryController.clear();
+    dateController.clear();
+    timeController.clear();
+    
+    // Reset to default values
+    setState(() {
+      selectedDate = DateTime.now();
+      selectedTime = TimeOfDay.now();
+      priority = 'Low';
+    });
+  }
+
+  Future<void> _toggleTaskCompletion(Task task) async {
+    await _taskService.toggleTaskCompletion(task.id, !task.isCompleted);
+  }
+
+  Future<void> _deleteTask(String taskId) async {
+    await _taskService.deleteTask(taskId);
   }
 }
