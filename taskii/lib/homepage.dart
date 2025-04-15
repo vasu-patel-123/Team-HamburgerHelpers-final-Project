@@ -162,7 +162,7 @@ class _NavigationExampleState extends State<NavigationExample> {
     Map<DateTime, List<Map<String, String>>> tempEvents = {};
 
     for (var task in _tasks) {
-      DateTime date = task.dueDate!;
+      DateTime date = task.dueDate;
 
       if (!tempEvents.containsKey(date)) {
         tempEvents[date] = [];
@@ -173,7 +173,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         'title': task.title,
         'description': task.description ?? '',
         'priority': task.priority ?? 'Low',
-        'date': DateFormat('yyyy-MM-dd').format(task.dueDate!),
+        'date': DateFormat('yyyy-MM-dd').format(task.dueDate),
         'id': task.id,
       };
       
