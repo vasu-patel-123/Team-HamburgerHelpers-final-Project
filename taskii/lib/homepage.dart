@@ -1,11 +1,6 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
-
-
-
 
 var tasks = [
 
@@ -97,6 +92,8 @@ class _NavigationExampleState extends State<NavigationExample> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   Map<DateTime, List<Map<String, String>>> _events = {};
 
+  @override
+  @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
