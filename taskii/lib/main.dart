@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'signup.dart';
+import 'sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'homePage.dart';
+import 'home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -121,9 +121,9 @@ class LoginPageSignUp extends StatelessWidget {
                     .authStateChanges()
                     .listen((User? user) {
                       if (user == null) {
-                        print('User is currently signed out!');
+                        debugPrint('User is currently signed out!');
                       } else {
-                        print('User is signed in!');
+                        debugPrint('User is signed in!');
                       }
                     });
                 },
@@ -149,7 +149,7 @@ class LoginPageSignUp extends StatelessWidget {
             const SizedBox(height: 24),
             TextButton(
               onPressed: () {
-                print('Forgot password pressed');
+                debugPrint('Forgot password pressed');
               },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
@@ -180,7 +180,7 @@ class LoginPageSignUp extends StatelessWidget {
             const SizedBox(height: 4),
             TextButton(
               onPressed: () {
-                print('Sign up pressed');
+                debugPrint('Sign up pressed');
                   Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SignUpPage()),
@@ -204,10 +204,10 @@ class LoginPageSignUp extends StatelessWidget {
             const SizedBox(height: 24),
             TextButton(
               onPressed: () {
-                print('home page pushed');
+                debugPrint('Home page navigation');
                   Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const homePage()),
+                  MaterialPageRoute(builder: (context) => const HomePage()),
                 );
               },
               style: TextButton.styleFrom(
