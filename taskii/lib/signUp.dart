@@ -150,12 +150,36 @@ class SignUpPage extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                onPressed: () {
-                  print('Sign Up Pressed');
-                  // Add your sign-up logic here
-                  //FirebaseAuth.instance
-                      //.createUserWithEmailAndPassword(
-                        //email: '
+                onPressed: () async {
+                  final emailController = TextEditingController();
+                  final passwordController = TextEditingController();
+
+                  // Retrieve email and password from the text fields
+                  final email = emailController.text.trim();
+                  final password = passwordController.text.trim();
+
+                  if (email.isEmpty || password.isEmpty) {
+                    print('Email and password cannot be empty.');
+                  return;
+                  }
+
+                  try {
+                  final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                    email: email,
+                    password: password,
+                  );
+                  print('User signed up successfully: ${credential.user?.email}');
+                  } on FirebaseAuthException catch (e) {
+                  if (e.code == 'weak-password') {
+                    print('The password provided is too weak.');
+                  } else if (e.code == 'email-already-in-use') {
+                    print('The account already exists for that email.');
+                  } else {
+                    print('Error: ${e.message}');
+                  }
+                  } catch (e) {
+                  print('An unexpected error occurred: $e');
+                  }
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF171717),
