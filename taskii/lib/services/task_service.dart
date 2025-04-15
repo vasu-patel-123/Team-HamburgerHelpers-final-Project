@@ -7,41 +7,74 @@ class TaskService {
 
   // Create a new task
   Future<void> createTask(Task task) async {
-    await _database.child(_tasksPath).child(task.id).set(task.toJson());
+    try {
+      await _database.child(_tasksPath).child(task.id).set(task.toJson());
+    } catch (e) {
+      throw Exception('Failed to create task: ${e.toString()}');
+    }
   }
 
   // Update an existing task
   Future<void> updateTask(Task task) async {
-    await _database.child(_tasksPath).child(task.id).update(task.toJson());
+    try {
+      await _database.child(_tasksPath).child(task.id).update(task.toJson());
+    } catch (e) {
+      throw Exception('Failed to update task: ${e.toString()}');
+    }
   }
 
   // Delete a task
   Future<void> deleteTask(String taskId) async {
-    await _database.child(_tasksPath).child(taskId).remove();
+    try {
+      await _database.child(_tasksPath).child(taskId).remove();
+    } catch (e) {
+      throw Exception('Failed to delete task: ${e.toString()}');
+    }
   }
 
   // Get all tasks for a specific user
   Stream<List<Task>> getUserTasks(String userId) {
-    return _database
-        .child(_tasksPath)
-        .orderByChild('userId')
-        .equalTo(userId)
-        .onValue
-        .map((event) {
-      if (event.snapshot.value == null) return [];
-      
-      final Map<dynamic, dynamic> tasksMap = event.snapshot.value as Map<dynamic, dynamic>;
-      return tasksMap.values
-          .map((taskData) => Task.fromJson(Map<String, dynamic>.from(taskData)))
-          .toList();
-    });
+    try {
+      return _database
+          .child(_tasksPath)
+          .orderByChild('userId')
+          .equalTo(userId)
+          .onValue
+          .map((event) {
+        if (event.snapshot.value == null) return [];
+        
+        final Map<dynamic, dynamic> tasksMap = event.snapshot.value as Map<dynamic, dynamic>;
+        return tasksMap.values
+            .map((taskData) => Task.fromJson(Map<String, dynamic>.from(taskData)))
+            .toList();
+      });
+    } catch (e) {
+      throw Exception('Failed to fetch tasks: ${e.toString()}');
+    }
   }
 
   // Toggle task completion status
   Future<void> toggleTaskCompletion(String taskId, bool isCompleted) async {
-    await _database
-        .child(_tasksPath)
-        .child(taskId)
-        .update({'isCompleted': isCompleted});
+    try {
+      await _database
+          .child(_tasksPath)
+          .child(taskId)
+          .update({'isCompleted': isCompleted});
+    } catch (e) {
+      throw Exception('Failed to toggle task completion: ${e.toString()}');
+    }
+  }
+
+  // Get a single task by ID
+  Future<Task?> getTaskById(String taskId) async {
+    try {
+      final snapshot = await _database.child(_tasksPath).child(taskId).get();
+      if (snapshot.exists) {
+        return Task.fromJson(Map<String, dynamic>.from(snapshot.value as Map));
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Failed to fetch task: ${e.toString()}');
+    }
   }
 } 
