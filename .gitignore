@@ -39,3 +39,5 @@ taskii/windows/flutter/generated_plugin_registrant.cc
 taskii/windows/flutter/generated_plugins.cmake
 taskii/macos/Flutter/GeneratedPluginRegistrant.swift
 taskii/ios/Podfile.lock
+taskii/ios/Runner.xcworkspace/contents.xcworkspacedata
+taskii/ios/Runner.xcodeproj/project.pbxproj
