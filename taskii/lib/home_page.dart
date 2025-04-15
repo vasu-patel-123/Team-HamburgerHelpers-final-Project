@@ -167,8 +167,8 @@ class _NavigationExampleState extends State<NavigationExample> {
       // Convert task to Map<String, String>
       Map<String, String> taskMap = {
         'title': task.title,
-        'description': task.description ?? '',
-        'priority': task.priority ?? 'Low',
+        'description': task.description,
+        'priority': task.priority,
         'date': DateFormat('yyyy-MM-dd').format(task.dueDate),
         'id': task.id,
       };
@@ -277,7 +277,6 @@ class _NavigationExampleState extends State<NavigationExample> {
       return _buildErrorWidget();
     }
 
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -387,9 +386,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                 itemCount: _tasks.length,
                 itemBuilder: (context, index) {
                   final task = _tasks[index];
-                  String priority = task.priority ?? 'Low';
+                  String priority = task.priority;
                   Color priorityColor;
-
                   switch (priority) {
                     case 'High':
                       priorityColor = Colors.red;
@@ -420,11 +418,11 @@ class _NavigationExampleState extends State<NavigationExample> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(task.title ?? '',
+                              Text(task.title,
                                   style: TextStyle(
                                       fontSize: 18, fontWeight: FontWeight.bold)),
                               SizedBox(height: 4),
-                              Text(task.dueDate != null ? DateFormat('yyyy-MM-dd').format(task.dueDate) : '',
+                              Text(DateFormat('yyyy-MM-dd').format(task.dueDate),
                                   style: TextStyle(color: Colors.grey.shade700)),
                             ],
                           ),
@@ -452,7 +450,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
                           onPressed: () {
                             // Handle edit logic
-                            print("Edit task: ${task.title}");
+                            debugPrint("Edit task: ${task.title}");
                           },
                         ),
                       ],
@@ -787,21 +785,5 @@ class _NavigationExampleState extends State<NavigationExample> {
     }
   }
 
-  Future<void> _toggleTaskCompletion(Task task) async {
-    try {
-      await _taskService.toggleTaskCompletion(task.id, !task.isCompleted);
-      _showSuccessSnackBar('Task ${task.isCompleted ? 'completed' : 'marked as incomplete'}');
-    } catch (e) {
-      _showErrorSnackBar('Failed to update task: ${e.toString()}');
-    }
-  }
 
-  Future<void> _deleteTask(String taskId) async {
-    try {
-      await _taskService.deleteTask(taskId);
-      _showSuccessSnackBar('Task deleted successfully');
-    } catch (e) {
-      _showErrorSnackBar('Failed to delete task: ${e.toString()}');
-    }
-  }
 }
