@@ -6,14 +6,14 @@ import 'package:uuid/uuid.dart';
 import '../models/task.dart';
 import '../services/task_service.dart';
 
-class homePage extends StatelessWidget {
-  const homePage({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(useMaterial3: true), 
-      debugShowCheckedModeBanner: false, 
+      theme: ThemeData(useMaterial3: true),
+      debugShowCheckedModeBanner: false,
       home: const NavigationExample()
     );
   }
@@ -40,14 +40,11 @@ class _NavigationExampleState extends State<NavigationExample> {
   TextEditingController categoryController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController timeController = TextEditingController();
-  
   // Date and time
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
-  
   // Priority
   String priority = 'Low'; // Default priority
-  
   // Reminder
   bool setReminder = false;
 
@@ -167,7 +164,6 @@ class _NavigationExampleState extends State<NavigationExample> {
       if (!tempEvents.containsKey(date)) {
         tempEvents[date] = [];
       }
-      
       // Convert task to Map<String, String>
       Map<String, String> taskMap = {
         'title': task.title,
@@ -176,10 +172,8 @@ class _NavigationExampleState extends State<NavigationExample> {
         'date': DateFormat('yyyy-MM-dd').format(task.dueDate),
         'id': task.id,
       };
-      
       tempEvents[date]!.add(taskMap);
         }
-
     setState(() {
       _events = tempEvents;
     });
@@ -308,7 +302,6 @@ class _NavigationExampleState extends State<NavigationExample> {
           NavigationDestination(
             icon: Icon(Icons.add_circle, size: 60),
             label: '',
-            
           ),
           NavigationDestination(
             icon: Icon(Icons.calendar_month),
@@ -340,7 +333,6 @@ class _NavigationExampleState extends State<NavigationExample> {
                 actions: <Widget>[
                   IconButton(
                     icon: const Icon(Icons.person_2_outlined),
-                    
                     onPressed: () {
                       // handle the press
                     },
@@ -361,16 +353,13 @@ class _NavigationExampleState extends State<NavigationExample> {
                 ),
                 elevation: 4,
                 title: const Text('Tasks'),
-                
                 /// profile button
                 actions: <Widget>[
                   SizedBox(
                     width: 100,
-                    
                     child: TextButton(
                       onPressed: () {
-                        print('add task pushed');
-                        
+                        debugPrint('Add task pressed');
                       },
                       style: TextButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 120, 205, 233),
@@ -424,8 +413,6 @@ class _NavigationExampleState extends State<NavigationExample> {
                         right: BorderSide(color: Colors.grey.shade400, width: 1),
                         bottom: BorderSide(color: Colors.grey.shade400, width: 1),
                       ),
-                  
-                      
                     ),
                     child: Row(
                       children: [
@@ -529,7 +516,6 @@ class _NavigationExampleState extends State<NavigationExample> {
                                   ),
                                 ),
                                 SizedBox(height: 12),
-                                
                                 //time field
                                 Expanded(
                                   child: InkWell(
@@ -616,7 +602,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           ],
                         ),
                       ),
-                    ),  
+                    ),
             ),
 
             /// Calandar page
