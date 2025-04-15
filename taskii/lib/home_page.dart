@@ -452,7 +452,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
                           onPressed: () {
                             // Handle edit logic
-                            print("Edit task: ${task.title}");
+                            debugPrint("Edit task: ${task.title}");
                           },
                         ),
                       ],
