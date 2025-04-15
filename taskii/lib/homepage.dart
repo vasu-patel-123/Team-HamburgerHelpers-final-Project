@@ -31,6 +31,8 @@ class _NavigationExampleState extends State<NavigationExample> {
   final TaskService _taskService = TaskService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<Task> _tasks = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -39,14 +41,61 @@ class _NavigationExampleState extends State<NavigationExample> {
   }
 
   void _loadTasks() {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
     final userId = _auth.currentUser?.uid;
     if (userId != null) {
-      _taskService.getUserTasks(userId).listen((tasks) {
-        setState(() {
-          _tasks = tasks;
-        });
+      _taskService.getUserTasks(userId).listen(
+        (tasks) {
+          setState(() {
+            _tasks = tasks;
+            _isLoading = false;
+          });
+        },
+        onError: (error) {
+          setState(() {
+            _errorMessage = error.toString();
+            _isLoading = false;
+          });
+          _showErrorSnackBar(error.toString());
+        },
+      );
+    } else {
+      setState(() {
+        _errorMessage = 'User not authenticated';
+        _isLoading = false;
       });
     }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: 'Dismiss',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 
   // Controllers for text fields
@@ -227,6 +276,14 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return _buildLoadingIndicator();
+    }
+
+    if (_errorMessage != null) {
+      return _buildErrorWidget();
+    }
+
     final ThemeData theme = Theme.of(context);
     return Scaffold(
       bottomNavigationBar: NavigationBar(
@@ -658,47 +715,108 @@ class _NavigationExampleState extends State<NavigationExample> {
     );
   }
 
+  Widget _buildLoadingIndicator() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.error_outline,
+            color: Colors.red,
+            size: 48,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _errorMessage ?? 'An error occurred',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.red),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _loadTasks,
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _addTask() async {
     final userId = _auth.currentUser?.uid;
-    if (userId == null) return;
+    if (userId == null) {
+      _showErrorSnackBar('User not authenticated');
+      return;
+    }
 
-    final task = Task(
-      id: const Uuid().v4(),
-      title: taskNameController.text,
-      description: descriptionController.text,
-      dueDate: DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-        selectedTime.hour,
-        selectedTime.minute,
-      ),
-      priority: priority,
-      userId: userId,
-    );
-
-    await _taskService.createTask(task);
-    
-    // Clear controllers
-    taskNameController.clear();
-    descriptionController.clear();
-    categoryController.clear();
-    dateController.clear();
-    timeController.clear();
-    
-    // Reset to default values
     setState(() {
-      selectedDate = DateTime.now();
-      selectedTime = TimeOfDay.now();
-      priority = 'Low';
+      _isLoading = true;
+      _errorMessage = null;
     });
+
+    try {
+      final task = Task(
+        id: const Uuid().v4(),
+        title: taskNameController.text,
+        description: descriptionController.text,
+        dueDate: DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+          selectedTime.hour,
+          selectedTime.minute,
+        ),
+        priority: priority,
+        userId: userId,
+      );
+
+      await _taskService.createTask(task);
+      
+      // Clear controllers
+      taskNameController.clear();
+      descriptionController.clear();
+      categoryController.clear();
+      dateController.clear();
+      timeController.clear();
+      
+      // Reset to default values
+      setState(() {
+        selectedDate = DateTime.now();
+        selectedTime = TimeOfDay.now();
+        priority = 'Low';
+        _isLoading = false;
+      });
+
+      _showSuccessSnackBar('Task created successfully!');
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+      _showErrorSnackBar(e.toString());
+    }
   }
 
   Future<void> _toggleTaskCompletion(Task task) async {
-    await _taskService.toggleTaskCompletion(task.id, !task.isCompleted);
+    try {
+      await _taskService.toggleTaskCompletion(task.id, !task.isCompleted);
+      _showSuccessSnackBar('Task ${task.isCompleted ? 'completed' : 'marked as incomplete'}');
+    } catch (e) {
+      _showErrorSnackBar('Failed to update task: ${e.toString()}');
+    }
   }
 
   Future<void> _deleteTask(String taskId) async {
-    await _taskService.deleteTask(taskId);
+    try {
+      await _taskService.deleteTask(taskId);
+      _showSuccessSnackBar('Task deleted successfully');
+    } catch (e) {
+      _showErrorSnackBar('Failed to delete task: ${e.toString()}');
+    }
   }
 }

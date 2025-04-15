@@ -2,12 +2,33 @@ import 'package:firebase_database/firebase_database.dart';
 import '../models/task.dart';
 
 class TaskService {
-  final DatabaseReference _database = FirebaseDatabase.instance.ref();
+  final DatabaseReference _database;
   final String _tasksPath = 'tasks';
+
+  TaskService() {
+    // Enable offline persistence
+    _database = FirebaseDatabase.instance.ref();
+    FirebaseDatabase.instance.setPersistenceEnabled(true);
+    FirebaseDatabase.instance.setPersistenceCacheSizeBytes(10000000); // 10MB cache
+  }
+
+  // Validate task data before saving
+  void _validateTask(Task task) {
+    if (task.title.isEmpty) {
+      throw Exception('Task title cannot be empty');
+    }
+    if (task.userId.isEmpty) {
+      throw Exception('User ID cannot be empty');
+    }
+    if (task.dueDate.isBefore(DateTime.now())) {
+      throw Exception('Due date cannot be in the past');
+    }
+  }
 
   // Create a new task
   Future<void> createTask(Task task) async {
     try {
+      _validateTask(task);
       await _database.child(_tasksPath).child(task.id).set(task.toJson());
     } catch (e) {
       throw Exception('Failed to create task: ${e.toString()}');
@@ -17,6 +38,7 @@ class TaskService {
   // Update an existing task
   Future<void> updateTask(Task task) async {
     try {
+      _validateTask(task);
       await _database.child(_tasksPath).child(task.id).update(task.toJson());
     } catch (e) {
       throw Exception('Failed to update task: ${e.toString()}');
