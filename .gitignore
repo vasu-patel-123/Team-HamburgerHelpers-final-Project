@@ -41,3 +41,5 @@ taskii/macos/Flutter/GeneratedPluginRegistrant.swift
 taskii/ios/Podfile.lock
 taskii/ios/Runner.xcworkspace/contents.xcworkspacedata
 taskii/ios/Runner.xcodeproj/project.pbxproj
+/taskii/ios/Runner.xcworkspace/xcshareddata
+taskii/ios/Podfile.lock
