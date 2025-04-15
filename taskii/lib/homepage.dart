@@ -34,9 +34,36 @@ class _NavigationExampleState extends State<NavigationExample> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  // Controllers for text fields
+  TextEditingController taskNameController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController categoryController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
+  TextEditingController timeController = TextEditingController();
+  
+  // Date and time
+  DateTime selectedDate = DateTime.now();
+  TimeOfDay selectedTime = TimeOfDay.now();
+  
+  // Priority
+  String priority = 'Low'; // Default priority
+  
+  // Reminder
+  bool setReminder = false;
+
+  // Form Key for validation
+  final _formKey = GlobalKey<FormState>();
+
+  // Calendar related variables
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  Map<DateTime, List<Map<String, String>>> _events = {};
+
   @override
   void initState() {
     super.initState();
+    _selectedDay = _focusedDay;
     _loadTasks();
   }
 
@@ -53,6 +80,7 @@ class _NavigationExampleState extends State<NavigationExample> {
           setState(() {
             _tasks = tasks;
             _isLoading = false;
+            _generateEvents(); // Generate events after tasks are loaded
           });
         },
         onError: (error) {
@@ -98,26 +126,6 @@ class _NavigationExampleState extends State<NavigationExample> {
     );
   }
 
-  // Controllers for text fields
-  TextEditingController taskNameController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
-  TextEditingController categoryController = TextEditingController();
-  TextEditingController dateController = TextEditingController();
-  TextEditingController timeController = TextEditingController();
-  
-  // Date and time
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedTime = TimeOfDay.now();
-  
-  // Priority
-  String priority = 'Low'; // Default priority
-  
-  // Reminder
-  bool setReminder = false;
-
-  // Form Key for validation
-  final _formKey = GlobalKey<FormState>();
-
   // Date Picker
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -150,21 +158,6 @@ class _NavigationExampleState extends State<NavigationExample> {
     }
   }
 
-///THe following is for Calendar page
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  Map<DateTime, List<Map<String, String>>> _events = {};
-
-  @override
-  @override
-  void initState() {
-    super.initState();
-    _selectedDay = _focusedDay;
-    _generateEvents();
-  }
-
   void _generateEvents() {
     Map<DateTime, List<Map<String, String>>> tempEvents = {};
 
@@ -175,7 +168,17 @@ class _NavigationExampleState extends State<NavigationExample> {
         if (!tempEvents.containsKey(date)) {
           tempEvents[date] = [];
         }
-        tempEvents[date]!.add(task.toJson());
+        
+        // Convert task to Map<String, String>
+        Map<String, String> taskMap = {
+          'title': task.title,
+          'description': task.description ?? '',
+          'priority': task.priority ?? 'Low',
+          'date': DateFormat('yyyy-MM-dd').format(task.dueDate!),
+          'id': task.id,
+        };
+        
+        tempEvents[date]!.add(taskMap);
       }
     }
 
@@ -267,8 +270,6 @@ class _NavigationExampleState extends State<NavigationExample> {
       },
     );
   }
-
-
 
   List<Map<String, String>> _getTasksForDay(DateTime day) {
     return _events[DateTime(day.year, day.month, day.day)] ?? [];
