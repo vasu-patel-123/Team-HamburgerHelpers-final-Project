@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'TermsConditions.dart';
-
-
+import 'package:firebase_auth/firebase_auth.dart';
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
 
@@ -25,7 +24,6 @@ class SignUpPage extends StatelessWidget {
                   ],
                 ),
               ),
-              
               // Logo and Title
               const SizedBox(height: 80),
               const Icon(
@@ -120,10 +118,8 @@ class SignUpPage extends StatelessWidget {
                     fontWeight: FontWeight.w400,
               ),
             ),
-            
             //terms and conditions button
             const SizedBox(height: 16),
-          
             TextButton(
                 onPressed: () {
                   print('Terms and conditions pressed ');
@@ -131,7 +127,6 @@ class SignUpPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (context) => const Termsconditions()),
                 );
-                  
                 },
                 style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
@@ -148,17 +143,41 @@ class SignUpPage extends StatelessWidget {
                   ),
                 ),
               ),
-            
-
-
             //signup button
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                onPressed: () {
-                  print('Sign Up button pressed1 ');
-                  
+                onPressed: () async {
+                  final emailController = TextEditingController();
+                  final passwordController = TextEditingController();
+
+                  // Retrieve email and password from the text fields
+                  final email = emailController.text.trim();
+                  final password = passwordController.text.trim();
+
+                  if (email.isEmpty || password.isEmpty) {
+                    print('Email and password cannot be empty.');
+                  return;
+                  }
+
+                  try {
+                  final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                    email: email,
+                    password: password,
+                  );
+                  print('User signed up successfully: ${credential.user?.email}');
+                  } on FirebaseAuthException catch (e) {
+                  if (e.code == 'weak-password') {
+                    print('The password provided is too weak.');
+                  } else if (e.code == 'email-already-in-use') {
+                    print('The account already exists for that email.');
+                  } else {
+                    print('Error: ${e.message}');
+                  }
+                  } catch (e) {
+                  print('An unexpected error occurred: $e');
+                  }
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF171717),
@@ -201,8 +220,6 @@ class SignUpPage extends StatelessWidget {
                 ),
               ),
             ),
-
-            
             ],
           ),
         ),
