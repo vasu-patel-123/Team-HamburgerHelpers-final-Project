@@ -27,6 +27,10 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 3.0
+  
+    - name: Install dependencies
+      working-directory: ./taskii
+      run: flutter pub get
 
     - name: Install CocoaPods
       run: pod install
@@ -34,10 +38,6 @@ jobs:
 
     - name: Change to project directory
       run: cd taskii
-
-    - name: Install dependencies
-      working-directory: ./taskii
-      run: flutter pub get
 
     - name: Analyze project source
       working-directory: ./taskii
