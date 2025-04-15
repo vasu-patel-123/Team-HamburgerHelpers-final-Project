@@ -162,25 +162,23 @@ class _NavigationExampleState extends State<NavigationExample> {
     Map<DateTime, List<Map<String, String>>> tempEvents = {};
 
     for (var task in _tasks) {
-      if (task.dueDate != null) {
-        DateTime date = task.dueDate!;
+      DateTime date = task.dueDate!;
 
-        if (!tempEvents.containsKey(date)) {
-          tempEvents[date] = [];
-        }
-        
-        // Convert task to Map<String, String>
-        Map<String, String> taskMap = {
-          'title': task.title,
-          'description': task.description ?? '',
-          'priority': task.priority ?? 'Low',
-          'date': DateFormat('yyyy-MM-dd').format(task.dueDate!),
-          'id': task.id,
-        };
-        
-        tempEvents[date]!.add(taskMap);
+      if (!tempEvents.containsKey(date)) {
+        tempEvents[date] = [];
       }
-    }
+      
+      // Convert task to Map<String, String>
+      Map<String, String> taskMap = {
+        'title': task.title,
+        'description': task.description ?? '',
+        'priority': task.priority ?? 'Low',
+        'date': DateFormat('yyyy-MM-dd').format(task.dueDate!),
+        'id': task.id,
+      };
+      
+      tempEvents[date]!.add(taskMap);
+        }
 
     setState(() {
       _events = tempEvents;
@@ -439,7 +437,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                                   style: TextStyle(
                                       fontSize: 18, fontWeight: FontWeight.bold)),
                               SizedBox(height: 4),
-                              Text(task.dueDate != null ? DateFormat('yyyy-MM-dd').format(task.dueDate!) : '',
+                              Text(task.dueDate != null ? DateFormat('yyyy-MM-dd').format(task.dueDate) : '',
                                   style: TextStyle(color: Colors.grey.shade700)),
                             ],
                           ),
