@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'TermsConditions.dart';
-
-
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
 
@@ -25,7 +26,6 @@ class SignUpPage extends StatelessWidget {
                   ],
                 ),
               ),
-              
               // Logo and Title
               const SizedBox(height: 80),
               const Icon(
@@ -120,10 +120,8 @@ class SignUpPage extends StatelessWidget {
                     fontWeight: FontWeight.w400,
               ),
             ),
-            
             //terms and conditions button
             const SizedBox(height: 16),
-          
             TextButton(
                 onPressed: () {
                   print('Terms and conditions pressed ');
@@ -131,7 +129,6 @@ class SignUpPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (context) => const Termsconditions()),
                 );
-                  
                 },
                 style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
@@ -148,17 +145,17 @@ class SignUpPage extends StatelessWidget {
                   ),
                 ),
               ),
-            
-
-
             //signup button
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: TextButton(
                 onPressed: () {
-                  print('Sign Up button pressed1 ');
-                  
+                  print('Sign Up Pressed');
+                  // Add your sign-up logic here
+                  //FirebaseAuth.instance
+                      //.createUserWithEmailAndPassword(
+                        //email: '
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF171717),
@@ -201,8 +198,6 @@ class SignUpPage extends StatelessWidget {
                 ),
               ),
             ),
-
-            
             ],
           ),
         ),

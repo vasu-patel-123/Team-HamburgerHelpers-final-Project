@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'signUp.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,7 +54,6 @@ class LoginPageSignUp extends StatelessWidget {
                 ],
               ),
             ),
-            
             // Logo and Title
             const SizedBox(height: 80),
             const Icon(
@@ -72,7 +71,6 @@ class LoginPageSignUp extends StatelessWidget {
                 fontWeight: FontWeight.w400,
               ),
             ),
-            
             // Login Form
             const SizedBox(height: 48),
             TextField(
@@ -118,7 +116,15 @@ class LoginPageSignUp extends StatelessWidget {
               width: double.infinity,
               child: TextButton(
                 onPressed: () {
-                  print('Log In button pressed');
+                  FirebaseAuth.instance
+                    .authStateChanges()
+                    .listen((User? user) {
+                      if (user == null) {
+                        print('User is currently signed out!');
+                      } else {
+                        print('User is signed in!');
+                      }
+                    });
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF171717),
@@ -138,7 +144,6 @@ class LoginPageSignUp extends StatelessWidget {
                 ),
               ),
             ),
-            
             // Forgot Password
             const SizedBox(height: 24),
             TextButton(
@@ -160,7 +165,6 @@ class LoginPageSignUp extends StatelessWidget {
                 ),
               ),
             ),
-            
             // Sign Up Section
             const SizedBox(height: 24),
             const Text(
