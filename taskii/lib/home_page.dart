@@ -7,8 +7,8 @@ var tasks = [
 ];
 
 
-class homePage extends StatelessWidget {
-  const homePage({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
 
   @override
@@ -296,7 +296,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                     
                     child: TextButton(
                       onPressed: () {
-                        print('add task pushed');
+                        debugPrint('Add task pressed');
                         
                       },
                       style: TextButton.styleFrom(
@@ -392,7 +392,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
                           onPressed: () {
                             // Handle edit logic
-                            print("Edit task: ${task['title']}");
+                            debugPrint("Edit task: ${task['title']}");
                           },
                         ),
                       ],
