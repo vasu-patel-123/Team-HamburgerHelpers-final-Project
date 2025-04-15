@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'homepage.dart';
-import 'package:shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,12 +50,17 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
   String _errorMessage = '';
   int _failedAttempts = 0;
   DateTime? _lockoutUntil;
-  final SharedPreferences _prefs = await SharedPreferences.getInstance();
+  late SharedPreferences _prefs;
 
   @override
   void initState() {
     super.initState();
-    _loadLockoutState();
+    _initializePrefs();
+  }
+
+  Future<void> _initializePrefs() async {
+    _prefs = await SharedPreferences.getInstance();
+    await _loadLockoutState();
   }
 
   Future<void> _loadLockoutState() async {
