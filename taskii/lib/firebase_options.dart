@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '246539347393',
     projectId: 'taskii-bf674',
     storageBucket: 'taskii-bf674.firebasestorage.app',
-    iosBundleId: 'com.example.taskii',
+    iosBundleId: 'io.teamh.taskii',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

@@ -11,4 +11,4 @@ PRODUCT_NAME = taskii
 PRODUCT_BUNDLE_IDENTIFIER = io.teamh.taskii
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 TeamH All rights reserved.
