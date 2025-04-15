@@ -2,12 +2,11 @@ import 'package:firebase_database/firebase_database.dart';
 import '../models/task.dart';
 
 class TaskService {
-  final DatabaseReference _database;
+  final DatabaseReference _database = FirebaseDatabase.instance.ref();
   final String _tasksPath = 'tasks';
 
   TaskService() {
     // Enable offline persistence
-    _database = FirebaseDatabase.instance.ref();
     FirebaseDatabase.instance.setPersistenceEnabled(true);
     FirebaseDatabase.instance.setPersistenceCacheSizeBytes(10000000); // 10MB cache
   }

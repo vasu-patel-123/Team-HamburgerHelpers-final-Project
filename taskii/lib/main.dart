@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'homepage.dart';
+import 'package:shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +50,39 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
   String _errorMessage = '';
   int _failedAttempts = 0;
   DateTime? _lockoutUntil;
+  final SharedPreferences _prefs = await SharedPreferences.getInstance();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLockoutState();
+  }
+
+  Future<void> _loadLockoutState() async {
+    final lockoutTime = _prefs.getInt('lockout_time');
+    if (lockoutTime != null) {
+      _lockoutUntil = DateTime.fromMillisecondsSinceEpoch(lockoutTime);
+      if (!_isLockedOut()) {
+        // If lockout has expired, clear it
+        _lockoutUntil = null;
+        _failedAttempts = 0;
+        await _prefs.remove('lockout_time');
+        await _prefs.remove('failed_attempts');
+      } else {
+        _failedAttempts = _prefs.getInt('failed_attempts') ?? 0;
+      }
+    }
+  }
+
+  Future<void> _saveLockoutState() async {
+    if (_lockoutUntil != null) {
+      await _prefs.setInt('lockout_time', _lockoutUntil!.millisecondsSinceEpoch);
+      await _prefs.setInt('failed_attempts', _failedAttempts);
+    } else {
+      await _prefs.remove('lockout_time');
+      await _prefs.remove('failed_attempts');
+    }
+  }
 
   void _showSnackBar(String message, {bool isError = true}) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -119,6 +153,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
       // Reset failed attempts on successful login
       _failedAttempts = 0;
       _lockoutUntil = null;
+      await _saveLockoutState();
       
       if (mounted) {
         setState(() {
@@ -142,8 +177,10 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           if (_failedAttempts >= 10) {
             _lockoutUntil = DateTime.now().add(const Duration(minutes: 5));
             errorMessage = 'Too many failed attempts. Account locked for 5 minutes.';
+            await _saveLockoutState();
           } else {
             errorMessage = 'Wrong password. ${10 - _failedAttempts} attempts remaining.';
+            await _prefs.setInt('failed_attempts', _failedAttempts);
           }
           break;
         case 'invalid-email':
