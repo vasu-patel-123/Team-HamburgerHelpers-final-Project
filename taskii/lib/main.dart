@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'signUp.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'homePage.dart';
 
 
 Future<void> main() async {
@@ -25,6 +26,7 @@ class Taskii extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData.light(),
       home: const Scaffold(
         body: SafeArea(
@@ -119,6 +121,10 @@ class LoginPageSignUp extends StatelessWidget {
               child: TextButton(
                 onPressed: () {
                   print('Log In button pressed');
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const homePage()),
+                  );
                 },
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF171717),
