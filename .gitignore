@@ -11,8 +11,6 @@ build
 /taskii/ios/flutter
 /taskii/macos/Flutter
 /taskii/build
-
-
 # Annoying CMake cache files
 build/CMakeCache.txt
 build/CMakeFiles/cmake.check_cache
@@ -31,18 +29,10 @@ taskii/macos/Flutter/GeneratedPluginRegistrant.swift
 taskii/windows/flutter/generated_plugin_registrant.cc
 taskii/windows/flutter/generated_plugin_registrant.h
 taskii/windows/flutter/generated_plugins.cmake
-taskii/windows/flutter/generated_plugin_registrant.cc
-taskii/windows/flutter/generated_plugins.cmake
-taskii/macos/Flutter/GeneratedPluginRegistrant.swift
 taskii/pubspec.lock
-taskii/windows/flutter/generated_plugin_registrant.cc
-taskii/windows/flutter/generated_plugins.cmake
-taskii/macos/Flutter/GeneratedPluginRegistrant.swift
 taskii/ios/Podfile.lock
 taskii/ios/Runner.xcworkspace/contents.xcworkspacedata
 taskii/ios/Runner.xcodeproj/project.pbxproj
 /taskii/ios/Runner.xcworkspace/xcshareddata
-taskii/ios/Podfile.lock
 taskii/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
-taskii/ios/Runner.xcodeproj/project.pbxproj
-taskii/ios/Podfile.lock
+taskii/ios/Podfile

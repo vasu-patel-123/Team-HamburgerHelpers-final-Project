@@ -39,6 +39,8 @@ dependencies:
   firebase_storage: ^12.4.5
   firebase_database: ^11.3.5
   firebase: ^9.0.3
+  table_calendar: ^3.2.0
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
