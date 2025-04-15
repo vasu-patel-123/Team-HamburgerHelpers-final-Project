@@ -4,6 +4,7 @@ import 'signup.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'homePage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -201,6 +202,29 @@ class LoginPageSignUp extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            TextButton(
+              onPressed: () {
+                print('home page pushed');
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const homePage()),
+                );
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Develeper go to home page',
+                style: TextStyle(
+                  color: Color(0xFF171717),
+                  fontSize: 16,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
           ],
         ),
       ),
