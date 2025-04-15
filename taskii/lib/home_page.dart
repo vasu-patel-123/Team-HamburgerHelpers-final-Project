@@ -632,9 +632,9 @@ class _NavigationExampleState extends State<NavigationExample> {
                             ),
                           ),
                           availableCalendarFormats: const {
-                            CalendarFormat.month: 'Month',
-                            CalendarFormat.twoWeeks: '2 Weeks',
-                            CalendarFormat.week: 'Week',
+                            CalendarFormat.month: 'Week',
+                            CalendarFormat.twoWeeks: 'Month',
+                            CalendarFormat.week: '2 Weeks',
                           },
                         ),
 
