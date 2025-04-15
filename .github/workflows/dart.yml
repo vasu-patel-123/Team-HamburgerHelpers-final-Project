@@ -7,9 +7,9 @@
 
 # on:
 #   push:
-#     branches: [ "main" ]
+#     branches: ["main"]
 #   pull_request:
-#     branches: [ "main" ]
+#     branches: ["main"]
 
 # jobs:
 #   build:
@@ -35,8 +35,8 @@
 #       - name: Analyze project source
 #         run: dart analyze
 #       - name: flutter-cli
-#       # You may pin to the exact commit or the version.
-#       # uses: steebchen/flutter@55019e0f56278a7c84949e8e17c66e8f79d67290
+#         # You may pin to the exact commit or the version.
+#         # uses: steebchen/flutter@55019e0f56278a7c84949e8e17c66e8f79d67290
 #         uses: steebchen/flutter@v1.1.0
 
 #       # Your project will need to have tests in test/ and a dependency on
@@ -44,36 +44,3 @@
 #       # want to change this to 'flutter test'.
 #       - name: Run tests
 #         run: dart test
-name: Flutter CI
-
-on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.x"
-          channel: "stable"
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Analyze project source
-        run: flutter analyze
-
-      - name: Run tests
-        run: flutter test
-
-      - name: Build
-        run: flutter build apk --debug
