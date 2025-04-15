@@ -4,6 +4,7 @@ import 'signup.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'homepage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,8 +36,135 @@ class Taskii extends StatelessWidget {
   }
 }
 
-class LoginPageSignUp extends StatelessWidget {
+class LoginPageSignUp extends StatefulWidget {
   const LoginPageSignUp({super.key});
+
+  @override
+  State<LoginPageSignUp> createState() => _LoginPageSignUpState();
+}
+
+class _LoginPageSignUpState extends State<LoginPageSignUp> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  String _errorMessage = '';
+  int _failedAttempts = 0;
+  DateTime? _lockoutUntil;
+
+  void _showSnackBar(String message, {bool isError = true}) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  bool _isLockedOut() {
+    if (_lockoutUntil == null) return false;
+    return DateTime.now().isBefore(_lockoutUntil!);
+  }
+
+  String _getLockoutMessage() {
+    if (_lockoutUntil == null) return '';
+    final remainingMinutes = _lockoutUntil!.difference(DateTime.now()).inMinutes;
+    final remainingSeconds = _lockoutUntil!.difference(DateTime.now()).inSeconds % 60;
+    return 'Account locked. Please try again in $remainingMinutes:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _signIn() async {
+    // Check if account is locked
+    if (_isLockedOut()) {
+      _showSnackBar(_getLockoutMessage());
+      return;
+    }
+
+    // Check for empty fields
+    if (_emailController.text.trim().isEmpty) {
+      _showSnackBar('Please enter your email');
+      return;
+    }
+
+    if (_passwordController.text.trim().isEmpty) {
+      _showSnackBar('Please enter your password');
+      return;
+    }
+
+    // Validate email format
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(_emailController.text.trim())) {
+      _showSnackBar('Please enter a valid email address');
+      return;
+    }
+
+    // Validate password length
+    if (_passwordController.text.trim().length < 6) {
+      _showSnackBar('Password must be at least 6 characters long');
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      // Reset failed attempts on successful login
+      _failedAttempts = 0;
+      _lockoutUntil = null;
+      
+      if (mounted) {
+        setState(() {
+          _errorMessage = '';
+        });
+        _showSnackBar('Successfully signed in!', isError: false);
+        // Navigate to homepage after successful login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const homePage()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+      switch (e.code) {
+        case 'user-not-found':
+          errorMessage = 'No user found with this email';
+          break;
+        case 'wrong-password':
+          _failedAttempts++;
+          if (_failedAttempts >= 10) {
+            _lockoutUntil = DateTime.now().add(const Duration(minutes: 5));
+            errorMessage = 'Too many failed attempts. Account locked for 5 minutes.';
+          } else {
+            errorMessage = 'Wrong password. ${10 - _failedAttempts} attempts remaining.';
+          }
+          break;
+        case 'invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+        case 'user-disabled':
+          errorMessage = 'This account has been disabled';
+          break;
+        default:
+          errorMessage = 'An error occurred during sign in: ${e.message}';
+      }
+      
+      setState(() {
+        _errorMessage = errorMessage;
+      });
+      
+      _showSnackBar(errorMessage);
+    } catch (e) {
+      _showSnackBar('An unexpected error occurred: ${e.toString()}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +202,8 @@ class LoginPageSignUp extends StatelessWidget {
             // Login Form
             const SizedBox(height: 48),
             TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 hintText: 'Email',
                 hintStyle: const TextStyle(
@@ -93,6 +223,7 @@ class LoginPageSignUp extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             TextField(
+              controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 hintText: 'Password',
@@ -111,21 +242,22 @@ class LoginPageSignUp extends StatelessWidget {
                 ),
               ),
             ),
+            if (_errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  _errorMessage,
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: TextButton(
-                onPressed: () {
-                  FirebaseAuth.instance
-                    .authStateChanges()
-                    .listen((User? user) {
-                      if (user == null) {
-                        print('User is currently signed out!');
-                      } else {
-                        print('User is signed in!');
-                      }
-                    });
-                },
+                onPressed: _signIn,
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0xFF171717),
                   padding: const EdgeInsets.symmetric(vertical: 16),
