@@ -34,3 +34,8 @@ taskii/windows/flutter/generated_plugins.cmake
 taskii/windows/flutter/generated_plugin_registrant.cc
 taskii/windows/flutter/generated_plugins.cmake
 taskii/macos/Flutter/GeneratedPluginRegistrant.swift
+taskii/pubspec.lock
+taskii/windows/flutter/generated_plugin_registrant.cc
+taskii/windows/flutter/generated_plugins.cmake
+taskii/macos/Flutter/GeneratedPluginRegistrant.swift
+taskii/ios/Podfile.lock
