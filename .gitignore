@@ -31,7 +31,3 @@ taskii/windows/flutter/generated_plugin_registrant.h
 taskii/windows/flutter/generated_plugins.cmake
 taskii/pubspec.lock
 taskii/ios/Podfile.lock
-taskii/ios/Runner.xcworkspace/contents.xcworkspacedata
-taskii/ios/Runner.xcodeproj/project.pbxproj
-/taskii/ios/Runner.xcworkspace/xcshareddata
-taskii/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
