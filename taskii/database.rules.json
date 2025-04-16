@@ -3,6 +3,7 @@
     "tasks": {
       ".read": "auth != null",
       ".write": "auth != null",
+      ".indexOn": "userId",
       "$taskId": {
         ".validate": "newData.hasChildren(['title', 'description', 'dueDate', 'userId', 'priority'])",
         "title": {
