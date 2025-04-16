@@ -1,0 +1,26 @@
+{
+  "rules": {
+    "tasks": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$taskId": {
+        ".validate": "newData.hasChildren(['title', 'description', 'dueDate', 'userId', 'priority'])",
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "description": {
+          ".validate": "newData.isString()"
+        },
+        "dueDate": {
+          ".validate": "newData.isNumber()"
+        },
+        "userId": {
+          ".validate": "newData.isString() && newData.val() === auth.uid"
+        },
+        "priority": {
+          ".validate": "newData.isString() && (newData.val() === 'Low' || newData.val() === 'Medium' || newData.val() === 'High')"
+        }
+      }
+    }
+  }
+}

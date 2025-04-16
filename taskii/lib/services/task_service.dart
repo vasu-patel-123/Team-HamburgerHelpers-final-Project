@@ -1,4 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/task.dart';
 
 class TaskService {
@@ -6,9 +7,11 @@ class TaskService {
   final String _tasksPath = 'tasks';
 
   TaskService() {
-    // Enable offline persistence
-    FirebaseDatabase.instance.setPersistenceEnabled(true);
-    FirebaseDatabase.instance.setPersistenceCacheSizeBytes(10000000); // 10MB cache
+    // Enable offline persistence only for non-web platforms
+    if (!kIsWeb) {
+      FirebaseDatabase.instance.setPersistenceEnabled(true);
+      FirebaseDatabase.instance.setPersistenceCacheSizeBytes(10000000); // 10MB cache
+    }
   }
 
   // Validate task data before saving
@@ -28,7 +31,10 @@ class TaskService {
   Future<void> createTask(Task task) async {
     try {
       _validateTask(task);
-      await _database.child(_tasksPath).child(task.id).set(task.toJson());
+      final taskData = task.toJson();
+      // Convert DateTime to milliseconds timestamp
+      taskData['dueDate'] = task.dueDate.millisecondsSinceEpoch;
+      await _database.child(_tasksPath).child(task.id).set(taskData);
     } catch (e) {
       throw Exception('Failed to create task: ${e.toString()}');
     }
@@ -38,7 +44,10 @@ class TaskService {
   Future<void> updateTask(Task task) async {
     try {
       _validateTask(task);
-      await _database.child(_tasksPath).child(task.id).update(task.toJson());
+      final taskData = task.toJson();
+      // Convert DateTime to milliseconds timestamp
+      taskData['dueDate'] = task.dueDate.millisecondsSinceEpoch;
+      await _database.child(_tasksPath).child(task.id).update(taskData);
     } catch (e) {
       throw Exception('Failed to update task: ${e.toString()}');
     }
@@ -65,9 +74,15 @@ class TaskService {
         if (event.snapshot.value == null) return [];
         
         final Map<dynamic, dynamic> tasksMap = event.snapshot.value as Map<dynamic, dynamic>;
-        return tasksMap.values
-            .map((taskData) => Task.fromJson(Map<String, dynamic>.from(taskData)))
-            .toList();
+        return tasksMap.values.map((taskData) {
+          // Convert the data to a proper Map<String, dynamic>
+          final Map<String, dynamic> data = Map<String, dynamic>.from(taskData);
+          // Convert timestamp back to DateTime
+          if (data['dueDate'] is num) {
+            data['dueDate'] = DateTime.fromMillisecondsSinceEpoch(data['dueDate'] as int);
+          }
+          return Task.fromJson(data);
+        }).toList();
       });
     } catch (e) {
       throw Exception('Failed to fetch tasks: ${e.toString()}');

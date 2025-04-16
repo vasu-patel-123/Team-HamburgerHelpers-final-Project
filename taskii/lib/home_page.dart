@@ -55,7 +55,7 @@ class _NavigationExampleState extends State<NavigationExample> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
-  Map<DateTime, List<Map<String, String>>> _events = {};
+  Map<DateTime, List<Map<String, dynamic>>> _events = {};
 
   @override
   void initState() {
@@ -85,7 +85,6 @@ class _NavigationExampleState extends State<NavigationExample> {
             _errorMessage = error.toString();
             _isLoading = false;
           });
-          _showErrorSnackBar(error.toString());
         },
       );
     } else {
@@ -94,23 +93,6 @@ class _NavigationExampleState extends State<NavigationExample> {
         _isLoading = false;
       });
     }
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        action: SnackBarAction(
-          label: 'Dismiss',
-          textColor: Colors.white,
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-      ),
-    );
   }
 
   void _showSuccessSnackBar(String message) {
@@ -156,27 +138,35 @@ class _NavigationExampleState extends State<NavigationExample> {
   }
 
   void _generateEvents() {
-    Map<DateTime, List<Map<String, String>>> tempEvents = {};
+    Map<DateTime, List<Map<String, dynamic>>> tempEvents = {};
 
     for (var task in _tasks) {
-      DateTime date = task.dueDate;
+      // Normalize the date to remove time component
+      DateTime date = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
 
       if (!tempEvents.containsKey(date)) {
         tempEvents[date] = [];
       }
-      // Convert task to Map<String, String>
-      Map<String, String> taskMap = {
+      
+      Map<String, dynamic> taskMap = {
         'title': task.title,
         'description': task.description,
         'priority': task.priority,
-        'date': DateFormat('yyyy-MM-dd').format(task.dueDate),
+        'dueDate': task.dueDate.toIso8601String(),
         'id': task.id,
       };
       tempEvents[date]!.add(taskMap);
-        }
+    }
+    
     setState(() {
       _events = tempEvents;
     });
+  }
+
+  List<Map<String, dynamic>> _getTasksForDay(DateTime day) {
+    // Normalize the date to remove time component
+    final normalizedDay = DateTime(day.year, day.month, day.day);
+    return _events[normalizedDay] ?? [];
   }
 
   Widget _buildTaskList() {
@@ -191,7 +181,8 @@ class _NavigationExampleState extends State<NavigationExample> {
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
-        String priority = task['priority'] ?? 'Low';
+        String priority = task['priority'] as String? ?? 'Low';
+        DateTime taskDate = DateTime.parse(task['dueDate'] as String);
         Color priorityColor;
 
         switch (priority) {
@@ -224,16 +215,17 @@ class _NavigationExampleState extends State<NavigationExample> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(task['title'] ?? '',
+                    Text(task['title'] as String? ?? '',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
                     SizedBox(height: 4),
-                    Text(task['date'] ?? '',
-                        style: TextStyle(color: Colors.grey.shade700)),
+                    Text(
+                      DateFormat('yyyy-MM-dd HH:mm').format(taskDate),
+                      style: TextStyle(color: Colors.grey.shade700)
+                    ),
                   ],
                 ),
               ),
-
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
@@ -249,11 +241,10 @@ class _NavigationExampleState extends State<NavigationExample> {
                   ),
                 ),
               ),
-
               IconButton(
                 icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
                 onPressed: () {
-                  // Optional: open edit form
+                  debugPrint("Edit task: ${task['title']}");
                 },
               ),
             ],
@@ -263,18 +254,33 @@ class _NavigationExampleState extends State<NavigationExample> {
     );
   }
 
-  List<Map<String, String>> _getTasksForDay(DateTime day) {
-    return _events[DateTime(day.year, day.month, day.day)] ?? [];
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return _buildLoadingIndicator();
+    // Show error message if there is one
+    if (_errorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_errorMessage!),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'Dismiss',
+              textColor: Colors.white,
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                setState(() {
+                  _errorMessage = null;
+                });
+              },
+            ),
+          ),
+        );
+      });
     }
 
-    if (_errorMessage != null) {
-      return _buildErrorWidget();
+    if (_isLoading) {
+      return _buildLoadingIndicator();
     }
 
     return Scaffold(
@@ -733,7 +739,9 @@ class _NavigationExampleState extends State<NavigationExample> {
   Future<void> _addTask() async {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
-      _showErrorSnackBar('User not authenticated');
+      setState(() {
+        _errorMessage = 'User not authenticated';
+      });
       return;
     }
 
@@ -781,7 +789,6 @@ class _NavigationExampleState extends State<NavigationExample> {
         _errorMessage = e.toString();
         _isLoading = false;
       });
-      _showErrorSnackBar(e.toString());
     }
   }
 
