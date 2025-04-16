@@ -27,6 +27,9 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 3.0
+    - name: Ensure iOS project structure exists
+      run: flutter create .
+      working-directory: ./taskii    
   
     - name: Install dependencies
       working-directory: ./taskii
