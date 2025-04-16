@@ -2,15 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'profile_settings.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  
+  try {
+    // Initialize Firebase only if it hasn't been initialized
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      
+      // Initialize App Check
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: AndroidProvider.debug,
+        appleProvider: AppleProvider.debug,
+      );
+    }
+  } catch (e) {
+    print('Firebase initialization error: $e');
+  }
+
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.black, // navigation bar color
     statusBarColor: Colors.white, // status bar color
@@ -26,12 +44,37 @@ class Taskii extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.light(),
-      home: const Scaffold(
-        body: SafeArea(
-          child: LoginPageSignUp(),
-        ),
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.light,
       ),
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            
+            if (snapshot.hasData) {
+              return const HomePage();
+            }
+            
+            return const Scaffold(
+              body: SafeArea(
+                child: LoginPageSignUp(),
+              ),
+            );
+          },
+        ),
+        '/profile': (context) => const ProfileSettingsPage(),
+      },
     );
   }
 }

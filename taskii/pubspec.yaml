@@ -2,7 +2,7 @@ name: taskii
 description: "A new task manager for iOS and Android."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -39,6 +39,7 @@ dependencies:
   firebase_storage: ^12.4.5
   firebase_database: ^11.3.5
   firebase: ^9.0.3
+  firebase_app_check: ^0.3.0
   table_calendar: ^3.2.0
   intl: ^0.20.2
   uuid: ^4.3.3
@@ -60,7 +61,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

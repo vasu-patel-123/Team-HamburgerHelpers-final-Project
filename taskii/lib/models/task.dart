@@ -30,14 +30,25 @@ class Task {
   }
 
   factory Task.fromJson(Map<String, dynamic> json) {
+    var dueDateValue = json['dueDate'];
+    DateTime parsedDueDate;
+    
+    if (dueDateValue is String) {
+      parsedDueDate = DateTime.parse(dueDateValue);
+    } else if (dueDateValue is int) {
+      parsedDueDate = DateTime.fromMillisecondsSinceEpoch(dueDateValue);
+    } else {
+      parsedDueDate = DateTime.now();
+    }
+
     return Task(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      dueDate: DateTime.parse(json['dueDate']),
-      priority: json['priority'],
+      id: json['id'] ?? '',
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      dueDate: parsedDueDate,
+      priority: json['priority'] ?? 'Low',
       isCompleted: json['isCompleted'] ?? false,
-      userId: json['userId'],
+      userId: json['userId'] ?? '',
     );
   }
 } 
