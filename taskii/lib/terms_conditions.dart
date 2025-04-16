@@ -66,8 +66,8 @@ By using the App, you acknowledge that you have read, understood, and agreed to 
 
 ''';
 
-class Termsconditions extends StatelessWidget {
-  const Termsconditions({super.key});
+class TermsConditions extends StatelessWidget {
+  const TermsConditions({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +113,7 @@ class Termsconditions extends StatelessWidget {
             const SizedBox(height: 16),
             TextButton(
               onPressed: () {
-                print('Return to Sign UP Pressed');
+                debugPrint('Return to Sign Up Pressed');
                 Navigator.pop(context);
               },
               style: TextButton.styleFrom(

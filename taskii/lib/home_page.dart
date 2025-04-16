@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:uuid/uuid.dart';
+import '../models/task.dart';
+import '../services/task_service.dart';
 
-var tasks = [
-
-];
-
-
-class homePage extends StatelessWidget {
-  const homePage({super.key});
-
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(theme: ThemeData(useMaterial3: true), debugShowCheckedModeBanner: false, home: const NavigationExample());
+    return MaterialApp(
+      theme: ThemeData(useMaterial3: true),
+      debugShowCheckedModeBanner: false,
+      home: const NavigationExample()
+    );
   }
 }
 
 class NavigationExample extends StatefulWidget {
   const NavigationExample({super.key});
-  
-  get calendartasks => tasks;
-
 
   @override
   State<NavigationExample> createState() => _NavigationExampleState();
@@ -29,9 +28,11 @@ class NavigationExample extends StatefulWidget {
 
 class _NavigationExampleState extends State<NavigationExample> {
   int currentPageIndex = 0;
-
-
-  /// the following is For add task page
+  final TaskService _taskService = TaskService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  List<Task> _tasks = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   // Controllers for text fields
   TextEditingController taskNameController = TextEditingController();
@@ -39,19 +40,88 @@ class _NavigationExampleState extends State<NavigationExample> {
   TextEditingController categoryController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController timeController = TextEditingController();
-  
   // Date and time
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
-  
   // Priority
   String priority = 'Low'; // Default priority
-  
   // Reminder
   bool setReminder = false;
 
   // Form Key for validation
   final _formKey = GlobalKey<FormState>();
+
+  // Calendar related variables
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  Map<DateTime, List<Map<String, String>>> _events = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDay = _focusedDay;
+    _loadTasks();
+  }
+
+  void _loadTasks() {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final userId = _auth.currentUser?.uid;
+    if (userId != null) {
+      _taskService.getUserTasks(userId).listen(
+        (tasks) {
+          setState(() {
+            _tasks = tasks;
+            _isLoading = false;
+            _generateEvents(); // Generate events after tasks are loaded
+          });
+        },
+        onError: (error) {
+          setState(() {
+            _errorMessage = error.toString();
+            _isLoading = false;
+          });
+          _showErrorSnackBar(error.toString());
+        },
+      );
+    } else {
+      setState(() {
+        _errorMessage = 'User not authenticated';
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: 'Dismiss',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
   // Date Picker
   Future<void> _selectDate(BuildContext context) async {
@@ -85,35 +155,25 @@ class _NavigationExampleState extends State<NavigationExample> {
     }
   }
 
-///THe following is for Calendar page
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  Map<DateTime, List<Map<String, String>>> _events = {};
-
-  @override
-  @override
-  void initState() {
-    super.initState();
-    _selectedDay = _focusedDay;
-    _generateEvents();
-  }
-
   void _generateEvents() {
     Map<DateTime, List<Map<String, String>>> tempEvents = {};
 
-    for (var task in widget.calendartasks) {
-      if (task['date'] != null) {
-        DateTime date = DateFormat('yyyy-MM-dd').parse(task['date']!);
+    for (var task in _tasks) {
+      DateTime date = task.dueDate;
 
-        if (!tempEvents.containsKey(date)) {
-          tempEvents[date] = [];
-        }
-        tempEvents[date]!.add(task);
+      if (!tempEvents.containsKey(date)) {
+        tempEvents[date] = [];
       }
-    }
-
+      // Convert task to Map<String, String>
+      Map<String, String> taskMap = {
+        'title': task.title,
+        'description': task.description,
+        'priority': task.priority,
+        'date': DateFormat('yyyy-MM-dd').format(task.dueDate),
+        'id': task.id,
+      };
+      tempEvents[date]!.add(taskMap);
+        }
     setState(() {
       _events = tempEvents;
     });
@@ -203,15 +263,20 @@ class _NavigationExampleState extends State<NavigationExample> {
     );
   }
 
-
-
   List<Map<String, String>> _getTasksForDay(DateTime day) {
     return _events[DateTime(day.year, day.month, day.day)] ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    if (_isLoading) {
+      return _buildLoadingIndicator();
+    }
+
+    if (_errorMessage != null) {
+      return _buildErrorWidget();
+    }
+
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -236,7 +301,6 @@ class _NavigationExampleState extends State<NavigationExample> {
           NavigationDestination(
             icon: Icon(Icons.add_circle, size: 60),
             label: '',
-            
           ),
           NavigationDestination(
             icon: Icon(Icons.calendar_month),
@@ -268,7 +332,6 @@ class _NavigationExampleState extends State<NavigationExample> {
                 actions: <Widget>[
                   IconButton(
                     icon: const Icon(Icons.person_2_outlined),
-                    
                     onPressed: () {
                       // handle the press
                     },
@@ -289,16 +352,13 @@ class _NavigationExampleState extends State<NavigationExample> {
                 ),
                 elevation: 4,
                 title: const Text('Tasks'),
-                
                 /// profile button
                 actions: <Widget>[
                   SizedBox(
                     width: 100,
-                    
                     child: TextButton(
                       onPressed: () {
-                        print('add task pushed');
-                        
+                        debugPrint('Add task pressed');
                       },
                       style: TextButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 120, 205, 233),
@@ -323,12 +383,11 @@ class _NavigationExampleState extends State<NavigationExample> {
 
               body: ListView.builder(
                 padding: EdgeInsets.all(12),
-                itemCount: tasks.length,
+                itemCount: _tasks.length,
                 itemBuilder: (context, index) {
-                  final task = tasks[index];
-                  String priority = task['priority']!;
+                  final task = _tasks[index];
+                  String priority = task.priority;
                   Color priorityColor;
-
                   switch (priority) {
                     case 'High':
                       priorityColor = Colors.red;
@@ -352,8 +411,6 @@ class _NavigationExampleState extends State<NavigationExample> {
                         right: BorderSide(color: Colors.grey.shade400, width: 1),
                         bottom: BorderSide(color: Colors.grey.shade400, width: 1),
                       ),
-                  
-                      
                     ),
                     child: Row(
                       children: [
@@ -361,11 +418,11 @@ class _NavigationExampleState extends State<NavigationExample> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(task['title'] ?? '',
+                              Text(task.title,
                                   style: TextStyle(
                                       fontSize: 18, fontWeight: FontWeight.bold)),
                               SizedBox(height: 4),
-                              Text(task['date'] ?? '',
+                              Text(DateFormat('yyyy-MM-dd').format(task.dueDate),
                                   style: TextStyle(color: Colors.grey.shade700)),
                             ],
                           ),
@@ -393,7 +450,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
                           onPressed: () {
                             // Handle edit logic
-                            print("Edit task: ${task['title']}");
+                            debugPrint("Edit task: ${task.title}");
                           },
                         ),
                       ],
@@ -457,7 +514,6 @@ class _NavigationExampleState extends State<NavigationExample> {
                                   ),
                                 ),
                                 SizedBox(height: 12),
-                                
                                 //time field
                                 Expanded(
                                   child: InkWell(
@@ -536,33 +592,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                             ElevatedButton(
                               onPressed: () {
                                 if (_formKey.currentState?.validate() ?? false) {
-                                  Map<String, String> newTask = {
-                                    "title": taskNameController.text,
-                                    "date": dateController.text,
-                                    "time": timeController.text,
-                                    "priority": priority,
-                                    "description": descriptionController.text,
-                                    "category": categoryController.text,
-                                    "reminder": setReminder.toString(), // Convert bool to String
-                                  };
-                                  tasks.add(newTask);
-                                    //  CLEAR all form fields
-                                  setState(() {
-                                    taskNameController.clear();
-                                    descriptionController.clear();
-                                    categoryController.clear();
-                                    dateController.clear();
-                                    timeController.clear();
-
-                                    selectedDate = DateTime.now();
-                                    selectedTime = TimeOfDay.now();
-
-                                    priority = 'Low'; // Reset to default
-                                    setReminder = false;
-
-
-                                    _generateEvents(); /// for calendar page
-                                  });
+                                  _addTask();
                                 }
                               },
                               child: Text('Save Task'),
@@ -570,7 +600,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           ],
                         ),
                       ),
-                    ),  
+                    ),
             ),
 
             /// Calandar page
@@ -633,9 +663,9 @@ class _NavigationExampleState extends State<NavigationExample> {
                             ),
                           ),
                           availableCalendarFormats: const {
-                            CalendarFormat.month: 'Month',
-                            CalendarFormat.twoWeeks: '2 Weeks',
-                            CalendarFormat.week: 'Week',
+                            CalendarFormat.month: 'Week',
+                            CalendarFormat.twoWeeks: 'Month',
+                            CalendarFormat.week: '2 Weeks',
                           },
                         ),
 
@@ -667,4 +697,93 @@ class _NavigationExampleState extends State<NavigationExample> {
           ][currentPageIndex],
     );
   }
+
+  Widget _buildLoadingIndicator() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.error_outline,
+            color: Colors.red,
+            size: 48,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            _errorMessage ?? 'An error occurred',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.red),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: _loadTasks,
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _addTask() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) {
+      _showErrorSnackBar('User not authenticated');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final task = Task(
+        id: const Uuid().v4(),
+        title: taskNameController.text,
+        description: descriptionController.text,
+        dueDate: DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+          selectedTime.hour,
+          selectedTime.minute,
+        ),
+        priority: priority,
+        userId: userId,
+      );
+
+      await _taskService.createTask(task);
+      
+      // Clear controllers
+      taskNameController.clear();
+      descriptionController.clear();
+      categoryController.clear();
+      dateController.clear();
+      timeController.clear();
+      
+      // Reset to default values
+      setState(() {
+        selectedDate = DateTime.now();
+        selectedTime = TimeOfDay.now();
+        priority = 'Low';
+        _isLoading = false;
+      });
+
+      _showSuccessSnackBar('Task created successfully!');
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+      _showErrorSnackBar(e.toString());
+    }
+  }
+
+
 }
