@@ -60,7 +60,7 @@ jobs:
           -scheme Runner \
           -sdk iphoneos \
           -configuration Release \
-          -archive \
+          archive \
           -archivePath $PWD/build/Runner.xcarchive \
           -allowProvisioningUpdates
 
