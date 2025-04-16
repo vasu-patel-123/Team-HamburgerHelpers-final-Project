@@ -32,8 +32,6 @@ class TaskService {
     try {
       _validateTask(task);
       final taskData = task.toJson();
-      // Convert DateTime to milliseconds timestamp
-      taskData['dueDate'] = task.dueDate.millisecondsSinceEpoch;
       await _database.child(_tasksPath).child(task.id).set(taskData);
     } catch (e) {
       throw Exception('Failed to create task: ${e.toString()}');
@@ -45,8 +43,6 @@ class TaskService {
     try {
       _validateTask(task);
       final taskData = task.toJson();
-      // Convert DateTime to milliseconds timestamp
-      taskData['dueDate'] = task.dueDate.millisecondsSinceEpoch;
       await _database.child(_tasksPath).child(task.id).update(taskData);
     } catch (e) {
       throw Exception('Failed to update task: ${e.toString()}');
@@ -77,10 +73,6 @@ class TaskService {
         return tasksMap.values.map((taskData) {
           // Convert the data to a proper Map<String, dynamic>
           final Map<String, dynamic> data = Map<String, dynamic>.from(taskData);
-          // Convert timestamp back to DateTime
-          if (data['dueDate'] is num) {
-            data['dueDate'] = DateTime.fromMillisecondsSinceEpoch(data['dueDate'] as int);
-          }
           return Task.fromJson(data);
         }).toList();
       });

@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'profile_settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,12 +44,37 @@ class Taskii extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.light(),
-      home: const Scaffold(
-        body: SafeArea(
-          child: LoginPageSignUp(),
-        ),
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.light,
       ),
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            
+            if (snapshot.hasData) {
+              return const HomePage();
+            }
+            
+            return const Scaffold(
+              body: SafeArea(
+                child: LoginPageSignUp(),
+              ),
+            );
+          },
+        ),
+        '/profile': (context) => const ProfileSettingsPage(),
+      },
     );
   }
 }
