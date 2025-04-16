@@ -51,13 +51,17 @@ jobs:
       run: flutter test
 
     - name: Build the project
-      run: |
-        xcodebuild -workspace taskii/ios/Runner.xcworkspace \
-                   -scheme Runner \
-                   -sdk iphoneos \
-                   -configuration Release \
-                   clean build
-      working-directory: taskii/ios
+      working-directory: ./taskii
+      run: flutter build ios
+    
+    #- name: Build the project
+    #  run: |
+    #    xcodebuild -workspace taskii/ios/Runner.xcworkspace \
+    #               -scheme Runner \
+    #               -sdk iphoneos \
+    #               -configuration Release \
+    #               clean build
+    #  working-directory: taskii/ios
 
     - name: Archive the project
       run: |
