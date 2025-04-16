@@ -46,6 +46,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '246539347393',
     projectId: 'taskii-bf674',
     authDomain: 'taskii-bf674.firebaseapp.com',
+    databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com',
     storageBucket: 'taskii-bf674.firebasestorage.app',
   );
 
@@ -54,6 +55,7 @@ class DefaultFirebaseOptions {
     appId: '1:246539347393:android:7e1af2a519a9a64d697b40',
     messagingSenderId: '246539347393',
     projectId: 'taskii-bf674',
+    databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com',
     storageBucket: 'taskii-bf674.firebasestorage.app',
   );
 
@@ -62,6 +64,7 @@ class DefaultFirebaseOptions {
     appId: '1:246539347393:ios:887af18b350ab3a3697b40',
     messagingSenderId: '246539347393',
     projectId: 'taskii-bf674',
+    databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com',
     storageBucket: 'taskii-bf674.firebasestorage.app',
     iosBundleId: 'io.teamh.taskii',
   );
@@ -71,6 +74,7 @@ class DefaultFirebaseOptions {
     appId: '1:246539347393:ios:93f7ce2dc7b2491c697b40',
     messagingSenderId: '246539347393',
     projectId: 'taskii-bf674',
+    databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com',
     storageBucket: 'taskii-bf674.firebasestorage.app',
     iosBundleId: 'com.example.taskii',
   );
@@ -81,6 +85,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '246539347393',
     projectId: 'taskii-bf674',
     authDomain: 'taskii-bf674.firebaseapp.com',
+    databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com',
     storageBucket: 'taskii-bf674.firebasestorage.app',
   );
 
