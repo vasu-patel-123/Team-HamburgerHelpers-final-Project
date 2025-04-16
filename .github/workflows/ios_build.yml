@@ -52,8 +52,8 @@ jobs:
 
     - name: Build the project
       run: |
-        xcodebuild -workspace taskii/ios/<YourProjectName>.xcworkspace \
-                   -scheme <YourSchemeName> \
+        xcodebuild -workspace taskii/ios/Runner.xcworkspace \
+                   -scheme Runner \
                    -sdk iphoneos \
                    -configuration Release \
                    clean build
@@ -61,17 +61,17 @@ jobs:
 
     - name: Archive the project
       run: |
-        xcodebuild -workspace taskii/ios/<YourProjectName>.xcworkspace \
-                   -scheme <YourSchemeName> \
+        xcodebuild -workspace taskii/ios/Runner.xcworkspace \
+                   -scheme Runner \
                    -sdk iphoneos \
                    -configuration Release \
-                   archive -archivePath taskii/ios/build/<YourProjectName>.xcarchive
+                   archive -archivePath taskii/ios/build/Runner.xcarchive
       working-directory: taskii/ios
 
     - name: Export the IPA
       run: |
         xcodebuild -exportArchive \
-                   -archivePath taskii/ios/build/<YourProjectName>.xcarchive \
+                   -archivePath taskii/ios/build/Runner.xcarchive \
                    -exportPath taskii/ios/build \
                    -exportOptionsPlist taskii/ios/ExportOptions.plist
       working-directory: taskii/ios
