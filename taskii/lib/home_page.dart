@@ -6,14 +6,14 @@ import 'package:uuid/uuid.dart';
 import '../models/task.dart';
 import '../services/task_service.dart';
 
-class homePage extends StatelessWidget {
-  const homePage({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(useMaterial3: true), 
-      debugShowCheckedModeBanner: false, 
+      theme: ThemeData(useMaterial3: true),
+      debugShowCheckedModeBanner: false,
       home: const NavigationExample()
     );
   }
@@ -40,14 +40,11 @@ class _NavigationExampleState extends State<NavigationExample> {
   TextEditingController categoryController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   TextEditingController timeController = TextEditingController();
-  
   // Date and time
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
-  
   // Priority
   String priority = 'Low'; // Default priority
-  
   // Reminder
   bool setReminder = false;
 
@@ -162,26 +159,21 @@ class _NavigationExampleState extends State<NavigationExample> {
     Map<DateTime, List<Map<String, String>>> tempEvents = {};
 
     for (var task in _tasks) {
-      if (task.dueDate != null) {
-        DateTime date = task.dueDate!;
+      DateTime date = task.dueDate;
 
-        if (!tempEvents.containsKey(date)) {
-          tempEvents[date] = [];
-        }
-        
-        // Convert task to Map<String, String>
-        Map<String, String> taskMap = {
-          'title': task.title,
-          'description': task.description ?? '',
-          'priority': task.priority ?? 'Low',
-          'date': DateFormat('yyyy-MM-dd').format(task.dueDate!),
-          'id': task.id,
-        };
-        
-        tempEvents[date]!.add(taskMap);
+      if (!tempEvents.containsKey(date)) {
+        tempEvents[date] = [];
       }
-    }
-
+      // Convert task to Map<String, String>
+      Map<String, String> taskMap = {
+        'title': task.title,
+        'description': task.description,
+        'priority': task.priority,
+        'date': DateFormat('yyyy-MM-dd').format(task.dueDate),
+        'id': task.id,
+      };
+      tempEvents[date]!.add(taskMap);
+        }
     setState(() {
       _events = tempEvents;
     });
@@ -285,7 +277,6 @@ class _NavigationExampleState extends State<NavigationExample> {
       return _buildErrorWidget();
     }
 
-    final ThemeData theme = Theme.of(context);
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -310,7 +301,6 @@ class _NavigationExampleState extends State<NavigationExample> {
           NavigationDestination(
             icon: Icon(Icons.add_circle, size: 60),
             label: '',
-            
           ),
           NavigationDestination(
             icon: Icon(Icons.calendar_month),
@@ -342,7 +332,6 @@ class _NavigationExampleState extends State<NavigationExample> {
                 actions: <Widget>[
                   IconButton(
                     icon: const Icon(Icons.person_2_outlined),
-                    
                     onPressed: () {
                       // handle the press
                     },
@@ -363,16 +352,13 @@ class _NavigationExampleState extends State<NavigationExample> {
                 ),
                 elevation: 4,
                 title: const Text('Tasks'),
-                
                 /// profile button
                 actions: <Widget>[
                   SizedBox(
                     width: 100,
-                    
                     child: TextButton(
                       onPressed: () {
-                        print('add task pushed');
-                        
+                        debugPrint('Add task pressed');
                       },
                       style: TextButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 120, 205, 233),
@@ -400,9 +386,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                 itemCount: _tasks.length,
                 itemBuilder: (context, index) {
                   final task = _tasks[index];
-                  String priority = task.priority ?? 'Low';
+                  String priority = task.priority;
                   Color priorityColor;
-
                   switch (priority) {
                     case 'High':
                       priorityColor = Colors.red;
@@ -426,8 +411,6 @@ class _NavigationExampleState extends State<NavigationExample> {
                         right: BorderSide(color: Colors.grey.shade400, width: 1),
                         bottom: BorderSide(color: Colors.grey.shade400, width: 1),
                       ),
-                  
-                      
                     ),
                     child: Row(
                       children: [
@@ -435,11 +418,11 @@ class _NavigationExampleState extends State<NavigationExample> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(task.title ?? '',
+                              Text(task.title,
                                   style: TextStyle(
                                       fontSize: 18, fontWeight: FontWeight.bold)),
                               SizedBox(height: 4),
-                              Text(task.dueDate != null ? DateFormat('yyyy-MM-dd').format(task.dueDate!) : '',
+                              Text(DateFormat('yyyy-MM-dd').format(task.dueDate),
                                   style: TextStyle(color: Colors.grey.shade700)),
                             ],
                           ),
@@ -467,7 +450,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
                           onPressed: () {
                             // Handle edit logic
-                            print("Edit task: ${task.title}");
+                            debugPrint("Edit task: ${task.title}");
                           },
                         ),
                       ],
@@ -531,7 +514,6 @@ class _NavigationExampleState extends State<NavigationExample> {
                                   ),
                                 ),
                                 SizedBox(height: 12),
-                                
                                 //time field
                                 Expanded(
                                   child: InkWell(
@@ -618,7 +600,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           ],
                         ),
                       ),
-                    ),  
+                    ),
             ),
 
             /// Calandar page
@@ -803,21 +785,5 @@ class _NavigationExampleState extends State<NavigationExample> {
     }
   }
 
-  Future<void> _toggleTaskCompletion(Task task) async {
-    try {
-      await _taskService.toggleTaskCompletion(task.id, !task.isCompleted);
-      _showSuccessSnackBar('Task ${task.isCompleted ? 'completed' : 'marked as incomplete'}');
-    } catch (e) {
-      _showErrorSnackBar('Failed to update task: ${e.toString()}');
-    }
-  }
 
-  Future<void> _deleteTask(String taskId) async {
-    try {
-      await _taskService.deleteTask(taskId);
-      _showSuccessSnackBar('Task deleted successfully');
-    } catch (e) {
-      _showErrorSnackBar('Failed to delete task: ${e.toString()}');
-    }
-  }
 }

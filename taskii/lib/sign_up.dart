@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'TermsConditions.dart';
+import 'terms_conditions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
 
@@ -122,10 +123,10 @@ class SignUpPage extends StatelessWidget {
             const SizedBox(height: 16),
             TextButton(
                 onPressed: () {
-                  print('Terms and conditions pressed ');
+                  debugPrint('Terms and conditions pressed');
                   Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const Termsconditions()),
+                  MaterialPageRoute(builder: (context) => const TermsConditions()),
                 );
                 },
                 style: TextButton.styleFrom(
@@ -157,26 +158,26 @@ class SignUpPage extends StatelessWidget {
                   final password = passwordController.text.trim();
 
                   if (email.isEmpty || password.isEmpty) {
-                    print('Email and password cannot be empty.');
-                  return;
+                    debugPrint('Email and password cannot be empty.');
+                    return;
                   }
 
                   try {
-                  final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                    email: email,
-                    password: password,
-                  );
-                  print('User signed up successfully: ${credential.user?.email}');
+                    final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                      email: email,
+                      password: password,
+                    );
+                    debugPrint('User signed up successfully: ${credential.user?.email}');
                   } on FirebaseAuthException catch (e) {
-                  if (e.code == 'weak-password') {
-                    print('The password provided is too weak.');
-                  } else if (e.code == 'email-already-in-use') {
-                    print('The account already exists for that email.');
-                  } else {
-                    print('Error: ${e.message}');
-                  }
+                    if (e.code == 'weak-password') {
+                      debugPrint('The password provided is too weak.');
+                    } else if (e.code == 'email-already-in-use') {
+                      debugPrint('The account already exists for that email.');
+                    } else {
+                      debugPrint('Error: ${e.message}');
+                    }
                   } catch (e) {
-                  print('An unexpected error occurred: $e');
+                    debugPrint('An unexpected error occurred: $e');
                   }
                 },
                 style: TextButton.styleFrom(
@@ -202,7 +203,7 @@ class SignUpPage extends StatelessWidget {
             const SizedBox(height: 16),
             TextButton(
               onPressed: () {
-                print('Return to Sign In Pressed');
+                debugPrint('Return to Sign In Pressed');
                 Navigator.pop(context);
               },
               style: TextButton.styleFrom(

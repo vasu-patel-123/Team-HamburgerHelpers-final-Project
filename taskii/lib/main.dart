@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'signup.dart';
+import 'sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'homepage.dart';
+import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -159,7 +158,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
       _failedAttempts = 0;
       _lockoutUntil = null;
       await _saveLockoutState();
-      
       if (mounted) {
         setState(() {
           _errorMessage = '';
@@ -168,7 +166,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         // Navigate to homepage after successful login
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const homePage()),
+          MaterialPageRoute(builder: (context) => const HomePage()),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -197,11 +195,9 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         default:
           errorMessage = 'An error occurred during sign in: ${e.message}';
       }
-      
       setState(() {
         _errorMessage = errorMessage;
       });
-      
       _showSnackBar(errorMessage);
     } catch (e) {
       _showSnackBar('An unexpected error occurred: ${e.toString()}');
@@ -322,7 +318,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
             const SizedBox(height: 24),
             TextButton(
               onPressed: () {
-                print('Forgot password pressed');
+                debugPrint('Forgot password pressed');
               },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
@@ -353,7 +349,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
             const SizedBox(height: 4),
             TextButton(
               onPressed: () {
-                print('Sign up pressed');
+                debugPrint('Sign up pressed');
                   Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SignUpPage()),
@@ -375,6 +371,29 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
               ),
             ),
             const SizedBox(height: 24),
+            TextButton(
+              onPressed: () {
+                debugPrint('Home page navigation');
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomePage()),
+                );
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Develeper go to home page',
+                style: TextStyle(
+                  color: Color(0xFF171717),
+                  fontSize: 16,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
           ],
         ),
       ),

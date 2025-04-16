@@ -76,7 +76,7 @@ class DefaultFirebaseOptions {
     projectId: 'taskii-bf674',
     databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com',
     storageBucket: 'taskii-bf674.firebasestorage.app',
-    iosBundleId: 'com.example.taskii',
+    iosBundleId: 'io.teamh.taskii',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
