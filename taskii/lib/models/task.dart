@@ -4,6 +4,7 @@ class Task {
   final String description;
   final DateTime dueDate;
   final String priority;
+  final String category;
   final bool isCompleted;
   final String userId;
 
@@ -13,6 +14,7 @@ class Task {
     required this.description,
     required this.dueDate,
     required this.priority,
+    required this.category,
     this.isCompleted = false,
     required this.userId,
   });
@@ -24,6 +26,7 @@ class Task {
       'description': description,
       'dueDate': dueDate.toIso8601String(),
       'priority': priority,
+      'category': category,
       'isCompleted': isCompleted,
       'userId': userId,
     };
@@ -47,6 +50,7 @@ class Task {
       description: json['description'] ?? '',
       dueDate: parsedDueDate,
       priority: json['priority'] ?? 'Low',
+      category: json['category'] ?? 'General',
       isCompleted: json['isCompleted'] ?? false,
       userId: json['userId'] ?? '',
     );
