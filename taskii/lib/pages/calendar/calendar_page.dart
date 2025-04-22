@@ -247,7 +247,7 @@ class _CalendarPageState extends State<CalendarPage> {
         title: const Text('Calendar'),
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: const Icon(Icons.filter_alt),
             onPressed: () {
               _showFilterDialog(context);
             },
