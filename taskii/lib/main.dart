@@ -13,28 +13,54 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   try {
-    // Initialize Firebase only if it hasn't been initialized
-    if (Firebase.apps.isEmpty) {
+    // First, try to get the default app
+    try {
+      Firebase.app();
+      // If we get here, Firebase is already initialized
+      debugPrint('Firebase already initialized');
+    } catch (e) {
+      // If getting the default app fails, initialize Firebase
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
       
       // Initialize App Check
       await FirebaseAppCheck.instance.activate(
-        androidProvider: AndroidProvider.debug,
-        appleProvider: AppleProvider.debug,
+        androidProvider: const bool.fromEnvironment('dart.vm.product')
+            ? AndroidProvider.playIntegrity
+            : AndroidProvider.debug,
+        appleProvider: const bool.fromEnvironment('dart.vm.product')
+            ? AppleProvider.appAttest
+            : AppleProvider.debug,
       );
+      debugPrint('Firebase initialized successfully');
     }
   } catch (e) {
-    print('Firebase initialization error: $e');
+    if (e.toString().contains('duplicate-app')) {
+      // If we get a duplicate app error, try to get the existing app
+      try {
+        Firebase.app();
+        debugPrint('Using existing Firebase app');
+      } catch (e) {
+        debugPrint('Error accessing existing Firebase app: $e');
+      }
+    } else {
+      debugPrint('Firebase initialization error: $e');
+    }
   }
 
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.black, // navigation bar color
-    statusBarColor: Colors.white, // status bar color
-    statusBarIconBrightness: Brightness.dark, // status bar icon color
-    systemNavigationBarIconBrightness: Brightness.dark, // color of navigation controls
+  // Set up system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.black,
+    statusBarColor: Colors.white,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarIconBrightness: Brightness.dark,
   ));
+
+  // Enable hardware acceleration for better performance
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  
+  // Run the app
   runApp(const Taskii());
 }
 

@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:246539347393:android:7e1af2a519a9a64d697b40",
         "android_client_info": {
-          "package_name": "io.teamh.taskii"
+          "package_name": "com.example.taskii"
         }
       },
       "oauth_client": [],
