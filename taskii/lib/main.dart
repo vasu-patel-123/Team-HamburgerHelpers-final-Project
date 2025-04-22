@@ -11,7 +11,6 @@ import 'profile_settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
   try {
     // First, try to get the default app
     try {
@@ -23,7 +22,6 @@ Future<void> main() async {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      
       // Initialize App Check
       await FirebaseAppCheck.instance.activate(
         androidProvider: const bool.fromEnvironment('dart.vm.product')
@@ -59,7 +57,6 @@ Future<void> main() async {
 
   // Enable hardware acceleration for better performance
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  
   // Run the app
   runApp(const Taskii());
 }
@@ -87,11 +84,9 @@ class Taskii extends StatelessWidget {
                 ),
               );
             }
-            
             if (snapshot.hasData) {
               return const HomePage();
             }
-            
             return const Scaffold(
               body: SafeArea(
                 child: LoginPageSignUp(),
