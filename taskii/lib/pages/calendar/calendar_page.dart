@@ -262,6 +262,11 @@ class _CalendarPageState extends State<CalendarPage> {
             focusedDay: _focusedDay,
             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
             calendarFormat: _calendarFormat,
+            availableCalendarFormats: const {
+              CalendarFormat.month: 'Week',
+              CalendarFormat.twoWeeks: 'Month',
+              CalendarFormat.week: '2 Weeks',
+            },
             onFormatChanged: (format) {
               setState(() {
                 _calendarFormat = format;
