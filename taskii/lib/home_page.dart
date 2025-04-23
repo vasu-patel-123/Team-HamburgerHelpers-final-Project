@@ -39,9 +39,9 @@ class _NavigationExampleState extends State<NavigationExample> {
   StreamSubscription? _subscription;
 
   // Calendar related variables
-  DateTime _focusedDay = DateTime.now();
+  final DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
   Map<DateTime, List<Map<String, dynamic>>> _events = {};
 
   @override
@@ -219,7 +219,7 @@ class _NavigationExampleState extends State<NavigationExample> {
       freeSlots.add({
         'start': now,
         'end': todayTasks.first.dueDate,
-        'duration': '${_formatDuration(todayTasks.first.dueDate.difference(now))}'
+        'duration': _formatDuration(todayTasks.first.dueDate.difference(now))
       });
     }
 
@@ -234,7 +234,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         freeSlots.add({
           'start': currentTask.dueDate,
           'end': nextTask.dueDate,
-          'duration': '${_formatDuration(nextTask.dueDate.difference(currentTask.dueDate))}'
+          'duration': _formatDuration(nextTask.dueDate.difference(currentTask.dueDate))
         });
       }
     }
@@ -245,7 +245,7 @@ class _NavigationExampleState extends State<NavigationExample> {
       freeSlots.add({
         'start': lastTask.dueDate,
         'end': tomorrow,
-        'duration': '${_formatDuration(tomorrow.difference(lastTask.dueDate))}'
+        'duration': _formatDuration(tomorrow.difference(lastTask.dueDate))
       });
     }
 
@@ -579,7 +579,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                             ),
                           ),
                         ),
-                      )).toList(),
+                      )),
                     ],
                   ),
 
@@ -669,7 +669,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                             ],
                           ),
                         ),
-                      )).toList(),
+                      )),
                     ],
                   ),
                 ],
@@ -791,8 +791,8 @@ class _NavigationExampleState extends State<NavigationExample> {
     String selectedPriority = 'All';
     bool showCompleted = true;
     bool showIncomplete = true;
-    DateTime? startDate = null;
-    DateTime? endDate = null;
+    DateTime? startDate;
+    DateTime? endDate;
 
     showDialog(
       context: context,
