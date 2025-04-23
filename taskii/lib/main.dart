@@ -265,13 +265,28 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
   }
 
   Future<void> _createTask() async {
-    final user = FirebaseAuth.instance.currentUser;
-    final taskRef = FirebaseDatabase.instance.ref('tasks').push();
-    await taskRef.set({
-      'title': 'My Task',
-      'userId': user!.uid, // <-- This is required!
-      // ...other fields...
-    });
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        _showSnackBar('You must be logged in to create tasks');
+        return;
+      }
+      
+      print('Creating task for user: ${user.uid}');
+      
+      final taskRef = FirebaseDatabase.instance.ref('tasks/${user.uid}').push();
+      await taskRef.set({
+        'title': 'My Task',
+        'description': 'Task Description',
+        'dueDate': '2025-04-23',
+        'priority': 'High',
+        'isComplete': false
+      });
+      
+      _showSnackBar('Task created successfully!', isError: false);
+    } catch (e) {
+      _showSnackBar('Failed to create task: $e');
+    }
   }
 
   @override
