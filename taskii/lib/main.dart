@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_settings.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -227,11 +228,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           _errorMessage = '';
         });
         _showSnackBar('Successfully signed in!', isError: false);
-        // Navigate to homepage after successful login
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
       }
     } on FirebaseAuthException catch (e) {
       String errorMessage;
@@ -266,6 +262,16 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
     } catch (e) {
       _showSnackBar('An unexpected error occurred: ${e.toString()}');
     }
+  }
+
+  Future<void> _createTask() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final taskRef = FirebaseDatabase.instance.ref('tasks').push();
+    await taskRef.set({
+      'title': 'My Task',
+      'userId': user!.uid, // <-- This is required!
+      // ...other fields...
+    });
   }
 
   @override
@@ -426,30 +432,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
               ),
               child: const Text(
                 'Sign up',
-                style: TextStyle(
-                  color: Color(0xFF171717),
-                  fontSize: 16,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            TextButton(
-              onPressed: () {
-                debugPrint('Home page navigation');
-                  Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomePage()),
-                );
-              },
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: const Text(
-                'Develeper go to home page',
                 style: TextStyle(
                   color: Color(0xFF171717),
                   fontSize: 16,
