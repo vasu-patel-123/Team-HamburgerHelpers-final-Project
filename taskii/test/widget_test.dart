@@ -17,7 +17,7 @@ void main() {
 
     // Verify that the login page is shown
     expect(find.byType(LoginPageSignUp), findsOneWidget);
-    
+
     // Verify that the app icon is present
     expect(find.byIcon(Icons.assignment_outlined), findsOneWidget);
   });
