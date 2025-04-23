@@ -47,10 +47,10 @@ jobs:
       working-directory: ./taskii
       run: flutter analyze --no-fatal-warnings --no-fatal-infos
 
-    #- name: Run tests
-      #working-directory: ./taskii
-      #run: flutter test
-
-    - name: Build the project
+    - name: Run tests
       working-directory: ./taskii
-      run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath $PWD/build/Runner.xcarchive -allowProvisioningUpdates
+      run: flutter test
+
+    #- name: Build the project
+    #  working-directory: ./taskii
+    #  run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath $PWD/build/Runner.xcarchive -allowProvisioningUpdates
