@@ -8,9 +8,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_settings.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   try {
     // First, try to get the default app
     try {
@@ -227,11 +231,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           _errorMessage = '';
         });
         _showSnackBar('Successfully signed in!', isError: false);
-        // Navigate to homepage after successful login
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
       }
     } on FirebaseAuthException catch (e) {
       String errorMessage;
@@ -265,6 +264,31 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
       _showSnackBar(errorMessage);
     } catch (e) {
       _showSnackBar('An unexpected error occurred: ${e.toString()}');
+    }
+  }
+
+  Future<void> _createTask() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        _showSnackBar('You must be logged in to create tasks');
+        return;
+      }
+      
+      debugPrint('Creating task for user: ${user.uid}');
+      
+      final taskRef = FirebaseDatabase.instance.ref('tasks/${user.uid}').push();
+      await taskRef.set({
+        'title': 'My Task',
+        'description': 'Task Description',
+        'dueDate': '2025-04-23',
+        'priority': 'High',
+        'isComplete': false
+      });
+      
+      _showSnackBar('Task created successfully!', isError: false);
+    } catch (e) {
+      _showSnackBar('Failed to create task: $e');
     }
   }
 
@@ -426,30 +450,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
               ),
               child: const Text(
                 'Sign up',
-                style: TextStyle(
-                  color: Color(0xFF171717),
-                  fontSize: 16,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            TextButton(
-              onPressed: () {
-                debugPrint('Home page navigation');
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomePage()),
-                );
-              },
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: const Text(
-                'Develeper go to home page',
                 style: TextStyle(
                   color: Color(0xFF171717),
                   fontSize: 16,
