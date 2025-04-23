@@ -272,7 +272,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         return;
       }
       
-      print('Creating task for user: ${user.uid}');
+      debugPrint('Creating task for user: ${user.uid}');
       
       final taskRef = FirebaseDatabase.instance.ref('tasks/${user.uid}').push();
       await taskRef.set({

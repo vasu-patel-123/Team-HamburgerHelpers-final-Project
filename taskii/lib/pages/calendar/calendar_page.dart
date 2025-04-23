@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../models/task.dart';
-import '../../services/task_service.dart';
 
 class CalendarPage extends StatefulWidget {
   final List<Task> tasks;
@@ -97,8 +96,8 @@ class _CalendarPageState extends State<CalendarPage> {
     String selectedPriority = 'All';
     bool showCompleted = true;
     bool showIncomplete = true;
-    DateTime? startDate = null;
-    DateTime? endDate = null;
+    DateTime? startDate;
+    DateTime? endDate;
 
     showDialog(
       context: context,

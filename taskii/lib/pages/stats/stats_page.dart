@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../models/task.dart';
 
 class StatsPage extends StatelessWidget {
@@ -185,7 +184,7 @@ class StatsPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '${(rate * 100).toStringAsFixed(1)}% (${totalTasks} tasks)',
+              '${(rate * 100).toStringAsFixed(1)}% ($totalTasks tasks)',
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.grey[600],
