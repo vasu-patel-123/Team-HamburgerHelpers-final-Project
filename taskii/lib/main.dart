@@ -438,7 +438,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
             TextButton(
               onPressed: () {
                 debugPrint('Home page navigation');
-                  Navigator.push(
+                  Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const HomePage()),
                 );
