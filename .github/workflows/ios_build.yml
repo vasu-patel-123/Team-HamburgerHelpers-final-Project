@@ -52,4 +52,10 @@ jobs:
 
     - name: Build the project
       working-directory: ./taskii
-      run: flutter build ios
+      run: xcodebuild -workspace ios/Runner.xcworkspace \
+        -scheme Runner \
+        -sdk iphoneos \
+        -configuration Release \
+        archive \
+        -archivePath $PWD/build/Runner.xcarchive \
+        -allowProvisioningUpdates
