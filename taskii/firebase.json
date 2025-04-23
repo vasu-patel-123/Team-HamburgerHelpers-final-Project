@@ -1,1 +1,5 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"taskii-bf674","appId":"1:246539347393:android:7e1af2a519a9a64d697b40","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"taskii-bf674","configurations":{"android":"1:246539347393:android:7e1af2a519a9a64d697b40","ios":"1:246539347393:ios:887af18b350ab3a3697b40","macos":"1:246539347393:ios:93f7ce2dc7b2491c697b40","web":"1:246539347393:web:0e8b8038700f0541697b40","windows":"1:246539347393:web:7b6eb31e7bdd3ad2697b40"}}}}}}
+{
+  "database": {
+    "rules": "database.rules.json"
+  }
+}

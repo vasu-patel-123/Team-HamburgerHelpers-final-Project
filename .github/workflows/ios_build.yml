@@ -1,0 +1,82 @@
+name: iOS Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: "3.x"
+        channel: "stable"
+        cache: true
+        
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.0
+    - name: Ensure iOS project structure exists
+      run: flutter create .
+      working-directory: ./taskii    
+  
+    - name: Install dependencies
+      working-directory: ./taskii
+      run: flutter pub get
+
+    - name: Install CocoaPods
+      run: pod install
+      working-directory: taskii/ios
+
+    - name: Change to project directory
+      run: cd taskii
+
+    - name: Analyze project source
+      working-directory: ./taskii
+      run: flutter analyze
+
+    - name: Run tests
+      working-directory: ./taskii
+      run: flutter test
+
+    #- name: Build the project
+    #  working-directory: ./taskii
+    #  run: flutter build ios
+    
+    - name: Build iOS App
+      run: |
+        xcodebuild -workspace ios/Runner.xcworkspace \
+          -scheme Runner \
+          -sdk iphoneos \
+          -configuration Release \
+          archive \
+          -archivePath $PWD/build/Runner.xcarchive \
+          -allowProvisioningUpdates
+
+    - name: Archive the project
+      run: |
+        xcodebuild -workspace taskii/ios/Runner.xcworkspace \
+                   -scheme Runner \
+                   -sdk iphoneos \
+                   -configuration Release \
+                   archive -archivePath taskii/ios/build/Runner.xcarchive
+      working-directory: taskii/ios
+
+    - name: Export the IPA
+      run: |
+        xcodebuild -exportArchive \
+                   -archivePath taskii/ios/build/Runner.xcarchive \
+                   -exportPath taskii/ios/build \
+                   -exportOptionsPlist taskii/ios/ExportOptions.plist
+      working-directory: taskii/ios

@@ -2,21 +2,62 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'profile_settings.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.black, // navigation bar color
-    statusBarColor: Colors.white, // status bar color
-    statusBarIconBrightness: Brightness.dark, // status bar icon color
-    systemNavigationBarIconBrightness: Brightness.dark, // color of navigation controls
+  try {
+    // First, try to get the default app
+    try {
+      Firebase.app();
+      // If we get here, Firebase is already initialized
+      debugPrint('Firebase already initialized');
+    } catch (e) {
+      // If getting the default app fails, initialize Firebase
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      // Initialize App Check
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: const bool.fromEnvironment('dart.vm.product')
+            ? AndroidProvider.playIntegrity
+            : AndroidProvider.debug,
+        appleProvider: const bool.fromEnvironment('dart.vm.product')
+            ? AppleProvider.appAttest
+            : AppleProvider.debug,
+      );
+      debugPrint('Firebase initialized successfully');
+    }
+  } catch (e) {
+    if (e.toString().contains('duplicate-app')) {
+      // If we get a duplicate app error, try to get the existing app
+      try {
+        Firebase.app();
+        debugPrint('Using existing Firebase app');
+      } catch (e) {
+        debugPrint('Error accessing existing Firebase app: $e');
+      }
+    } else {
+      debugPrint('Firebase initialization error: $e');
+    }
+  }
+
+  // Set up system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.black,
+    statusBarColor: Colors.white,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarIconBrightness: Brightness.dark,
   ));
+
+  // Enable hardware acceleration for better performance
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  // Run the app
   runApp(const Taskii());
 }
 
@@ -26,12 +67,35 @@ class Taskii extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.light(),
-      home: const Scaffold(
-        body: SafeArea(
-          child: LoginPageSignUp(),
-        ),
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.light,
       ),
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            if (snapshot.hasData) {
+              return const HomePage();
+            }
+            return const Scaffold(
+              body: SafeArea(
+                child: LoginPageSignUp(),
+              ),
+            );
+          },
+        ),
+        '/profile': (context) => const ProfileSettingsPage(),
+      },
     );
   }
 }

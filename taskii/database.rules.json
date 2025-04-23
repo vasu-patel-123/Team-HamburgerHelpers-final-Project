@@ -1,0 +1,32 @@
+{
+  "rules": {
+    "tasks": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": ["userId", "dueDate"],
+      "$taskId": {
+        ".validate": "newData.hasChildren(['title', 'description', 'dueDate', 'userId', 'priority', 'category'])",
+        "title": {
+          ".validate": "newData.isString() && newData.val().length > 0"
+        },
+        "description": {
+          ".validate": "newData.isString()"
+        },
+        "dueDate": {
+          ".validate": "newData.isString()"
+        },
+        "userId": {
+          ".validate": "newData.isString() && newData.val() === auth.uid"
+        },
+        "priority": {
+          ".validate": "newData.isString() && (newData.val() === 'Low' || newData.val() === 'Medium' || newData.val() === 'High')"
+        },
+        "category": {
+          ".validate": "newData.isString() && (newData.val() === 'General' || newData.val() === 'Work' || newData.val() === 'Personal' || newData.val() === 'Shopping' || newData.val() === 'Health' || newData.val() === 'Education')"
+        },
+        ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)",
+        ".read": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)"
+      }
+    }
+  }
+}
