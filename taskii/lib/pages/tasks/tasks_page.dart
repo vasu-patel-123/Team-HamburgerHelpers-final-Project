@@ -306,6 +306,11 @@ class _TasksPageState extends State<TasksPage> {
     });
   }
 
+  Future<void> _refreshTasks() async {
+    _loadTasks();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_errorMessage != null) {
@@ -354,19 +359,22 @@ class _TasksPageState extends State<TasksPage> {
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: _filteredTasks.length,
-        itemBuilder: (context, index) {
-          final task = _filteredTasks[index];
-          return TaskItem(
-            task: task,
-            priorityColor: _getPriorityColor(task.priority),
-            onToggleComplete: _toggleTaskCompletion,
-            onDelete: _deleteTask,
-          );
-        },
+      body: RefreshIndicator(
+        onRefresh: _refreshTasks,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(12),
+          itemCount: _filteredTasks.length,
+          itemBuilder: (context, index) {
+            final task = _filteredTasks[index];
+            return TaskItem(
+              task: task,
+              priorityColor: _getPriorityColor(task.priority),
+              onToggleComplete: _toggleTaskCompletion,
+              onDelete: _deleteTask,
+            );
+          },
+        ),
       ),
     );
   }
-} 
+}
