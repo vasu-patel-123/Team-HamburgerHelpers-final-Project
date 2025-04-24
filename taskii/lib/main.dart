@@ -8,33 +8,75 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_settings.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   try {
-    // Initialize Firebase only if it hasn't been initialized
-    if (Firebase.apps.isEmpty) {
+    // First, try to get the default app
+    try {
+      Firebase.app();
+      // If we get here, Firebase is already initialized
+      debugPrint('Firebase already initialized');
+    } catch (e) {
+      // If getting the default app fails, initialize Firebase
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      
       // Initialize App Check
       await FirebaseAppCheck.instance.activate(
-        androidProvider: AndroidProvider.debug,
-        appleProvider: AppleProvider.debug,
+        androidProvider: const bool.fromEnvironment('dart.vm.product')
+            ? AndroidProvider.playIntegrity
+            : AndroidProvider.debug,
+        appleProvider: const bool.fromEnvironment('dart.vm.product')
+            ? AppleProvider.appAttest
+            : AppleProvider.debug,
       );
+      debugPrint('Firebase initialized successfully');
     }
   } catch (e) {
-    print('Firebase initialization error: $e');
+    if (e.toString().contains('duplicate-app')) {
+      // If we get a duplicate app error, try to get the existing app
+      try {
+        Firebase.app();
+        debugPrint('Using existing Firebase app');
+      } catch (e) {
+        debugPrint('Error accessing existing Firebase app: $e');
+      }
+    } else {
+      debugPrint('Firebase initialization error: $e');
+    }
   }
 
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.black, // navigation bar color
-    statusBarColor: Colors.white, // status bar color
-    statusBarIconBrightness: Brightness.dark, // status bar icon color
-    systemNavigationBarIconBrightness: Brightness.dark, // color of navigation controls
+  FirebaseDatabase.instanceFor(
+    app: Firebase.app(),
+    databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com/',
+  );
+
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: const bool.fromEnvironment('dart.vm.product')
+        ? AndroidProvider.playIntegrity
+        : AndroidProvider.debug,
+    appleProvider: const bool.fromEnvironment('dart.vm.product')
+        ? AppleProvider.appAttest
+        : AppleProvider.debug,
+  );
+
+  // Set up system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.black,
+    statusBarColor: Colors.white,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarIconBrightness: Brightness.dark,
   ));
+
+  // Enable hardware acceleration for better performance
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  // Run the app
   runApp(const Taskii());
 }
 
@@ -61,11 +103,9 @@ class Taskii extends StatelessWidget {
                 ),
               );
             }
-            
             if (snapshot.hasData) {
               return const HomePage();
             }
-            
             return const Scaffold(
               body: SafeArea(
                 child: LoginPageSignUp(),
@@ -206,11 +246,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           _errorMessage = '';
         });
         _showSnackBar('Successfully signed in!', isError: false);
-        // Navigate to homepage after successful login
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
       }
     } on FirebaseAuthException catch (e) {
       String errorMessage;
@@ -247,8 +282,37 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
     }
   }
 
+  Future<void> _createTask() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        _showSnackBar('You must be logged in to create tasks');
+        return;
+      }
+
+      debugPrint('Creating task for user: ${user.uid}');
+
+      final taskRef = FirebaseDatabase.instance.ref('tasks/${user.uid}').push();
+      await taskRef.set({
+        'title': 'My Task',
+        'description': 'Task Description',
+        'dueDate': '2025-04-23',
+        'priority': 'High',
+        'isComplete': false
+      });
+      _showSnackBar('Task created successfully!', isError: false);
+    } catch (e) {
+      _showSnackBar('Failed to create task: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    debugPrint('Current user: ${user?.uid}');
+    if (user == null) {
+      // Not signed in!
+    }
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -405,30 +469,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
               ),
               child: const Text(
                 'Sign up',
-                style: TextStyle(
-                  color: Color(0xFF171717),
-                  fontSize: 16,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            TextButton(
-              onPressed: () {
-                debugPrint('Home page navigation');
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomePage()),
-                );
-              },
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: const Text(
-                'Develeper go to home page',
                 style: TextStyle(
                   color: Color(0xFF171717),
                   fontSize: 16,

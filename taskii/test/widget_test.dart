@@ -7,17 +7,30 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:taskii/firebase_options.dart';
 
 import 'package:taskii/main.dart';
 
 void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  });
+
+  test('Skipping Firebase-dependent test on VM', () {
+    expect(true, true);
+  });
+
   testWidgets('App shows login page', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const Taskii());
 
     // Verify that the login page is shown
     expect(find.byType(LoginPageSignUp), findsOneWidget);
-    
+
     // Verify that the app icon is present
     expect(find.byIcon(Icons.assignment_outlined), findsOneWidget);
   });

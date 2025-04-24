@@ -1,28 +1,35 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:firebase_core/firebase_core.dart';
 import '../models/task.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 
 class TaskService {
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   final String _tasksPath = 'tasks';
 
   TaskService() {
-    // Enable offline persistence only for non-web platforms
-    if (!kIsWeb) {
-      FirebaseDatabase.instance.setPersistenceEnabled(true);
-      FirebaseDatabase.instance.setPersistenceCacheSizeBytes(10000000); // 10MB cache
+    try {
+      // Enable offline persistence only for non-web platforms
+      if (!kIsWeb && Firebase.apps.isNotEmpty) {
+        FirebaseDatabase.instance.setPersistenceEnabled(true);
+        FirebaseDatabase.instance.setPersistenceCacheSizeBytes(10000000); // 10MB cache
+      }
+    } catch (e) {
+      debugPrint('Error setting up Firebase persistence: $e');
     }
   }
 
   // Validate task data before saving
-  void _validateTask(Task task) {
+  void _validateTask(Task task, {bool isCompletionUpdate = false}) {
     if (task.title.isEmpty) {
       throw Exception('Task title cannot be empty');
     }
     if (task.userId.isEmpty) {
       throw Exception('User ID cannot be empty');
     }
-    if (task.dueDate.isBefore(DateTime.now())) {
+    // Skip due date validation if we're only updating completion status
+    if (!isCompletionUpdate && task.dueDate.isBefore(DateTime.now())) {
       throw Exception('Due date cannot be in the past');
     }
   }
@@ -41,7 +48,16 @@ class TaskService {
   // Update an existing task
   Future<void> updateTask(Task task) async {
     try {
-      _validateTask(task);
+      // Check if we're only updating the completion status
+      final existingTask = await getTaskById(task.id);
+      final isCompletionUpdate = existingTask != null && 
+        existingTask.title == task.title &&
+        existingTask.description == task.description &&
+        existingTask.dueDate == task.dueDate &&
+        existingTask.priority == task.priority &&
+        existingTask.isCompleted != task.isCompleted;
+
+      _validateTask(task, isCompletionUpdate: isCompletionUpdate);
       final taskData = task.toJson();
       await _database.child(_tasksPath).child(task.id).update(taskData);
     } catch (e) {

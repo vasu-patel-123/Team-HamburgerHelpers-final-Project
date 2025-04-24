@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:uuid/uuid.dart';
+import 'dart:async';
 import '../models/task.dart';
 import '../services/task_service.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'pages/tasks/tasks_page.dart';
+import 'pages/add_task/add_task_page.dart';
+import 'pages/calendar/calendar_page.dart';
+import 'pages/stats/stats_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -30,28 +34,12 @@ class _NavigationExampleState extends State<NavigationExample> {
   List<Task> _tasks = [];
   bool _isLoading = true;
   String? _errorMessage;
-
-  // Controllers for text fields
-  TextEditingController taskNameController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
-  TextEditingController categoryController = TextEditingController();
-  TextEditingController dateController = TextEditingController();
-  TextEditingController timeController = TextEditingController();
-  // Date and time
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedTime = TimeOfDay.now();
-  // Priority
-  String priority = 'Low'; // Default priority
-  // Reminder
-  bool setReminder = false;
-
-  // Form Key for validation
-  final _formKey = GlobalKey<FormState>();
+  StreamSubscription? _subscription;
 
   // Calendar related variables
-  DateTime _focusedDay = DateTime.now();
+  final DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  CalendarFormat _calendarFormat = CalendarFormat.month;
+  final CalendarFormat _calendarFormat = CalendarFormat.month;
   Map<DateTime, List<Map<String, dynamic>>> _events = {};
 
   @override
@@ -65,13 +53,7 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   @override
   void dispose() {
-    // Cancel any ongoing database operations
-    _taskService.getUserTasks(_auth.currentUser?.uid ?? '').listen((tasks) {}).cancel();
-    taskNameController.dispose();
-    descriptionController.dispose();
-    categoryController.dispose();
-    dateController.dispose();
-    timeController.dispose();
+    _subscription?.cancel();
     super.dispose();
   }
 
@@ -88,41 +70,30 @@ class _NavigationExampleState extends State<NavigationExample> {
   }
 
   void _loadTasks() {
-    if (!mounted) return;
-    
-    final userId = _auth.currentUser?.uid;
-    if (userId == null) {
-      setState(() {
-        _errorMessage = 'User not authenticated';
-        _isLoading = false;
-        _tasks = [];
-      });
-      return;
-    }
-
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
-    _taskService.getUserTasks(userId).listen(
-      (tasks) {
-        if (!mounted) return;
-        setState(() {
-          _tasks = tasks;
-          _isLoading = false;
-          _generateEvents(); // Generate events after tasks are loaded
-        });
-      },
-      onError: (error) {
-        if (!mounted) return;
-        setState(() {
-          _errorMessage = error.toString();
-          _isLoading = false;
-          _tasks = [];
-        });
-      },
-    );
+    _subscription = _taskService.getUserTasks(_auth.currentUser?.uid ?? '')
+        .listen(
+          (tasks) {
+            if (mounted) {
+              setState(() {
+                _tasks = tasks;
+                _isLoading = false;
+                _generateEvents();
+              });
+            }
+          },
+          onError: (error) {
+            if (mounted) {
+              setState(() {
+                _errorMessage = error.toString();
+                _isLoading = false;
+              });
+            }
+          },
+        );
   }
 
   void _showSuccessSnackBar(String message) {
@@ -133,38 +104,6 @@ class _NavigationExampleState extends State<NavigationExample> {
         duration: const Duration(seconds: 2),
       ),
     );
-  }
-
-  // Date Picker
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2101),
-    );
-
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-        dateController.text = DateFormat('yyyy-MM-dd').format(picked);
-      });
-    }
-  }
-
-  // Time Picker
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: selectedTime,
-    );
-
-    if (picked != null && picked != selectedTime) {
-      setState(() {
-        selectedTime = picked;
-        timeController.text = picked.format(context);
-      });
-    }
   }
 
   void _generateEvents() {
@@ -182,8 +121,10 @@ class _NavigationExampleState extends State<NavigationExample> {
         'title': task.title,
         'description': task.description,
         'priority': task.priority,
-        'dueDate': task.dueDate.toIso8601String(),
+        'dueDate': task.dueDate,
         'id': task.id,
+        'isCompleted': task.isCompleted,
+        'userId': task.userId,
       };
       tempEvents[date]!.add(taskMap);
     }
@@ -199,94 +140,160 @@ class _NavigationExampleState extends State<NavigationExample> {
     return _events[normalizedDay] ?? [];
   }
 
-  Widget _buildTaskList() {
-    final tasks = _getTasksForDay(_selectedDay!);
+  // Helper methods for task management
+  Task? _getCurrentTask() {
+    if (_tasks.isEmpty) return null;
+    final now = DateTime.now();
+    // Only consider incomplete tasks that are due after now
+    return _tasks.where((task) => !task.isCompleted && task.dueDate.isAfter(now))
+      .fold<Task?>(null, (currentMin, task) {
+        if (currentMin == null) return task;
+        return task.dueDate.isBefore(currentMin.dueDate) ? task : currentMin;
+      });
+  }
 
-    if (tasks.isEmpty) {
-      return Center(child: Text('No tasks for this day'));
+  String _getTimeLeft() {
+    final currentTask = _getCurrentTask();
+    if (currentTask == null) return '0min left';
+    
+    final now = DateTime.now();
+    final difference = currentTask.dueDate.difference(now);
+    
+    if (difference.isNegative) return 'Overdue';
+    if (difference.inHours > 0) {
+      return '${difference.inHours}h ${difference.inMinutes.remainder(60)}min left';
+    }
+    return '${difference.inMinutes}min left till start ';
+  }
+
+  Task? _getNextHighPriorityTask() {
+    final now = DateTime.now();
+    try {
+      return _tasks.firstWhere(
+        (task) => 
+          task.priority == 'High' && 
+          task.dueDate.isAfter(now) &&
+          task.dueDate.difference(now).inMinutes <= 30,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<Task> _getUpcomingTasks() {
+    final now = DateTime.now();
+    return _tasks
+        .where((task) => task.dueDate.isAfter(now))
+        .toList()
+      ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
+  }
+
+  List<Map<String, dynamic>> _getFreeTimeSlots() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    
+    // Get all tasks for today
+    final todayTasks = _tasks.where((task) {
+      final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+      return taskDate.isAtSameMomentAs(today);
+    }).toList()
+      ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
+
+    List<Map<String, dynamic>> freeSlots = [];
+    
+    // If no tasks, the whole day is free
+    if (todayTasks.isEmpty) {
+      freeSlots.add({
+        'start': now,
+        'end': tomorrow,
+        'duration': 'All day'
+      });
+      return freeSlots;
     }
 
-    return ListView.builder(
-      padding: EdgeInsets.all(12),
-      itemCount: tasks.length,
-      itemBuilder: (context, index) {
-        final task = tasks[index];
-        String priority = task['priority'] as String? ?? 'Low';
-        DateTime taskDate = DateTime.parse(task['dueDate'] as String);
-        Color priorityColor;
+    // Check time before first task
+    if (todayTasks.first.dueDate.isAfter(now)) {
+      freeSlots.add({
+        'start': now,
+        'end': todayTasks.first.dueDate,
+        'duration': _formatDuration(todayTasks.first.dueDate.difference(now))
+      });
+    }
 
-        switch (priority) {
-          case 'High':
-            priorityColor = Colors.red;
-            break;
-          case 'Medium':
-            priorityColor = Colors.orange;
-            break;
-          case 'Low':
-          default:
-            priorityColor = Colors.green;
-            break;
-        }
+    // Check time between tasks
+    for (int i = 0; i < todayTasks.length - 1; i++) {
+      final currentTask = todayTasks[i];
+      final nextTask = todayTasks[i + 1];
+      
+      // Only add free time slots that start after the current time
+      if (nextTask.dueDate.difference(currentTask.dueDate) > const Duration(minutes: 30) &&
+          currentTask.dueDate.isAfter(now)) {
+        freeSlots.add({
+          'start': currentTask.dueDate,
+          'end': nextTask.dueDate,
+          'duration': _formatDuration(nextTask.dueDate.difference(currentTask.dueDate))
+        });
+      }
+    }
 
-        return Container(
-          margin: EdgeInsets.symmetric(vertical: 8),
-          padding: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(color: priorityColor, width: 6),
-              top: BorderSide(color: Colors.grey.shade400, width: 1),
-              right: BorderSide(color: Colors.grey.shade400, width: 1),
-              bottom: BorderSide(color: Colors.grey.shade400, width: 1),
-            ),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(task['title'] as String? ?? '',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 4),
-                    Text(
-                      DateFormat('yyyy-MM-dd HH:mm').format(taskDate),
-                      style: TextStyle(color: Colors.grey.shade700)
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: priorityColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  priority,
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
-                onPressed: () {
-                  debugPrint("Edit task: ${task['title']}");
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    // Check time after last task
+    final lastTask = todayTasks.last;
+    if (lastTask.dueDate.isBefore(tomorrow) && lastTask.dueDate.isAfter(now)) {
+      freeSlots.add({
+        'start': lastTask.dueDate,
+        'end': tomorrow,
+        'duration': _formatDuration(tomorrow.difference(lastTask.dueDate))
+      });
+    }
+
+    return freeSlots;
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    if (hours > 0) {
+      return '$hours hour${hours > 1 ? 's' : ''} ${minutes > 0 ? '$minutes min' : ''}';
+    }
+    return '$minutes min';
+  }
+
+  Color _getPriorityColor(String priority) {
+    switch (priority) {
+      case 'High':
+        return Colors.red;
+      case 'Medium':
+        return Colors.orange;
+      default:
+        return Colors.green;
+    }
+  }
+
+  // Add this method to calculate day progress
+  double _calculateDayProgress() {
+    if (_tasks.isEmpty) return 0.0;
+    
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    // Get all tasks for today
+    final todayTasks = _tasks.where((task) {
+      final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+      return taskDate.isAtSameMomentAs(today);
+    }).toList();
+    
+    if (todayTasks.isEmpty) return 0.0;
+    
+    // Count completed tasks
+    final completedTasks = todayTasks.where((task) => task.isCompleted).length;
+    
+    // Calculate progress as a percentage
+    return completedTasks / todayTasks.length;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Show error message if there is one
     if (_errorMessage != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -310,7 +317,9 @@ class _NavigationExampleState extends State<NavigationExample> {
     }
 
     if (_isLoading) {
-      return _buildLoadingIndicator();
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
     }
 
     return Scaffold(
@@ -373,264 +382,293 @@ class _NavigationExampleState extends State<NavigationExample> {
               ),
             ],
           ),
-        ),
-
-        /// Tasks page
-        Scaffold(
-          /// top bar
-          appBar: AppBar(
-            shape: Border(
-              bottom: BorderSide(
-                color: const Color.fromARGB(255, 153, 142, 126),
-                width: 4
-              )
-            ),
-            elevation: 4,
-            title: const Text('Tasks'),
-            /// profile button
-            actions: <Widget>[
-              SizedBox(
-                width: 100,
-                child: TextButton(
-                  onPressed: () {
-                    debugPrint('Add task pressed');
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 120, 205, 233),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: const Text(
-                    '+ ADD Task',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          body: ListView.builder(
-            padding: EdgeInsets.all(12),
-            itemCount: _tasks.length,
-            itemBuilder: (context, index) {
-              final task = _tasks[index];
-              String priority = task.priority;
-              Color priorityColor;
-              switch (priority) {
-                case 'High':
-                  priorityColor = Colors.red;
-                  break;
-                case 'Medium':
-                  priorityColor = Colors.orange; // better contrast than yellow
-                  break;
-                case 'Low':
-                default:
-                  priorityColor = Colors.green;
-                  break;
-              }
-
-              return Container(
-                margin: EdgeInsets.symmetric(vertical: 8),
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  border: Border(
-                    left: BorderSide(color: priorityColor, width: 6), // colored left edge
-                    top: BorderSide(color: Colors.grey.shade400, width: 1),
-                    right: BorderSide(color: Colors.grey.shade400, width: 1),
-                    bottom: BorderSide(color: Colors.grey.shade400, width: 1),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(task.title,
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 4),
-                          Text(DateFormat('yyyy-MM-dd').format(task.dueDate),
-                              style: TextStyle(color: Colors.grey.shade700)),
-                        ],
-                      ),
-                    ),
-
-                    // Priority label with oval background
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: priorityColor, // Background color based on priority
-                        borderRadius: BorderRadius.circular(20), // Oval shape
-                      ),
-                      child: Text(
-                        priority,
-                        style: TextStyle(
-                          color: Colors.black, // Black text color
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-
-                    /// edit button
-                    IconButton(
-                      icon: Icon(Icons.edit, color: const Color.fromARGB(255, 65, 67, 72)),
-                      onPressed: () {
-                        // Handle edit logic
-                        debugPrint("Edit task: ${task.title}");
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
-          )
-        ),
-
-        /// Add task page
-        Scaffold(
-          /// top bar
-          appBar: AppBar(
-            shape: Border(
-              bottom: BorderSide(
-                color: const Color.fromARGB(255, 153, 142, 126),
-                width: 4
-              )
-            ),
-            elevation: 4,
-            title: const Text('ADD Task'),
-          ),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                children: <Widget>[
-                  // Task Name
-                  TextFormField(
-                    controller: taskNameController,
-                    decoration: InputDecoration(
-                      labelText: 'Task Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a task name';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 12),
-
-                  // Task Due Date/Time
-                  Row(
-                    children: <Widget>[
-                      //Date field
-                      Expanded(
-                        child: InkWell(
-                          onTap: () => _selectDate(context),
-                          child: AbsorbPointer(
-                            child: TextFormField(
-                              controller: dateController,
-                              decoration: InputDecoration(
-                                labelText: 'Due Date',
-                                border: OutlineInputBorder(),
-                              ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Day Progress Section
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Day Progress',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
+                          Text(
+                            '${(_calculateDayProgress() * 100).toStringAsFixed(0)}%',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      LinearProgressIndicator(
+                        value: _calculateDayProgress(),
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                        minHeight: 8,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Current Task Section
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Current/Upcoming Task',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 12),
-                      //time field
-                      Expanded(
-                        child: InkWell(
-                          onTap: () => _selectTime(context),
-                          child: AbsorbPointer(
-                            child: TextFormField(
-                              controller: timeController,
-                              decoration: InputDecoration(
-                                labelText: 'Due Time',
-                                border: OutlineInputBorder(),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _getCurrentTask()?.title ?? 'No current task',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ),
+                            const SizedBox(height: 8),
+                            Text(
+                              _getTimeLeft(),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 24),
 
-                  // Priority
-                  DropdownButtonFormField<String>(
-                    value: priority,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        priority = newValue!;
-                      });
-                    },
-                    items: ['Low', 'Medium', 'High']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      labelText: 'Priority',
-                      border: OutlineInputBorder(),
+                  // High Priority Warning
+                  if (_getNextHighPriorityTask() != null)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.warning_rounded,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'High priority task "${_getNextHighPriorityTask()?.title}" ${_getTimeLeftForHighPriorityTask()}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 12),
 
-                  // Description
-                  TextFormField(
-                    controller: descriptionController,
-                    maxLines: 4,
-                    decoration: InputDecoration(
-                      labelText: 'Description',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 24),
 
-                  // Category
-                  TextFormField(
-                    controller: categoryController,
-                    decoration: InputDecoration(
-                      labelText: 'Category',
-                      border: OutlineInputBorder(),
-                    ),
+                  // Up Next Section
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Up Next',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ..._getUpcomingTasks().map((task) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.only(left: 0),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: IntrinsicHeight(
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 8,
+                                  decoration: BoxDecoration(
+                                    color: _getPriorityColor(task.priority),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(7),
+                                      bottomLeft: Radius.circular(7),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Row(
+                                      children: [
+                                        Checkbox(
+                                          value: task.isCompleted,
+                                          onChanged: (bool? value) {
+                                            _toggleTaskCompletion(task);
+                                          },
+                                        ),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                task.title,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                  decoration: task.isCompleted 
+                                                    ? TextDecoration.lineThrough 
+                                                    : TextDecoration.none,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                DateFormat('h:mm a').format(task.dueDate),
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )),
+                    ],
                   ),
-                  SizedBox(height: 12),
 
-                  // Reminder Section
-                  SwitchListTile(
-                    title: Text('Set Reminder'),
-                    value: setReminder,
-                    onChanged: (bool value) {
-                      setState(() {
-                        setReminder = value;
-                      });
-                    },
-                  ),
-                  SizedBox(height: 12),
-
-                  // Submit Button
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        _addTask();
-                      }
-                    },
-                    child: Text('Save Task'),
+                  // Available Free Time Section
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Available Free Time',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ..._getFreeTimeSlots().map((slot) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    DateFormat('h:mm a').format(slot['start']),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    DateFormat('h:mm a').format(slot['end']),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                slot['duration'],
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // Navigate to add task page with pre-filled time
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AddTaskPage(
+                                          initialDate: slot['start'],
+                                          initialTime: TimeOfDay.fromDateTime(slot['start']),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.black,
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Schedule Task',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )),
+                    ],
                   ),
                 ],
               ),
@@ -638,95 +676,30 @@ class _NavigationExampleState extends State<NavigationExample> {
           ),
         ),
 
+        /// Tasks page
+        TasksPage(
+          tasks: _tasks,
+          onTaskCompletion: _toggleTaskCompletion,
+          onTaskDelete: _deleteTask,
+          onFilterApply: _applyFilters,
+          onFilterClear: _clearFilters,
+        ),
+
+        /// Add task page
+        AddTaskPage(),
+
         /// Calandar page
-        Scaffold(
-          /// top bar
-          appBar: AppBar(
-            shape: Border(
-              bottom: BorderSide(
-                color: const Color.fromARGB(255, 153, 142, 126),
-                width: 4
-              )
-            ),
-            elevation: 4,
-            title: const Text('Calendar'),
-            
-            actions: <Widget>[
-              /// add button
-              IconButton(
-                icon: const Icon(Icons.add),
-                
-                onPressed: () {
-                  // handle the press
-                },
-              ),
-              /// filter button
-              IconButton(
-                icon: const Icon(Icons.filter_list),
-                
-                onPressed: () {
-                  // handle the press
-                },
-              ),
-            ],
-          ),
-          body: Column(
-            children: [
-              TableCalendar(
-                firstDay: DateTime(2020),
-                lastDay: DateTime(2100),
-                focusedDay: _focusedDay,
-                selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                calendarFormat: _calendarFormat,
-                onFormatChanged: (format) {
-                  setState(() {
-                    _calendarFormat = format;
-                  });
-                },
-
-                eventLoader: _getTasksForDay,
-                onDaySelected: (selectedDay, focusedDay) {
-                  setState(() {
-                    _selectedDay = selectedDay;
-                    _focusedDay = focusedDay;
-                  });
-                },
-                calendarStyle: CalendarStyle(
-                  markerDecoration: BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                availableCalendarFormats: const {
-                  CalendarFormat.month: 'Week',
-                  CalendarFormat.twoWeeks: 'Month',
-                  CalendarFormat.week: '2 Weeks',
-                },
-              ),
-
-
-              const SizedBox(height: 8.0),
-              Expanded(
-                child: _buildTaskList(),
-              ),
-            ],
-          ),
+        CalendarPage(
+          tasks: _tasks,
+          onTaskCompletion: _toggleTaskCompletion,
+          onTaskDelete: _deleteTask,
+          onFilterApply: _applyFilters,
+          onFilterClear: _clearFilters,
         ),
 
         /// Stats page
-        /// Add task page
-        Scaffold(
-          /// top bar
-          appBar: AppBar(
-            shape: Border(
-              bottom: BorderSide(
-                color: const Color.fromARGB(255, 153, 142, 126),
-                width: 4
-              )
-            ),
-            elevation: 4,
-            title: const Text('Stats'),
-          ),
+        StatsPage(
+          tasks: _tasks,
         ),
 
       ][currentPageIndex],
@@ -765,72 +738,257 @@ class _NavigationExampleState extends State<NavigationExample> {
     );
   }
 
-  Future<void> _addTask() async {
-    final userId = _auth.currentUser?.uid;
-    if (userId == null) {
-      setState(() {
-        _errorMessage = 'User not authenticated';
-      });
-      return;
-    }
-
-    if (dateController.text.isEmpty || timeController.text.isEmpty) {
-      _showSnackBar('Please select both date and time');
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
+  // Add this method to mark a task as completed
+  Future<void> _toggleTaskCompletion(Task task) async {
     try {
-      // Create a DateTime that properly combines the selected date and time
-      final DateTime taskDateTime = DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-        selectedTime.hour,
-        selectedTime.minute,
+      final updatedTask = Task(
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        dueDate: task.dueDate,
+        priority: task.priority,
+        category: task.category,
+        isCompleted: !task.isCompleted,
+        userId: task.userId,
       );
-
-      final task = Task(
-        id: const Uuid().v4(),
-        title: taskNameController.text,
-        description: descriptionController.text,
-        dueDate: taskDateTime,
-        priority: priority,
-        userId: userId,
-      );
-
-      await _taskService.createTask(task);
       
-      // Clear controllers
-      taskNameController.clear();
-      descriptionController.clear();
-      categoryController.clear();
-      dateController.clear();
-      timeController.clear();
+      await _taskService.updateTask(updatedTask);
       
-      // Reset to default values
+      // Force a UI update by refreshing the state
       setState(() {
-        selectedDate = DateTime.now();
-        selectedTime = TimeOfDay.now();
-        priority = 'Low';
-        _isLoading = false;
+        // Update the task in the local list
+        final index = _tasks.indexWhere((t) => t.id == task.id);
+        if (index != -1) {
+          _tasks[index] = updatedTask;
+        }
+        
+        // If this was the current task and it's now completed, 
+        // the UI will automatically update to show the next task
+        // since _getCurrentTask() filters out completed tasks
       });
-
-      _showSuccessSnackBar('Task created successfully!');
       
-      // Switch to the calendar view after adding the task
-      setState(() {
-        currentPageIndex = 3; // Index of the calendar page
-      });
+      _showSuccessSnackBar('Task ${task.isCompleted ? "uncompleted" : "completed"}!');
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+      _showSnackBar('Failed to update task: ${e.toString()}');
     }
+  }
+
+  // Add this method to delete a task
+  Future<void> _deleteTask(Task task) async {
+    try {
+      await _taskService.deleteTask(task.id);
+      _showSuccessSnackBar('Task deleted successfully!');
+    } catch (e) {
+      _showSnackBar('Failed to delete task: ${e.toString()}');
+    }
+  }
+
+  // Add this method to show the filter dialog
+  void _showFilterDialog(BuildContext context) {
+    // Use the stored filter values
+    String selectedPriority = 'All';
+    bool showCompleted = true;
+    bool showIncomplete = true;
+    DateTime? startDate;
+    DateTime? endDate;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Filter Tasks'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Priority Filter
+                    DropdownButtonFormField<String>(
+                      value: selectedPriority,
+                      decoration: const InputDecoration(
+                        labelText: 'Priority',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: ['All', 'High', 'Medium', 'Low']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedPriority = newValue!;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Completion Status Filter
+                    const Text('Show Tasks:'),
+                    CheckboxListTile(
+                      title: const Text('Completed'),
+                      value: showCompleted,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          showCompleted = value!;
+                        });
+                      },
+                    ),
+                    CheckboxListTile(
+                      title: const Text('Incomplete'),
+                      value: showIncomplete,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          showIncomplete = value!;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Date Range Filter
+                    const Text('Date Range:'),
+                    ListTile(
+                      title: Text(startDate == null
+                          ? 'Select Start Date'
+                          : DateFormat('yyyy-MM-dd').format(startDate!)),
+                      trailing: const Icon(Icons.calendar_today),
+                      onTap: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: startDate ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            startDate = picked;
+                          });
+                        }
+                      },
+                    ),
+                    ListTile(
+                      title: Text(endDate == null
+                          ? 'Select End Date'
+                          : DateFormat('yyyy-MM-dd').format(endDate!)),
+                      trailing: const Icon(Icons.calendar_today),
+                      onTap: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: endDate ?? DateTime.now(),
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            endDate = picked;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Clear all filters
+                    _clearFilters();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Clear Filters'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Apply filters
+                    _applyFilters(
+                      selectedPriority,
+                      showCompleted,
+                      showIncomplete,
+                      startDate,
+                      endDate,
+                    );
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Apply'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // Add this method to apply the filters
+  void _applyFilters(
+    String priority,
+    bool showCompleted,
+    bool showIncomplete,
+    DateTime? startDate,
+    DateTime? endDate,
+  ) {
+    // If all filters are at their default values, reset filtered tasks
+    if (priority == 'All' && showCompleted && showIncomplete && startDate == null && endDate == null) {
+      setState(() {
+        _tasks = List.from(_tasks);
+      });
+      return;
+    }
+
+    // Apply filters to a copy of all tasks
+    setState(() {
+      _tasks = _tasks.where((task) {
+        // Priority filter
+        if (priority != 'All' && task.priority != priority) {
+          return false;
+        }
+
+        // Completion status filter
+        if (!showCompleted && task.isCompleted) {
+          return false;
+        }
+        if (!showIncomplete && !task.isCompleted) {
+          return false;
+        }
+
+        // Date range filter
+        if (startDate != null && task.dueDate.isBefore(startDate)) {
+          return false;
+        }
+        if (endDate != null && task.dueDate.isAfter(endDate)) {
+          return false;
+        }
+
+        return true;
+      }).toList();
+    });
+  }
+
+  // Add this method to clear all filters
+  void _clearFilters() {
+    setState(() {
+      _tasks = List.from(_tasks); // Reset filtered tasks to show all tasks
+    });
+  }
+
+  // Add this method to calculate time left for high priority task
+  String _getTimeLeftForHighPriorityTask() {
+    final task = _getNextHighPriorityTask();
+    if (task == null) return '';
+    
+    final now = DateTime.now();
+    final difference = task.dueDate.difference(now);
+    
+    if (difference.isNegative) return 'starts now';
+    if (difference.inMinutes < 1) return 'starts in less than a minute';
+    return 'starts in ${difference.inMinutes} minutes';
   }
 }
