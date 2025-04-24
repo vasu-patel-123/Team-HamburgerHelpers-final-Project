@@ -33,7 +33,7 @@ Android/iOS emulator or physical device for testing
 5. 
    To run the app in production mode:
    
-   `flutter run` if using the command line interface.
+   `flutter run` if using the command line interface and select from the options provided. Running from browser is easier.
    
    Or simply by pressing the green play button, to run the emulator in Android Studios.
 

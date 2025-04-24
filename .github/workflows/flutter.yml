@@ -1,0 +1,40 @@
+name: Flutter Android CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:  # Allows manual triggering
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.x"
+          channel: "stable"
+          cache: true
+
+      - name: Change to project directory
+        run: cd taskii
+
+      - name: Install dependencies
+        working-directory: ./taskii
+        run: flutter pub get
+
+      - name: Analyze project source
+        working-directory: ./taskii
+        run: flutter analyze --no-suggestions --no-fatal-warnings --no-fatal-infos
+
+      - name: Run tests
+        working-directory: ./taskii
+        run: flutter test
+
+      - name: Build
+        working-directory: ./taskii
+        run: flutter build apk --debug
