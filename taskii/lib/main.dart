@@ -202,13 +202,11 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
   }
 
   Future<void> _signIn() async {
-    // Check if account is locked
     if (_isLockedOut()) {
       _showSnackBar(_getLockoutMessage());
       return;
     }
 
-    // Check for empty fields
     if (_emailController.text.trim().isEmpty) {
       _showSnackBar('Please enter your email');
       return;
@@ -219,35 +217,35 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
       return;
     }
 
-    // Validate email format
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(_emailController.text.trim())) {
       _showSnackBar('Please enter a valid email address');
       return;
     }
 
-    // Validate password length
     if (_passwordController.text.trim().length < 6) {
       _showSnackBar('Password must be at least 6 characters long');
       return;
     }
 
     try {
+      showLoadingDialog(context, message: "Signing in...");
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      // Reset failed attempts on successful login
       _failedAttempts = 0;
       _lockoutUntil = null;
       await _saveLockoutState();
       if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop(); // Remove loading dialog
         setState(() {
           _errorMessage = '';
         });
         _showSnackBar('Successfully signed in!', isError: false);
       }
     } on FirebaseAuthException catch (e) {
+      Navigator.of(context, rootNavigator: true).pop(); // Remove loading dialog
       String errorMessage;
       switch (e.code) {
         case 'user-not-found':
@@ -278,6 +276,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
       });
       _showSnackBar(errorMessage);
     } catch (e) {
+      Navigator.of(context, rootNavigator: true).pop(); // Remove loading dialog
       _showSnackBar('An unexpected error occurred: ${e.toString()}');
     }
   }
