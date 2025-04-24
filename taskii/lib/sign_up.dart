@@ -3,10 +3,13 @@ import 'terms_conditions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SignUpPage extends StatelessWidget {
+
   const SignUpPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign Up'),
@@ -68,6 +71,7 @@ class SignUpPage extends StatelessWidget {
               //email box
               const SizedBox(height: 16),
               TextField(
+                controller: emailController, 
                 decoration: InputDecoration(
                   hintText: 'Email',
                   hintStyle: const TextStyle(
@@ -89,6 +93,7 @@ class SignUpPage extends StatelessWidget {
             //password box
             const SizedBox(height: 16),
             TextField(
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 hintText: 'Password',
@@ -150,8 +155,7 @@ class SignUpPage extends StatelessWidget {
               width: double.infinity,
               child: TextButton(
                 onPressed: () async {
-                  final emailController = TextEditingController();
-                  final passwordController = TextEditingController();
+
 
                   // Retrieve email and password from the text fields
                   final email = emailController.text.trim();
