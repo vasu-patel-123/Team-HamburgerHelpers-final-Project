@@ -484,3 +484,25 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
   }
 }
 
+// Simple loading dialog
+void showLoadingDialog(BuildContext context, {String message = "Loading..."}) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(message, style: const TextStyle(color: Colors.white)),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
