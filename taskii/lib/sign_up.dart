@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'terms_conditions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'home_page.dart';
 
 class SignUpPage extends StatelessWidget {
 
@@ -172,6 +173,7 @@ class SignUpPage extends StatelessWidget {
                       password: password,
                     );
                     debugPrint('User signed up successfully: ${credential.user?.email}');
+                    MaterialPageRoute(builder: (context) => const HomePage());
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'weak-password') {
                       debugPrint('The password provided is too weak.');
