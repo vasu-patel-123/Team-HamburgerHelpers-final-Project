@@ -51,6 +51,21 @@ Future<void> main() async {
     }
   }
 
+  FirebaseDatabase.instanceFor(
+    app: Firebase.app(),
+    databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com/',
+  );
+
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: const bool.fromEnvironment('dart.vm.product')
+        ? AndroidProvider.playIntegrity
+        : AndroidProvider.debug,
+    appleProvider: const bool.fromEnvironment('dart.vm.product')
+        ? AppleProvider.appAttest
+        : AppleProvider.debug,
+  );
+
   // Set up system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.black,
@@ -274,9 +289,9 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         _showSnackBar('You must be logged in to create tasks');
         return;
       }
-      
+
       debugPrint('Creating task for user: ${user.uid}');
-      
+
       final taskRef = FirebaseDatabase.instance.ref('tasks/${user.uid}').push();
       await taskRef.set({
         'title': 'My Task',
@@ -285,7 +300,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         'priority': 'High',
         'isComplete': false
       });
-      
       _showSnackBar('Task created successfully!', isError: false);
     } catch (e) {
       _showSnackBar('Failed to create task: $e');
@@ -294,6 +308,11 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    debugPrint('Current user: ${user?.uid}');
+    if (user == null) {
+      // Not signed in!
+    }
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
