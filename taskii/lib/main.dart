@@ -1,5 +1,5 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
@@ -8,11 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_settings.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'pages/tasks/tasks_page.dart';
-import 'pages/calendar/calendar_page.dart';
-import 'pages/stats/stats_page.dart';
-import 'pages/add_task/add_task_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -20,16 +15,18 @@ void main() async {
 }
 
 class Taskii extends StatelessWidget {
-  const Taskii({super.key});
+  final FirebaseAuth? firebaseAuth;
+  const Taskii({super.key, this.firebaseAuth});
 
   @override
   Widget build(BuildContext context) {
+    final auth = firebaseAuth ?? FirebaseAuth.instance;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
         '/': (context) => StreamBuilder<User?>(
-          stream: FirebaseAuth.instance.authStateChanges(),
+          stream: auth.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Scaffold(body: Center(child: CircularProgressIndicator()));
