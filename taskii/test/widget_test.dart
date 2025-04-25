@@ -16,7 +16,7 @@ void main() {
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+      options: MockFirebaseOptions.currentPlatform,
     );
   });
 
