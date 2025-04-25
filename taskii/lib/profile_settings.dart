@@ -52,10 +52,10 @@ class ProfileSettingsPage extends StatelessWidget {
             Center(
               child: Column(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 50,
-                    backgroundColor: Color(0xFF171717),
-                    child: Icon(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    child: const Icon(
                       Icons.person,
                       size: 50,
                       color: Colors.white,

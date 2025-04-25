@@ -329,7 +329,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
               child: TextButton(
                 onPressed: _signIn,
                 style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFF171717),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
