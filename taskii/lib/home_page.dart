@@ -143,10 +143,10 @@ class _HomePageState extends State<HomePage> {
   String _getTimeLeft() {
     final currentTask = _getCurrentTask();
     if (currentTask == null) return '0min left';
-    
+
     final now = DateTime.now();
     final difference = currentTask.dueDate.difference(now);
-    
+
     if (difference.isNegative) return 'Overdue';
     if (difference.inHours > 0) {
       return '${difference.inHours}h ${difference.inMinutes.remainder(60)}min left';
@@ -158,8 +158,8 @@ class _HomePageState extends State<HomePage> {
     final now = DateTime.now();
     try {
       return _tasks.firstWhere(
-        (task) => 
-          task.priority == 'High' && 
+        (task) =>
+          task.priority == 'High' &&
           task.dueDate.isAfter(now) &&
           task.dueDate.difference(now).inMinutes <= 30,
       );
@@ -189,7 +189,7 @@ class _HomePageState extends State<HomePage> {
       ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
 
     List<Map<String, dynamic>> freeSlots = [];
-    
+
     // If no tasks, the whole day is free
     if (todayTasks.isEmpty) {
       freeSlots.add({
@@ -213,7 +213,7 @@ class _HomePageState extends State<HomePage> {
     for (int i = 0; i < todayTasks.length - 1; i++) {
       final currentTask = todayTasks[i];
       final nextTask = todayTasks[i + 1];
-      
+
       // Only add free time slots that start after the current time
       if (nextTask.dueDate.difference(currentTask.dueDate) > const Duration(minutes: 30) &&
           currentTask.dueDate.isAfter(now)) {
@@ -261,21 +261,21 @@ class _HomePageState extends State<HomePage> {
   // Add this method to calculate day progress
   double _calculateDayProgress() {
     if (_tasks.isEmpty) return 0.0;
-    
+
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
+
     // Get all tasks for today
     final todayTasks = _tasks.where((task) {
       final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
       return taskDate.isAtSameMomentAs(today);
     }).toList();
-    
+
     if (todayTasks.isEmpty) return 0.0;
-    
+
     // Count completed tasks
     final completedTasks = todayTasks.where((task) => task.isCompleted).length;
-    
+
     // Calculate progress as a percentage
     return completedTasks / todayTasks.length;
   }
@@ -972,10 +972,10 @@ class _HomePageState extends State<HomePage> {
   String _getTimeLeftForHighPriorityTask() {
     final task = _getNextHighPriorityTask();
     if (task == null) return '';
-    
+
     final now = DateTime.now();
     final difference = task.dueDate.difference(now);
-    
+
     if (difference.isNegative) return 'starts now';
     if (difference.inMinutes < 1) return 'starts in less than a minute';
     return 'starts in ${difference.inMinutes} minutes';
