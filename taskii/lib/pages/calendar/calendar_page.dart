@@ -69,7 +69,7 @@ class _CalendarPageState extends State<CalendarPage> {
       if (!tempEvents.containsKey(date)) {
         tempEvents[date] = [];
       }
-      
+
       Map<String, dynamic> taskMap = {
         'title': task.title,
         'description': task.description,
@@ -82,7 +82,7 @@ class _CalendarPageState extends State<CalendarPage> {
       };
       tempEvents[date]!.add(taskMap);
     }
-    
+
     setState(() {
       _events = tempEvents;
     });
@@ -256,7 +256,7 @@ class _CalendarPageState extends State<CalendarPage> {
       appBar: AppBar(
         shape: Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 153, 142, 126),
+            color: Theme.of(context).colorScheme.primary,
             width: 4
           )
         ),

@@ -25,22 +25,20 @@ class StatsPage extends StatelessWidget {
 
     final weekTasks = tasks.where((task) {
       final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
-      return taskDate.isAfter(thisWeek.subtract(const Duration(days: 1))) && 
-             taskDate.isBefore(thisWeek.add(const Duration(days: 7)));
+      return taskDate.isAfter(thisWeek.subtract(const Duration(days: 1))) && taskDate.isBefore(thisWeek.add(const Duration(days: 7)));
     }).toList();
 
     final monthTasks = tasks.where((task) {
       final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
-      return taskDate.isAfter(thisMonth.subtract(const Duration(days: 1))) && 
-             taskDate.isBefore(DateTime(today.year, today.month + 1, 1));
+      return taskDate.isAfter(thisMonth.subtract(const Duration(days: 1))) && taskDate.isBefore(DateTime(today.year, today.month + 1, 1));
     }).toList();
 
     // Calculate completion rates
-    final todayCompletionRate = todayTasks.isEmpty ? 0.0 : 
+    final todayCompletionRate = todayTasks.isEmpty ? 0.0 :
         todayTasks.where((task) => task.isCompleted).length / todayTasks.length;
-    final weekCompletionRate = weekTasks.isEmpty ? 0.0 : 
+    final weekCompletionRate = weekTasks.isEmpty ? 0.0 :
         weekTasks.where((task) => task.isCompleted).length / weekTasks.length;
-    final monthCompletionRate = monthTasks.isEmpty ? 0.0 : 
+    final monthCompletionRate = monthTasks.isEmpty ? 0.0 :
         monthTasks.where((task) => task.isCompleted).length / monthTasks.length;
 
     // Calculate priority distribution
@@ -54,7 +52,7 @@ class StatsPage extends StatelessWidget {
       appBar: AppBar(
         shape: Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 153, 142, 126),
+            color: Theme.of(context).colorScheme.primary,
             width: 4
           )
         ),
