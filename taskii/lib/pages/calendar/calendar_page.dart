@@ -9,6 +9,7 @@ class CalendarPage extends StatefulWidget {
   final Function(Task) onTaskDelete;
   final Function(String, bool, bool, DateTime?, DateTime?) onFilterApply;
   final Function() onFilterClear;
+  final Future<void> Function() onRefresh;
 
   const CalendarPage({
     super.key,
@@ -17,6 +18,7 @@ class CalendarPage extends StatefulWidget {
     required this.onTaskDelete,
     required this.onFilterApply,
     required this.onFilterClear,
+    required this.onRefresh,
   });
 
   @override
@@ -29,12 +31,24 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   Map<DateTime, List<Map<String, dynamic>>> _events = {};
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
+    _loadInitialEvents();
+  }
+
+  Future<void> _loadInitialEvents() async {
+    setState(() {
+      _isLoading = true;
+    });
+    // Simulate async load if needed, or just generate events
     _generateEvents();
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -234,6 +248,10 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(
         shape: Border(
@@ -301,112 +319,116 @@ class _CalendarPageState extends State<CalendarPage> {
               },
             ),
           ),
-          if (_selectedDay != null)
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.all(12),
-                itemCount: _getTasksForDay(_selectedDay!).length,
-                itemBuilder: (context, index) {
-                  final task = _getTasksForDay(_selectedDay!)[index];
-                  String priority = task['priority'];
-                  Color priorityColor = _getPriorityColor(priority);
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: widget.onRefresh,
+              child: _selectedDay == null
+                  ? const Center(child: Text('No day selected'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: _getTasksForDay(_selectedDay!).length,
+                      itemBuilder: (context, index) {
+                        final task = _getTasksForDay(_selectedDay!)[index];
+                        String priority = task['priority'];
+                        Color priorityColor = _getPriorityColor(priority);
 
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(left: 0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IntrinsicHeight(
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 8,
-                              decoration: BoxDecoration(
-                                color: priorityColor,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(7),
-                                  bottomLeft: Radius.circular(7),
-                                ),
-                              ),
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.only(left: 0),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[300]!),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Checkbox(
-                                      value: task['isCompleted'],
-                                      onChanged: (bool? value) {
-                                        widget.onTaskCompletion(Task(
-                                          id: task['id'],
-                                          title: task['title'],
-                                          description: task['description'],
-                                          dueDate: task['dueDate'],
-                                          priority: task['priority'],
-                                          category: task['category'],
-                                          isCompleted: value ?? false,
-                                          userId: task['userId'],
-                                        ));
-                                      },
+                            child: IntrinsicHeight(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    decoration: BoxDecoration(
+                                      color: priorityColor,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(7),
+                                        bottomLeft: Radius.circular(7),
+                                      ),
                                     ),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Row(
                                         children: [
-                                          Text(
-                                            task['title'],
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              decoration: task['isCompleted'] 
-                                                ? TextDecoration.lineThrough 
-                                                : TextDecoration.none,
+                                          Checkbox(
+                                            value: task['isCompleted'],
+                                            onChanged: (bool? value) {
+                                              widget.onTaskCompletion(Task(
+                                                id: task['id'],
+                                                title: task['title'],
+                                                description: task['description'],
+                                                dueDate: task['dueDate'],
+                                                priority: task['priority'],
+                                                category: task['category'],
+                                                isCompleted: value ?? false,
+                                                userId: task['userId'],
+                                              ));
+                                            },
+                                          ),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  task['title'],
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                    decoration: task['isCompleted'] 
+                                                      ? TextDecoration.lineThrough 
+                                                      : TextDecoration.none,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  DateFormat('h:mm a').format(task['dueDate']),
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            DateFormat('h:mm a').format(task['dueDate']),
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[600],
-                                            ),
+                                          IconButton(
+                                            icon: Icon(Icons.delete, color: Colors.red),
+                                            onPressed: () {
+                                              widget.onTaskDelete(Task(
+                                                id: task['id'],
+                                                title: task['title'],
+                                                description: task['description'],
+                                                dueDate: task['dueDate'],
+                                                priority: task['priority'],
+                                                category: task['category'],
+                                                isCompleted: task['isCompleted'],
+                                                userId: task['userId'],
+                                              ));
+                                            },
                                           ),
                                         ],
                                       ),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
-                                        widget.onTaskDelete(Task(
-                                          id: task['id'],
-                                          title: task['title'],
-                                          description: task['description'],
-                                          dueDate: task['dueDate'],
-                                          priority: task['priority'],
-                                          category: task['category'],
-                                          isCompleted: task['isCompleted'],
-                                          userId: task['userId'],
-                                        ));
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
+          ),
         ],
       ),
     );
   }
-} 
+}

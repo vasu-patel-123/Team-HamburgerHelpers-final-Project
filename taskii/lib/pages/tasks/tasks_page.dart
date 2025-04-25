@@ -45,7 +45,7 @@ class _TasksPageState extends State<TasksPage> {
   @override
   void initState() {
     super.initState();
-    _loadTasks();
+    _loadTasks(showLoading: true); // Only show loading on first load
   }
 
   @override
@@ -54,10 +54,12 @@ class _TasksPageState extends State<TasksPage> {
     super.dispose();
   }
 
-  void _loadTasks() {
-    setState(() {
-      _isLoading = true;
-    });
+  void _loadTasks({bool showLoading = false}) {
+    if (showLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     _subscription = _taskService.getUserTasks(_auth.currentUser?.uid ?? '')
         .listen(
@@ -306,6 +308,11 @@ class _TasksPageState extends State<TasksPage> {
     });
   }
 
+  Future<void> _refreshTasks() async {
+    _loadTasks(showLoading: false); // Don't show full loading on pull-to-refresh
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_errorMessage != null) {
@@ -354,19 +361,22 @@ class _TasksPageState extends State<TasksPage> {
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: _filteredTasks.length,
-        itemBuilder: (context, index) {
-          final task = _filteredTasks[index];
-          return TaskItem(
-            task: task,
-            priorityColor: _getPriorityColor(task.priority),
-            onToggleComplete: _toggleTaskCompletion,
-            onDelete: _deleteTask,
-          );
-        },
+      body: RefreshIndicator(
+        onRefresh: _refreshTasks,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(12),
+          itemCount: _filteredTasks.length,
+          itemBuilder: (context, index) {
+            final task = _filteredTasks[index];
+            return TaskItem(
+              task: task,
+              priorityColor: _getPriorityColor(task.priority),
+              onToggleComplete: _toggleTaskCompletion,
+              onDelete: _deleteTask,
+            );
+          },
+        ),
       ),
     );
   }
-} 
+}
