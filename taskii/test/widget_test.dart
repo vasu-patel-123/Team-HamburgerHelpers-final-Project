@@ -9,15 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:taskii/firebase_options.dart';
-import 'taskii/mock.dart'; // from: https://github.com/FirebaseExtended/flutterfire/blob/master/packages/firebase_auth/firebase_auth/test/mock.dart
+import 'package:taskii/mock.dart';
 import 'package:taskii/main.dart';
+import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
-	setupFirebaseAuthMocks();
+  setupFirebaseAuthMocks();
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
-      options: MockFirebaseOptions.currentPlatform,
+      options: DefaultFirebaseOptions.currentPlatform,
     );
   });
 
@@ -26,8 +27,8 @@ void main() {
   });
 
   testWidgets('App shows login page', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const Taskii());
+    final mockAuth = MockFirebaseAuth();
+    await tester.pumpWidget(Taskii(firebaseAuth: mockAuth));
 
     // Verify that the login page is shown
     expect(find.byType(LoginPageSignUp), findsOneWidget);
