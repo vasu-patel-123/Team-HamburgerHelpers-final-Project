@@ -45,7 +45,7 @@ class _TasksPageState extends State<TasksPage> {
   @override
   void initState() {
     super.initState();
-    _loadTasks();
+    _loadTasks(showLoading: true); // Only show loading on first load
   }
 
   @override
@@ -54,10 +54,12 @@ class _TasksPageState extends State<TasksPage> {
     super.dispose();
   }
 
-  void _loadTasks() {
-    setState(() {
-      _isLoading = true;
-    });
+  void _loadTasks({bool showLoading = false}) {
+    if (showLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     _subscription = _taskService.getUserTasks(_auth.currentUser?.uid ?? '')
         .listen(
@@ -307,7 +309,7 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   Future<void> _refreshTasks() async {
-    _loadTasks();
+    _loadTasks(showLoading: false); // Don't show full loading on pull-to-refresh
     setState(() {});
   }
 
