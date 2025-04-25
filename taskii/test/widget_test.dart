@@ -8,17 +8,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:taskii/mock.dart';
 import 'package:taskii/main.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:taskii/mock.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  setupFirebaseAuthMocks();
+  setupFirebaseCoreMocks();
 
   setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
     await Firebase.initializeApp(
-      name: 'test',
       options: const FirebaseOptions(
         apiKey: 'test',
         appId: 'test',
@@ -28,9 +28,9 @@ void main() {
     );
   });
 
-  testWidgets('App shows login page', (WidgetTester tester) async {
-    final mockAuth = MockFirebaseAuth();
-    await tester.pumpWidget(Taskii(firebaseAuth: mockAuth));
+  testWidgets('shows login screen with assignment icon', (WidgetTester tester) async {
+    await tester.pumpWidget(const Taskii());
+    await tester.pumpAndSettle();
     expect(find.byType(LoginPageSignUp), findsOneWidget);
     expect(find.byIcon(Icons.assignment_outlined), findsOneWidget);
   });
