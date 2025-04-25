@@ -37,8 +37,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
-    // Ensure we're connected to the database
     FirebaseDatabase.instance.goOnline();
+    _isLoading = true; // Only here!
     _loadTasks();
   }
 
@@ -61,10 +61,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadTasks() async {
-    setState(() {
-      _isLoading = true;
-    });
-
     await _subscription?.cancel();
     _subscription = _taskService.getUserTasks(_auth.currentUser?.uid ?? '')
         .listen(
