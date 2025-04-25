@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 typedef Callback = void Function(MethodCall call);
 
 void setupFirebaseCoreMocks() {
+  // Pigeon channel for Firebase Core (latest versions)
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler(
     'dev.flutter.pigeon.firebase_core.FirebaseCoreHostApi.initializeCore',
     (_) async => null,
@@ -15,19 +16,7 @@ void setupFirebaseCoreMocks() {
 
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler(
     'dev.flutter.pigeon.firebase_core.FirebaseCoreHostApi.initializeApp',
-    (ByteData? message) async {
-      final Map<String, dynamic> result = {
-        'name': 'test',
-        'options': {
-          'apiKey': 'test',
-          'appId': 'test',
-          'messagingSenderId': 'test',
-          'projectId': 'test',
-        },
-        'pluginConstants': {},
-      };
-      return const StandardMethodCodec().encodeSuccessEnvelope(result);
-    },
+    (_) async => null,
   );
 
   // For older method channel compatibility
