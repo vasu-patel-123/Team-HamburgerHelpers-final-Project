@@ -22,6 +22,9 @@ class Taskii extends StatelessWidget {
     final auth = firebaseAuth ?? FirebaseAuth.instance;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData.light(), // Light theme
+      darkTheme: ThemeData.dark(), // Dark theme
+      themeMode: ThemeMode.system, // Use system setting for dark mode
       initialRoute: '/',
       routes: {
         '/': (context) => StreamBuilder<User?>(
@@ -251,16 +254,16 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
             ),
             // Logo and Title
             const SizedBox(height: 80),
-            const Icon(
+            Icon(
               Icons.assignment_outlined,
               size: 48,
-              color: Color(0xFF171717),
+              color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Taskii',
               style: TextStyle(
-                color: Colors.black,
+                color: Theme.of(context).textTheme.headlineSmall?.color,
                 fontSize: 24,
                 fontFamily: 'Inter',
                 fontWeight: FontWeight.w400,
