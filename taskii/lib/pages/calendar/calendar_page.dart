@@ -31,12 +31,24 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   Map<DateTime, List<Map<String, dynamic>>> _events = {};
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
+    _loadInitialEvents();
+  }
+
+  Future<void> _loadInitialEvents() async {
+    setState(() {
+      _isLoading = true;
+    });
+    // Simulate async load if needed, or just generate events
     _generateEvents();
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -236,6 +248,10 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(
         shape: Border(
