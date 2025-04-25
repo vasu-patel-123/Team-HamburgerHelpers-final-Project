@@ -8,22 +8,13 @@ import 'package:flutter_test/flutter_test.dart';
 typedef Callback = void Function(MethodCall call);
 
 void setupFirebaseCoreMocks() {
-  // Pigeon channel for Firebase Core (latest versions)
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Add the correct channel names for Firebase Core 3.x
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler(
     'dev.flutter.pigeon.firebase_core.FirebaseCoreHostApi.initializeCore',
-    (_) async => null,
-  );
-
-  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler(
-    'dev.flutter.pigeon.firebase_core.FirebaseCoreHostApi.initializeApp',
-    (_) async => null,
-  );
-
-  // For older method channel compatibility
-  const MethodChannel channel = MethodChannel('plugins.flutter.io/firebase_core');
-  channel.setMockMethodCallHandler((MethodCall call) async {
-    if (call.method == 'Firebase#initializeCore') {
-      return [
+    (message) async {
+      return StandardMethodCodec().encodeSuccessEnvelope([
         {
           'name': 'test',
           'options': {
@@ -34,25 +25,35 @@ void setupFirebaseCoreMocks() {
           },
           'pluginConstants': {},
         }
-      ];
-    }
-    if (call.method == 'Firebase#initializeApp') {
-      return {
-        'name': call.arguments['appName'],
-        'options': call.arguments['options'],
+      ]);
+    },
+  );
+
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler(
+    'dev.flutter.pigeon.firebase_core.FirebaseCoreHostApi.initializeApp',
+    (message) async {
+      return StandardMethodCodec().encodeSuccessEnvelope({
+        'name': 'test',
+        'options': {
+          'apiKey': 'test',
+          'appId': 'test',
+          'messagingSenderId': 'test',
+          'projectId': 'test',
+        },
         'pluginConstants': {},
-      };
-    }
-    return null;
-  });
+      });
+    },
+  );
 }
 
 void setupFirebaseAuthMocks([Callback? customHandlers]) {
+  // Keep your existing code here
   TestWidgetsFlutterBinding.ensureInitialized();
   setupFirebaseCoreMocks();
 }
 
 Future<T> neverEndingFuture<T>() async {
+  // Keep your existing code here
   while (true) {
     await Future.delayed(const Duration(minutes: 5));
   }
