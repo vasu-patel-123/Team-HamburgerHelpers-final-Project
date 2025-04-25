@@ -15,8 +15,8 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setupFirebaseAuthMocks();
+
   setUpAll(() async {
-    // Initialize without real platform options
     await Firebase.initializeApp(
       name: 'test',
       options: const FirebaseOptions(
@@ -31,11 +31,7 @@ void main() {
   testWidgets('App shows login page', (WidgetTester tester) async {
     final mockAuth = MockFirebaseAuth();
     await tester.pumpWidget(Taskii(firebaseAuth: mockAuth));
-
-    // Verify that the login page is shown
     expect(find.byType(LoginPageSignUp), findsOneWidget);
-
-    // Verify that the app icon is present
     expect(find.byIcon(Icons.assignment_outlined), findsOneWidget);
   });
 }

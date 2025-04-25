@@ -30,6 +30,8 @@ void main() {
       ),
     ));
 
+    await tester.pumpAndSettle(); // <-- Wait for frame
+
     final Finder lightTextFinder = find.text('Dark Mode: No');
     expect(lightTextFinder, findsOneWidget);
 
@@ -60,15 +62,9 @@ void main() {
       ),
     ));
 
-    // Debug: Check the current theme
-    final BuildContext context = tester.element(find.byType(Scaffold));
-    final bool isActuallyDark = Theme.of(context).brightness == Brightness.dark;
-    final String currentBrightness = Theme.of(context).brightness.toString();
-    debugPrint('Is actually dark: $isActuallyDark');
-    debugPrint('Current brightness: $currentBrightness');
+    await tester.pumpAndSettle(); // <-- Wait for frame
 
-    // Check for the text in dark mode
-    final Finder darkTextFinder = find.text('Dark Mode: No'); 
+    final Finder darkTextFinder = find.text('Dark Mode: Yes');
     expect(darkTextFinder, findsOneWidget);
   });
 }
