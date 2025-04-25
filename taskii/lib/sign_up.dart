@@ -187,7 +187,7 @@ class SignUpPage extends StatelessWidget {
                   }
                 },
                 style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFF171717),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),

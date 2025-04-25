@@ -375,7 +375,7 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 8),
                         LinearProgressIndicator(
                           value: _calculateDayProgress(),
-                          backgroundColor: Colors.grey[200],
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                           minHeight: 8,
                           borderRadius: BorderRadius.circular(4),

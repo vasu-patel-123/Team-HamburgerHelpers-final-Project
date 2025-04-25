@@ -276,7 +276,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       child: ElevatedButton(
                         onPressed: _addTask,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
