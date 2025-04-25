@@ -320,31 +320,33 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        shape: Border(
-          bottom: BorderSide(
-            color: const Color.fromARGB(255, 153, 142, 126),
-            width: 4
-          )
-        ),
-        elevation: 4,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.person_2_outlined),
-            onPressed: () {
-              Navigator.pushNamed(context, '/profile');
-            },
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _refreshHome,
-        child: IndexedStack(
-          index: currentPageIndex,
-          children: [
-            // Home page content as a scrollable widget (NOT a Scaffold)
-            SingleChildScrollView(
+      appBar: currentPageIndex == 0
+          ? AppBar(
+              title: const Text('Home'),
+              shape: Border(
+                bottom: BorderSide(
+                  color: const Color.fromARGB(255, 153, 142, 126),
+                  width: 4,
+                ),
+              ),
+              elevation: 4,
+              actions: <Widget>[
+                IconButton(
+                  icon: const Icon(Icons.person_2_outlined),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/profile');
+                  },
+                ),
+              ],
+            )
+          : null, // No AppBar for other pages
+      body: IndexedStack(
+        index: currentPageIndex,
+        children: [
+          // Home page content as a scrollable widget (NOT a Scaffold)
+          RefreshIndicator(
+            onRefresh: _refreshHome,
+            child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -636,26 +638,26 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            TasksPage(
-              tasks: _tasks,
-              onTaskCompletion: _toggleTaskCompletion,
-              onTaskDelete: _deleteTask,
-              onFilterApply: _applyFilters,
-              onFilterClear: _clearFilters,
-            ),
-            AddTaskPage(),
-            CalendarPage(
-              tasks: _tasks,
-              onTaskCompletion: _toggleTaskCompletion,
-              onTaskDelete: _deleteTask,
-              onFilterApply: _applyFilters,
-              onFilterClear: _clearFilters,
-            ),
-            StatsPage(
-              tasks: _tasks,
-            ),
-          ],
-        ),
+          ),
+          TasksPage(
+            tasks: _tasks,
+            onTaskCompletion: _toggleTaskCompletion,
+            onTaskDelete: _deleteTask,
+            onFilterApply: _applyFilters,
+            onFilterClear: _clearFilters,
+          ),
+          AddTaskPage(),
+          CalendarPage(
+            tasks: _tasks,
+            onTaskCompletion: _toggleTaskCompletion,
+            onTaskDelete: _deleteTask,
+            onFilterApply: _applyFilters,
+            onFilterClear: _clearFilters,
+          ),
+          StatsPage(
+            tasks: _tasks,
+          ),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
@@ -751,12 +753,12 @@ class _HomePageState extends State<HomePage> {
         if (index != -1) {
           _tasks[index] = updatedTask;
         }
-        
-        // If this was the current task and it's now completed, 
+
+        // If this was the current task and it's now completed,
         // the UI will automatically update to show the next task
         // since _getCurrentTask() filters out completed tasks
       });
-      
+
       _showSuccessSnackBar('Task ${task.isCompleted ? "uncompleted" : "completed"}!');
     } catch (e) {
       _showSnackBar('Failed to update task: ${e.toString()}');
