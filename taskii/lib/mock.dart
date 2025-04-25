@@ -7,20 +7,63 @@ import 'package:flutter_test/flutter_test.dart';
 
 typedef Callback = void Function(MethodCall call);
 
+void setupFirebaseCoreMocks() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler(
+    'dev.flutter.pigeon.firebase_core.FirebaseCoreHostApi.initializeCore',
+    (_) async => null,
+  );
+
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMessageHandler(
+    'dev.flutter.pigeon.firebase_core.FirebaseCoreHostApi.initializeApp',
+    (ByteData? message) async {
+      final Map<String, dynamic> result = {
+        'name': 'test',
+        'options': {
+          'apiKey': 'test',
+          'appId': 'test',
+          'messagingSenderId': 'test',
+          'projectId': 'test',
+        },
+        'pluginConstants': {},
+      };
+      return const StandardMethodCodec().encodeSuccessEnvelope(result);
+    },
+  );
+
+  // For older method channel compatibility
+  const MethodChannel channel = MethodChannel('plugins.flutter.io/firebase_core');
+  channel.setMockMethodCallHandler((MethodCall call) async {
+    if (call.method == 'Firebase#initializeCore') {
+      return [
+        {
+          'name': 'test',
+          'options': {
+            'apiKey': 'test',
+            'appId': 'test',
+            'messagingSenderId': 'test',
+            'projectId': 'test',
+          },
+          'pluginConstants': {},
+        }
+      ];
+    }
+    if (call.method == 'Firebase#initializeApp') {
+      return {
+        'name': call.arguments['appName'],
+        'options': call.arguments['options'],
+        'pluginConstants': {},
+      };
+    }
+    return null;
+  });
+}
+
 void setupFirebaseAuthMocks([Callback? customHandlers]) {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-    setupFirebaseCoreMocks();
-  }
-  void setupFirebaseCoreMocks() {
-    // Add mock implementation for Firebase core methods if needed.
-    const MethodChannel('plugins.flutter.io/firebase_core').setMockMethodCallHandler((MethodCall methodCall) async {
-      return null; // Return mock responses for Firebase core methods.
-    });
+  setupFirebaseCoreMocks();
 }
 
 Future<T> neverEndingFuture<T>() async {
-  // ignore: literal_only_boolean_expressions
   while (true) {
     await Future.delayed(const Duration(minutes: 5));
   }

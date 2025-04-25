@@ -8,22 +8,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:taskii/firebase_options.dart';
 import 'package:taskii/mock.dart';
 import 'package:taskii/main.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   setupFirebaseAuthMocks();
   setUpAll(() async {
-    TestWidgetsFlutterBinding.ensureInitialized();
+    // Initialize without real platform options
     await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
+      name: 'test',
+      options: const FirebaseOptions(
+        apiKey: 'test',
+        appId: 'test',
+        messagingSenderId: 'test',
+        projectId: 'test',
+      ),
     );
-  });
-
-  test('Skipping Firebase-dependent test on VM', () {
-    expect(true, true);
   });
 
   testWidgets('App shows login page', (WidgetTester tester) async {
