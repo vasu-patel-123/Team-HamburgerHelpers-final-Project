@@ -59,11 +59,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _loadTasks() {
+  Future<void> _loadTasks() async {
     setState(() {
       _isLoading = true;
     });
 
+    await _subscription?.cancel();
     _subscription = _taskService.getUserTasks(_auth.currentUser?.uid ?? '')
         .listen(
           (tasks) {
@@ -283,9 +284,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _refreshHome() async {
-    // Call your data loading method here, e.g.:
-    _loadTasks(); // Replace with your actual data loading method
-    setState(() {});
+    await _loadTasks();
   }
 
   @override
@@ -346,6 +345,7 @@ class _HomePageState extends State<HomePage> {
           RefreshIndicator(
             onRefresh: _refreshHome,
             child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(), // Ensures pull-to-refresh always works
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -652,6 +652,7 @@ class _HomePageState extends State<HomePage> {
             onTaskDelete: _deleteTask,
             onFilterApply: _applyFilters,
             onFilterClear: _clearFilters,
+            onRefresh: _refreshHome, // <-- Add this line
           ),
           StatsPage(
             tasks: _tasks,
