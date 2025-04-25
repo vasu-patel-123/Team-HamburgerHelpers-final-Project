@@ -46,9 +46,16 @@ class ProfileSettingsPage extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Profile Settings'),
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          elevation: 0,
+          centerTitle: true,
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).colorScheme.primary,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                // Add settings navigation here
+              },
+            ),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),

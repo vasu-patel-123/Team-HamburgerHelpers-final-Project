@@ -319,7 +319,7 @@ class _HomePageState extends State<HomePage> {
               title: const Text('Home'),
               shape: Border(
                 bottom: BorderSide(
-                  color: const Color.fromARGB(255, 153, 142, 126),
+                  color: Theme.of(context).colorScheme.primary,
                   width: 4,
                 ),
               ),

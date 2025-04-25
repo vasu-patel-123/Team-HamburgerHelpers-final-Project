@@ -7,11 +7,7 @@ class MockAddTaskPage extends StatefulWidget {
   final DateTime? initialDate;
   final TimeOfDay? initialTime;
 
-  const MockAddTaskPage({
-    super.key,
-    this.initialDate,
-    this.initialTime,
-  });
+  const MockAddTaskPage({super.key, this.initialDate, this.initialTime});
 
   @override
   State<MockAddTaskPage> createState() => _MockAddTaskPageState();
@@ -112,162 +108,173 @@ class _MockAddTaskPageState extends State<MockAddTaskPage> {
       appBar: AppBar(
         shape: const Border(
           bottom: BorderSide(
-            color: Color.fromARGB(255, 153, 142, 126),
+            color: const Color.fromARGB(255, 153, 142, 126),
             width: 4,
           ),
         ),
         elevation: 4,
         title: const Text('Add Task'),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: _titleController,
-                      decoration: const InputDecoration(
-                        labelText: 'Task Name',
-                        border: OutlineInputBorder(),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextFormField(
+                        controller: _titleController,
+                        decoration: const InputDecoration(
+                          labelText: 'Task Name',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a task name';
+                          }
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a task name';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                        border: OutlineInputBorder(),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 3,
                       ),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedPriority,
-                      decoration: const InputDecoration(
-                        labelText: 'Priority',
-                        border: OutlineInputBorder(),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: _selectedPriority,
+                        decoration: const InputDecoration(
+                          labelText: 'Priority',
+                          border: OutlineInputBorder(),
+                        ),
+                        items:
+                            [
+                              'High',
+                              'Medium',
+                              'Low',
+                            ].map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              _selectedPriority = newValue;
+                            });
+                          }
+                        },
                       ),
-                      items: ['High', 'Medium', 'Low']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _selectedPriority = newValue;
-                          });
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedCategory,
-                      decoration: const InputDecoration(
-                        labelText: 'Category',
-                        border: OutlineInputBorder(),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: _selectedCategory,
+                        decoration: const InputDecoration(
+                          labelText: 'Category',
+                          border: OutlineInputBorder(),
+                        ),
+                        items:
+                            [
+                              'General',
+                              'Work',
+                              'Personal',
+                              'Shopping',
+                              'Health',
+                              'Education',
+                            ].map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              _selectedCategory = newValue;
+                            });
+                          }
+                        },
                       ),
-                      items: ['General', 'Work', 'Personal', 'Shopping', 'Health', 'Education']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _selectedCategory = newValue;
-                          });
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () => _selectDate(context),
-                            child: InputDecorator(
-                              decoration: const InputDecoration(
-                                labelText: 'Due Date',
-                                border: OutlineInputBorder(),
-                              ),
-                              child: Text(
-                                DateFormat('yyyy-MM-dd').format(_selectedDate),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () => _selectDate(context),
+                              child: InputDecorator(
+                                decoration: const InputDecoration(
+                                  labelText: 'Due Date',
+                                  border: OutlineInputBorder(),
+                                ),
+                                child: Text(
+                                  DateFormat(
+                                    'yyyy-MM-dd',
+                                  ).format(_selectedDate),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () => _selectTime(context),
-                            child: InputDecorator(
-                              decoration: const InputDecoration(
-                                labelText: 'Due Time',
-                                border: OutlineInputBorder(),
-                              ),
-                              child: Text(
-                                _selectedTime.format(context),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: InkWell(
+                              onTap: () => _selectTime(context),
+                              child: InputDecorator(
+                                decoration: const InputDecoration(
+                                  labelText: 'Due Time',
+                                  border: OutlineInputBorder(),
+                                ),
+                                child: Text(_selectedTime.format(context)),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _addTask,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _addTask,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
-                        ),
-                        child: const Text(
-                          'Add Task',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
+                          child: const Text(
+                            'Add Task',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
     );
   }
 }
 
 void main() {
-  testWidgets('Check if MockAddTaskPage renders correctly', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: MockAddTaskPage(),
-      ),
-    );
+  testWidgets('Check if MockAddTaskPage renders correctly', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: MockAddTaskPage()));
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Add Task'), findsAtLeastNWidgets(1)); // AppBar title and button
+    expect(
+      find.text('Add Task'),
+      findsAtLeastNWidgets(1),
+    ); // AppBar title and button
     expect(find.text('Task Name'), findsOneWidget);
     expect(find.text('Description'), findsOneWidget);
     expect(find.text('Priority'), findsOneWidget);
@@ -279,12 +286,10 @@ void main() {
     debugPrint('MockAddTaskPage rendered with all form fields');
   });
 
-  testWidgets('Check if form validation works for empty task name', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: MockAddTaskPage(),
-      ),
-    );
+  testWidgets('Check if form validation works for empty task name', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: MockAddTaskPage()));
 
     await tester.pumpAndSettle();
 
@@ -297,12 +302,10 @@ void main() {
     debugPrint('Form validation triggered: Task name is empty');
   });
 
-  testWidgets('Check if priority dropdown updates selection', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: MockAddTaskPage(),
-      ),
-    );
+  testWidgets('Check if priority dropdown updates selection', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: MockAddTaskPage()));
 
     await tester.pumpAndSettle();
 
@@ -320,18 +323,18 @@ void main() {
     debugPrint('Priority changed from Medium to High');
   });
 
-  testWidgets('Check if category dropdown updates selection', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: MockAddTaskPage(),
-      ),
-    );
+  testWidgets('Check if category dropdown updates selection', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: MockAddTaskPage()));
 
     await tester.pumpAndSettle();
 
     expect(find.text('General'), findsOneWidget);
 
-    await tester.tap(find.byType(DropdownButtonFormField<String>).last); // Second dropdown
+    await tester.tap(
+      find.byType(DropdownButtonFormField<String>).last,
+    ); // Second dropdown
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Work').last);
@@ -343,12 +346,10 @@ void main() {
     debugPrint('Category changed from General to Work');
   });
 
-  testWidgets('Check if date picker updates selected date', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: MockAddTaskPage(),
-      ),
-    );
+  testWidgets('Check if date picker updates selected date', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: MockAddTaskPage()));
 
     await tester.pumpAndSettle();
 
@@ -369,16 +370,16 @@ void main() {
     debugPrint('Date changed from $initialDate to $newDate');
   });
 
-  testWidgets('Check if time picker updates selected time', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: MockAddTaskPage(),
-      ),
-    );
+  testWidgets('Check if time picker updates selected time', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: MockAddTaskPage()));
 
     await tester.pumpAndSettle();
 
-    final initialTime = TimeOfDay.now().format(tester.element(find.byType(MaterialApp)));
+    final initialTime = TimeOfDay.now().format(
+      tester.element(find.byType(MaterialApp)),
+    );
     expect(find.text(initialTime), findsOneWidget);
 
     await tester.tap(find.text(initialTime));
@@ -387,17 +388,18 @@ void main() {
     await tester.tap(find.text('OK')); // Select current time for simplicity
     await tester.pumpAndSettle();
 
-    expect(find.text(initialTime), findsOneWidget); // Time unchanged for this test
+    expect(
+      find.text(initialTime),
+      findsOneWidget,
+    ); // Time unchanged for this test
 
     debugPrint('Time picker tested');
   });
 
-  testWidgets('Check if task submission shows success SnackBar', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: MockAddTaskPage(),
-      ),
-    );
+  testWidgets('Check if task submission shows success SnackBar', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MaterialApp(home: MockAddTaskPage()));
 
     await tester.pumpAndSettle();
 
