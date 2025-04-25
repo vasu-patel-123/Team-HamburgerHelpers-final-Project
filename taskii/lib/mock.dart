@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:firebase_core_platform_interface/firebase_core_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,7 +10,13 @@ typedef Callback = void Function(MethodCall call);
 void setupFirebaseAuthMocks([Callback? customHandlers]) {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setupFirebaseCoreMocks();
+    setupFirebaseCoreMocks();
+  }
+  void setupFirebaseCoreMocks() {
+    // Add mock implementation for Firebase core methods if needed.
+    const MethodChannel('plugins.flutter.io/firebase_core').setMockMethodCallHandler((MethodCall methodCall) async {
+      return null; // Return mock responses for Firebase core methods.
+    });
 }
 
 Future<T> neverEndingFuture<T>() async {
