@@ -9,74 +9,13 @@ import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_settings.dart';
 import 'package:firebase_database/firebase_database.dart';
-
-Future<void> main() async {
+import 'pages/tasks/tasks_page.dart';
+import 'pages/calendar/calendar_page.dart';
+import 'pages/stats/stats_page.dart';
+import 'pages/add_task/add_task_page.dart';
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  try {
-    // First, try to get the default app
-    try {
-      Firebase.app();
-      // If we get here, Firebase is already initialized
-      debugPrint('Firebase already initialized');
-    } catch (e) {
-      // If getting the default app fails, initialize Firebase
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-      // Initialize App Check
-      await FirebaseAppCheck.instance.activate(
-        androidProvider: const bool.fromEnvironment('dart.vm.product')
-            ? AndroidProvider.playIntegrity
-            : AndroidProvider.debug,
-        appleProvider: const bool.fromEnvironment('dart.vm.product')
-            ? AppleProvider.appAttest
-            : AppleProvider.debug,
-      );
-      debugPrint('Firebase initialized successfully');
-    }
-  } catch (e) {
-    if (e.toString().contains('duplicate-app')) {
-      // If we get a duplicate app error, try to get the existing app
-      try {
-        Firebase.app();
-        debugPrint('Using existing Firebase app');
-      } catch (e) {
-        debugPrint('Error accessing existing Firebase app: $e');
-      }
-    } else {
-      debugPrint('Firebase initialization error: $e');
-    }
-  }
-
-  FirebaseDatabase.instanceFor(
-    app: Firebase.app(),
-    databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com/',
-  );
-
-
-  await FirebaseAppCheck.instance.activate(
-    androidProvider: const bool.fromEnvironment('dart.vm.product')
-        ? AndroidProvider.playIntegrity
-        : AndroidProvider.debug,
-    appleProvider: const bool.fromEnvironment('dart.vm.product')
-        ? AppleProvider.appAttest
-        : AppleProvider.debug,
-  );
-
-  // Set up system UI overlay style
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.black,
-    statusBarColor: Colors.white,
-    statusBarIconBrightness: Brightness.dark,
-    systemNavigationBarIconBrightness: Brightness.dark,
-  ));
-
-  // Enable hardware acceleration for better performance
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  // Run the app
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const Taskii());
 }
 
@@ -86,31 +25,19 @@ class Taskii extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.light,
-      ),
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => StreamBuilder(
+        '/': (context) => StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
             }
             if (snapshot.hasData) {
               return const HomePage();
             }
-            return const Scaffold(
-              body: SafeArea(
-                child: LoginPageSignUp(),
-              ),
-            );
+            return const LoginPageSignUp();
           },
         ),
         '/profile': (context) => const ProfileSettingsPage(),
