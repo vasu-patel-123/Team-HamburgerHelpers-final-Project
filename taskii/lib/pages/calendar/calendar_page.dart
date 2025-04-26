@@ -69,7 +69,7 @@ class _CalendarPageState extends State<CalendarPage> {
       if (!tempEvents.containsKey(date)) {
         tempEvents[date] = [];
       }
-      
+
       Map<String, dynamic> taskMap = {
         'title': task.title,
         'description': task.description,
@@ -82,7 +82,7 @@ class _CalendarPageState extends State<CalendarPage> {
       };
       tempEvents[date]!.add(taskMap);
     }
-    
+
     setState(() {
       _events = tempEvents;
     });
@@ -254,19 +254,34 @@ class _CalendarPageState extends State<CalendarPage> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: Text(
+          'Calendar',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
         shape: Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 153, 142, 126),
-            width: 4
-          )
+            color: Theme.of(context).colorScheme.primary,
+            width: 4,
+          ),
         ),
         elevation: 4,
-        title: const Text('Calendar'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.filter_alt),
             onPressed: () {
               _showFilterDialog(context);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () {
+              Navigator.of(context).pushNamed('/settings');
             },
           ),
         ],
@@ -305,14 +320,18 @@ class _CalendarPageState extends State<CalendarPage> {
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, date, events) {
                 if (events.isEmpty) return null;
-                return Positioned(
-                  bottom: 1,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
+                // Place the dot below the day number
+                return Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 0.0), // Adjust as needed
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                 );

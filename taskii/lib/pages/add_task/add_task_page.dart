@@ -8,11 +8,13 @@ import '../../services/task_service.dart';
 class AddTaskPage extends StatefulWidget {
   final DateTime? initialDate;
   final TimeOfDay? initialTime;
+  final VoidCallback? onExit; // <-- Add this
 
   const AddTaskPage({
     super.key,
     this.initialDate,
     this.initialTime,
+    this.onExit,
   });
 
   @override
@@ -105,7 +107,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
       );
 
       await _taskService.createTask(task);
-      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -113,7 +114,24 @@ class _AddTaskPageState extends State<AddTaskPage> {
             backgroundColor: Colors.green,
           ),
         );
-        
+      }
+      // Clear the form fields
+      _titleController.clear();
+      _descriptionController.clear();
+      setState(() {
+        _selectedDate = DateTime.now();
+        _selectedTime = TimeOfDay.now();
+        _selectedPriority = 'Medium';
+        _selectedCategory = 'General';
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task added successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
         // Check if we can pop the current route
         if (Navigator.of(context).canPop()) {
           Navigator.pop(context);
@@ -152,9 +170,30 @@ class _AddTaskPageState extends State<AddTaskPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          tooltip: 'Exit',
+          onPressed: () {
+            if (widget.onExit != null) {
+              widget.onExit!();
+            } else if (Navigator.of(context).canPop()) {
+              Navigator.pop(context);
+            } else {
+              // Clear the form fields
+              _titleController.clear();
+              _descriptionController.clear();
+              setState(() {
+                _selectedDate = DateTime.now();
+                _selectedTime = TimeOfDay.now();
+                _selectedPriority = 'Medium';
+                _selectedCategory = 'General';
+              });
+            }
+          },
+        ),
         shape: Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 153, 142, 126),
+            color: Theme.of(context).colorScheme.primary,
             width: 4
           )
         ),
@@ -276,7 +315,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                       child: ElevatedButton(
                         onPressed: _addTask,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -297,4 +336,4 @@ class _AddTaskPageState extends State<AddTaskPage> {
             ),
     );
   }
-} 
+}
