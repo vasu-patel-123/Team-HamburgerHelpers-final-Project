@@ -7,18 +7,14 @@ class SettingsPage extends StatelessWidget {
 
   Future<void> _signOut(BuildContext context) async {
     try {
-      // Disconnect from the database before signing out
       await FirebaseDatabase.instance.goOffline();
       await FirebaseAuth.instance.signOut();
-      // Reconnect to the database for future use
       FirebaseDatabase.instance.goOnline();
 
       if (context.mounted) {
-        // Navigate back to login page and remove all previous routes
         Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
     } catch (e) {
-      // Ensure we're back online even if there's an error
       FirebaseDatabase.instance.goOnline();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -76,7 +72,9 @@ class SettingsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    user?.email ?? 'No email',
+                    (user?.displayName != null && user!.displayName!.trim().isNotEmpty)
+                        ? user.displayName!
+                        : (user?.email ?? 'No email'),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -92,9 +90,7 @@ class SettingsPage extends StatelessWidget {
               leading: const Icon(Icons.notifications_outlined),
               title: const Text('Notifications'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                // Add notification settings navigation here
-              },
+              onTap: () {},
             ),
             const Divider(),
             ListTile(
@@ -102,7 +98,9 @@ class SettingsPage extends StatelessWidget {
               title: const Text('Account'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                // Add account settings navigation here
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AccountPage()),
+                );
               },
             ),
             const Divider(),
@@ -110,38 +108,29 @@ class SettingsPage extends StatelessWidget {
               leading: const Icon(Icons.security_outlined),
               title: const Text('Security'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                // Add security settings navigation here
-              },
+              onTap: () {},
             ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.lock_outline),
               title: const Text('Privacy'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                // Add privacy settings navigation here
-              },
+              onTap: () {},
             ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.accessibility_new_outlined),
               title: const Text('Accessibility'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                // Add accessibility settings navigation here
-              },
+              onTap: () {},
             ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.help_outline),
               title: const Text('Help & Support'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                // Add help & support navigation here
-              },
+              onTap: () {},
             ),
-            // Logout Button
             const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
@@ -166,6 +155,120 @@ class SettingsPage extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AccountPage extends StatefulWidget {
+  const AccountPage({super.key});
+
+  @override
+  State<AccountPage> createState() => _AccountPageState();
+}
+
+class _AccountPageState extends State<AccountPage> {
+  final _nameController = TextEditingController();
+  bool _isSaving = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _updateDisplayName() async {
+    setState(() {
+      _isSaving = true;
+    });
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && _nameController.text.trim().isNotEmpty) {
+        await user.updateDisplayName(_nameController.text.trim());
+        await user.reload();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Name updated!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {});
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to update name: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isSaving = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    _nameController.text = user?.displayName ?? '';
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: Text(
+          'Account',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        shape: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 4,
+          ),
+        ),
+        centerTitle: true,
+        elevation: 4,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            const Text(
+              'Profile',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+              enabled: !_isSaving,
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: _isSaving ? null : _updateDisplayName,
+              child: _isSaving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Save Name'),
+            ),
+            const SizedBox(height: 24),
+            ListTile(
+              leading: const Icon(Icons.email_outlined),
+              title: const Text('Email'),
+              subtitle: Text(user?.email ?? 'No email'),
             ),
           ],
         ),
