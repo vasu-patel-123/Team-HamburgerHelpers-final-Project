@@ -260,8 +260,6 @@ class _HomePageState extends State<HomePage> {
 
   // Add this method to calculate day progress
   double _calculateDayProgress() {
-    if (_tasks.isEmpty) return 0.0;
-
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
@@ -273,11 +271,11 @@ class _HomePageState extends State<HomePage> {
 
     if (todayTasks.isEmpty) return 0.0;
 
-    // Count completed tasks
+    // Count completed tasks for today
     final completedTasks = todayTasks.where((task) => task.isCompleted).length;
 
-    // Calculate progress as a percentage
-    return (completedTasks / todayTasks.length).clamp(0.0, 1.0);
+    // Calculate progress as a percentage (0.0 to 1.0)
+    return completedTasks / todayTasks.length;
   }
 
   Future<void> _refreshHome() async {
@@ -351,40 +349,58 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Day Progress Section
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Builder(
+                        builder: (context) {
+                          // Get all tasks for today
+                          final now = DateTime.now();
+                          final today = DateTime(now.year, now.month, now.day);
+                          final todayTasks = _tasks.where((task) {
+                            final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+                            return taskDate.isAtSameMomentAs(today);
+                          }).toList();
+
+                          if (todayTasks.isEmpty) {
+                            return const SizedBox.shrink(); // Hide progress bar and percentage
+                          }
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Day Progress',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Day Progress',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${(_calculateDayProgress() * 100).toStringAsFixed(0)}%',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                '${(_calculateDayProgress() * 100).toStringAsFixed(0)}%',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey[600],
+                              const SizedBox(height: 8),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: _calculateDayProgress(),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Theme.of(context).colorScheme.primary,
+                                  ),
+                                  backgroundColor: Colors.grey[300],
+                                  minHeight: 8,
                                 ),
                               ),
                             ],
-                          ),
-                          const SizedBox(height: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(4),
-                            child: LinearProgressIndicator(
-                              value: _calculateDayProgress(), // <-- Set progress value here!
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                              backgroundColor: Theme.of(context).colorScheme.primary,
-                              minHeight: 8,
-                            ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 24),
 
