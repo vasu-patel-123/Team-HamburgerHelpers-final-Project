@@ -31,4 +31,4 @@ taskii/windows/flutter/generated_plugin_registrant.h
 taskii/windows/flutter/generated_plugins.cmake
 taskii/pubspec.lock
 taskii/ios/Podfile.lock
-UserInterfaceState.xcuserstate
+*.xcuserstate
