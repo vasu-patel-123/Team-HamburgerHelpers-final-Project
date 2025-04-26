@@ -352,12 +352,19 @@ class _TasksPageState extends State<TasksPage> {
           )
         ),
         elevation: 4,
+        centerTitle: true,
         title: const Text('Tasks'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.filter_alt),
             onPressed: _showFilterDialog,
-            color: Colors.black,
+            tooltip: 'Filter',),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).pushNamed('/settings');
+            },
+            tooltip: 'Settings',
           ),
         ],
       ),

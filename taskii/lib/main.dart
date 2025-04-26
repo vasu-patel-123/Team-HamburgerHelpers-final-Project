@@ -6,7 +6,7 @@ import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'profile_settings.dart';
+import 'settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,7 +44,7 @@ class Taskii extends StatelessWidget {
             return const LoginPageSignUp();
           },
         ),
-        '/profile': (context) => const ProfileSettingsPage(),
+        '/settings': (context) => const SettingsPage(),
       },
     );
   }
