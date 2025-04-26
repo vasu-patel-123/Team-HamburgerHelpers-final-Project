@@ -663,7 +663,13 @@ class _HomePageState extends State<HomePage> {
             onFilterApply: _applyFilters,
             onFilterClear: _clearFilters,
           ),
-          AddTaskPage(),
+          AddTaskPage(
+            onExit: () {
+              setState(() {
+                currentPageIndex = 1; // or whatever index is your Tasks page
+              });
+            },
+          ),
           CalendarPage(
             tasks: _tasks,
             onTaskCompletion: _toggleTaskCompletion,
