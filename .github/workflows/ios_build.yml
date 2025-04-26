@@ -2,11 +2,9 @@ name: iOS Build
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
   pull_request:
-    branches:
-      - main
+    branches: ["main"]
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
@@ -15,32 +13,36 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
-      
+      uses: actions/checkout@v4
+
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
         flutter-version: "3.x"
         channel: "stable"
         cache: true
-        
-    - name: Analyze project source
-      working-directory: ./taskii
-      run: flutter analyze --no-fatal-warnings --no-fatal-infos
-      
+
     - name: Clean the Flutter build files
       run: flutter clean
       working-directory: ./taskii
-      
+
+    - name: Install dependencies
+      working-directory: ./taskii
+      run: flutter pub get
+
+    - name: Analyze project source
+      working-directory: ./taskii
+      run: flutter analyze --no-fatal-warnings --no-fatal-infos
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 3.0
-        
+
     - name: Ensure iOS project structure exists
       run: flutter create .
-      working-directory: ./taskii    
-  
+      working-directory: ./taskii
+
     - name: Install dependencies
       working-directory: ./taskii
       run: flutter pub get
