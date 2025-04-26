@@ -10,14 +10,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:taskii/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:taskii/mock.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  //setupFirebaseCoreMocks();
 
   setUpAll(() async {
-    SharedPreferences.setMockInitialValues({});
     await Firebase.initializeApp(
       options: const FirebaseOptions(
         apiKey: 'test',
