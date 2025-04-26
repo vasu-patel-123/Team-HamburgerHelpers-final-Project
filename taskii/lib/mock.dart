@@ -47,7 +47,6 @@ void setupFirebaseCoreMocks() {
 }
 
 void setupFirebaseAuthMocks([Callback? customHandlers]) {
-  // Keep your existing code here
   TestWidgetsFlutterBinding.ensureInitialized();
   setupFirebaseCoreMocks();
 }
