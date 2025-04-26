@@ -7,6 +7,7 @@ class TaskItem extends StatelessWidget {
   final Function(Task) onToggleComplete;
   final Function(Task) onDelete;
   final Color priorityColor;
+  final bool showDescription;
 
   const TaskItem({
     super.key,
@@ -14,6 +15,7 @@ class TaskItem extends StatelessWidget {
     required this.onToggleComplete,
     required this.onDelete,
     required this.priorityColor,
+    required this.showDescription,
   });
 
   @override
@@ -65,6 +67,14 @@ class TaskItem extends StatelessWidget {
                                   : TextDecoration.none,
                               ),
                             ),
+                            if (showDescription && task.description.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Text(
+                                  task.description,
+                                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                                ),
+                              ),
                             const SizedBox(height: 4),
                             Text(
                               DateFormat('h:mm a').format(task.dueDate),
@@ -92,4 +102,4 @@ class TaskItem extends StatelessWidget {
       ),
     );
   }
-} 
+}

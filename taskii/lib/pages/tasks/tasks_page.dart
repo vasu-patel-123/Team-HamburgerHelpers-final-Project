@@ -371,15 +371,19 @@ class _TasksPageState extends State<TasksPage> {
       body: RefreshIndicator(
         onRefresh: _refreshTasks,
         child: ListView.builder(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.fromLTRB(12, 28, 12, 12), // <-- Add top padding here
           itemCount: _filteredTasks.length,
           itemBuilder: (context, index) {
             final task = _filteredTasks[index];
-            return TaskItem(
-              task: task,
-              priorityColor: _getPriorityColor(task.priority),
-              onToggleComplete: _toggleTaskCompletion,
-              onDelete: _deleteTask,
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: TaskItem(
+                task: task,
+                priorityColor: _getPriorityColor(task.priority),
+                onToggleComplete: _toggleTaskCompletion,
+                onDelete: _deleteTask,
+                showDescription: true, // <-- Pass this to TaskItem
+              ),
             );
           },
         ),
