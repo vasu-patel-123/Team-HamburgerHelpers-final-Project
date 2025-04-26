@@ -378,6 +378,7 @@ class _HomePageState extends State<HomePage> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
                             child: LinearProgressIndicator(
+                              value: _calculateDayProgress(), // <-- Set progress value here!
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                               backgroundColor: Theme.of(context).colorScheme.primary,
                               minHeight: 8,
