@@ -49,6 +49,7 @@ class StatsPage extends StatelessWidget {
     };
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         shape: Border(
           bottom: BorderSide(
@@ -58,6 +59,15 @@ class StatsPage extends StatelessWidget {
         ),
         elevation: 4,
         title: const Text('Stats'),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () {
+              Navigator.of(context).pushNamed('/settings');
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -269,4 +279,4 @@ class StatsPage extends StatelessWidget {
       ),
     );
   }
-} 
+}

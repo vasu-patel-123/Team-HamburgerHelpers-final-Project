@@ -326,9 +326,10 @@ class _HomePageState extends State<HomePage> {
               elevation: 4,
               actions: <Widget>[
                 IconButton(
-                  icon: const Icon(Icons.person_2_outlined),
+                  icon: const Icon(Icons.settings),
+                  tooltip: 'Settings',
                   onPressed: () {
-                    Navigator.pushNamed(context, '/profile');
+                    Navigator.pushNamed(context, '/settings');
                   },
                 ),
               ],

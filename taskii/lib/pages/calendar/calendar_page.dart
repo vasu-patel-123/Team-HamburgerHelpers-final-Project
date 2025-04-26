@@ -254,19 +254,32 @@ class _CalendarPageState extends State<CalendarPage> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        titleTextStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w500,
+        ),
+        title: const Text('Calendar'),
         shape: Border(
           bottom: BorderSide(
             color: Theme.of(context).colorScheme.primary,
-            width: 4
-          )
+            width: 4,
+          ),
         ),
         elevation: 4,
-        title: const Text('Calendar'),
+        // Remove custom titleTextStyle, titleSpacing, toolbarHeight for consistency
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.filter_alt),
             onPressed: () {
               _showFilterDialog(context);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () {
+              Navigator.of(context).pushNamed('/settings');
             },
           ),
         ],

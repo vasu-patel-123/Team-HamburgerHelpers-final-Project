@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-class ProfileSettingsPage extends StatelessWidget {
-  const ProfileSettingsPage({super.key});
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
 
   Future<void> _signOut(BuildContext context) async {
     try {
@@ -39,24 +39,20 @@ class ProfileSettingsPage extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark().copyWith(
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
         ),
       ),
       home: Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
-          title: const Text('Profile Settings'),
-          centerTitle: true,
-            backgroundColor: Theme.of(context).appBarTheme.backgroundColor ?? Theme.of(context).colorScheme.primary,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                // Add settings navigation here
-              },
+          title: const Text('Settings'),
+          shape: Border(
+            bottom: BorderSide(
+              color: Theme.of(context).colorScheme.primary,
+              width: 4,
             ),
-          ],
+          ),
+          centerTitle: true,
+          elevation: 4,
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
