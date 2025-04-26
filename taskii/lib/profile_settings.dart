@@ -44,6 +44,7 @@ class ProfileSettingsPage extends StatelessWidget {
         ),
       ),
       home: Scaffold(
+        resizeToAvoidBottomInset: true,
         appBar: AppBar(
           title: const Text('Profile Settings'),
           centerTitle: true,

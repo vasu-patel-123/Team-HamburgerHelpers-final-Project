@@ -12,6 +12,7 @@ class SignUpPage extends StatelessWidget {
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Sign Up'),
       ),
