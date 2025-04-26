@@ -276,7 +276,7 @@ class _HomePageState extends State<HomePage> {
     final completedTasks = todayTasks.where((task) => task.isCompleted).length;
 
     // Calculate progress as a percentage
-    return completedTasks / todayTasks.length;
+    return (completedTasks / todayTasks.length).clamp(0.0, 1.0);
   }
 
   Future<void> _refreshHome() async {
@@ -338,223 +338,66 @@ class _HomePageState extends State<HomePage> {
         index: currentPageIndex,
         children: [
           // Home page content as a scrollable widget (NOT a Scaffold)
-          RefreshIndicator(
-            onRefresh: _refreshHome,
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(), // Ensures pull-to-refresh always works
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Day Progress Section
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Day Progress',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              '${(_calculateDayProgress() * 100).toStringAsFixed(0)}%',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        LinearProgressIndicator(
-                          value: _calculateDayProgress(),
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                          minHeight: 8,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Current Task Section
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Current/Upcoming Task',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey[300]!),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: _refreshHome,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 280.0), // <-- Add bottom padding
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Day Progress Section
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                _getCurrentTask()?.title ?? 'No current task',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
+                              const Text(
+                                'Day Progress',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              const SizedBox(height: 8),
                               Text(
-                                _getTimeLeft(),
+                                '${(_calculateDayProgress() * 100).toStringAsFixed(0)}%',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                   color: Colors.grey[600],
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // High Priority Warning
-                    if (_getNextHighPriorityTask() != null)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.warning_rounded,
-                              color: Colors.white,
+                          const SizedBox(height: 8),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              minHeight: 8,
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'High priority task "${_getNextHighPriorityTask()?.title}" ${_getTimeLeftForHighPriorityTask()}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 24),
 
-                    const SizedBox(height: 24),
-
-                    // Up Next Section
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Up Next',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        ..._getUpcomingTasks().map((task) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.only(left: 0),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: IntrinsicHeight(
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    decoration: BoxDecoration(
-                                      color: _getPriorityColor(task.priority),
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(7),
-                                        bottomLeft: Radius.circular(7),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Row(
-                                        children: [
-                                          Checkbox(
-                                            value: task.isCompleted,
-                                            onChanged: (bool? value) {
-                                              _toggleTaskCompletion(task);
-                                            },
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  task.title,
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                    decoration: task.isCompleted 
-                                                      ? TextDecoration.lineThrough 
-                                                      : TextDecoration.none,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  DateFormat('h:mm a').format(task.dueDate),
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                      // Current Task Section
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Current/Upcoming Task',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        )),
-                      ],
-                    ),
-
-                    // Available Free Time Section
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Available Free Time',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        ..._getFreeTimeSlots().map((slot) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Container(
+                          const SizedBox(height: 8),
+                          Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -564,72 +407,232 @@ class _HomePageState extends State<HomePage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      DateFormat('h:mm a').format(slot['start']),
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      DateFormat('h:mm a').format(slot['end']),
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
                                 Text(
-                                  slot['duration'],
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
+                                  _getCurrentTask()?.title ?? 'No current task',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      // Navigate to add task page with pre-filled time
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AddTaskPage(
-                                            initialDate: slot['start'],
-                                            initialTime: TimeOfDay.fromDateTime(slot['start']),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.black,
-                                      padding: const EdgeInsets.symmetric(vertical: 8),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Schedule Task',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                      ),
-                                    ),
+                                Text(
+                                  _getTimeLeft(),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        )),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      // High Priority Warning
+                      if (_getNextHighPriorityTask() != null)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.warning_rounded,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'High priority task "${_getNextHighPriorityTask()?.title}" ${_getTimeLeftForHighPriorityTask()}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      const SizedBox(height: 24),
+
+                      // Up Next Section
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Up Next',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          ..._getUpcomingTasks().map((task) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.only(left: 0),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: IntrinsicHeight(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 8,
+                                      decoration: BoxDecoration(
+                                        color: _getPriorityColor(task.priority),
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(7),
+                                          bottomLeft: Radius.circular(7),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Row(
+                                          children: [
+                                            Checkbox(
+                                              value: task.isCompleted,
+                                              onChanged: (bool? value) {
+                                                _toggleTaskCompletion(task);
+                                              },
+                                            ),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    task.title,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500,
+                                                      decoration: task.isCompleted 
+                                                        ? TextDecoration.lineThrough 
+                                                        : TextDecoration.none,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    DateFormat('h:mm a').format(task.dueDate),
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )),
+                        ],
+                      ),
+
+                      // Available Free Time Section
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Available Free Time',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          ..._getFreeTimeSlots().map((slot) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        DateFormat('h:mm a').format(slot['start']),
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        DateFormat('h:mm a').format(slot['end']),
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    slot['duration'],
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        // Navigate to add task page with pre-filled time
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AddTaskPage(
+                                              initialDate: slot['start'],
+                                              initialTime: TimeOfDay.fromDateTime(slot['start']),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.black,
+                                        padding: const EdgeInsets.symmetric(vertical: 8),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Schedule Task',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

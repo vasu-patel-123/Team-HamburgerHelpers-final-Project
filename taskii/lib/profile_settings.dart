@@ -12,7 +12,7 @@ class ProfileSettingsPage extends StatelessWidget {
       await FirebaseAuth.instance.signOut();
       // Reconnect to the database for future use
       FirebaseDatabase.instance.goOnline();
-      
+
       if (context.mounted) {
         // Navigate back to login page and remove all previous routes
         Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
@@ -88,7 +88,7 @@ class ProfileSettingsPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 40),
-              
+
               // Settings Options
               ListTile(
                 leading: const Icon(Icons.notifications_outlined),
