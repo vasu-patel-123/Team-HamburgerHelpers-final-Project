@@ -24,10 +24,15 @@ jobs:
         channel: "stable"
         cache: true
         
+    - name: Analyze project source
+      working-directory: ./taskii
+      run: flutter analyze --no-fatal-warnings --no-fatal-infos
+      
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 3.0
+        
     - name: Ensure iOS project structure exists
       run: flutter create .
       working-directory: ./taskii    
@@ -39,13 +44,6 @@ jobs:
     - name: Install CocoaPods
       run: pod install
       working-directory: taskii/ios
-
-    - name: Change to project directory
-      run: cd taskii
-
-    - name: Analyze project source
-      working-directory: ./taskii
-      run: flutter analyze --no-fatal-warnings --no-fatal-infos
 
     - name: Run tests
       working-directory: ./taskii
