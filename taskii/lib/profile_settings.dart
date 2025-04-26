@@ -152,7 +152,7 @@ class ProfileSettingsPage extends StatelessWidget {
                   child: TextButton(
                     onPressed: () => _signOut(context),
                     style: TextButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
