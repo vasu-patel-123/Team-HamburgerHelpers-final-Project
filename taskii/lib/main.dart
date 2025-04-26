@@ -244,6 +244,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
       // Not signed in!
     }
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),

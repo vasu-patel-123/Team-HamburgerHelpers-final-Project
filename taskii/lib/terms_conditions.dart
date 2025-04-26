@@ -72,6 +72,7 @@ class TermsConditions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Terms and Conditions'),
       ),
@@ -89,7 +90,6 @@ class TermsConditions extends StatelessWidget {
                   ],
                 ),
               ),
-              
               // Logo and Title
               const SizedBox(height: 80),
               const Icon(
@@ -107,8 +107,6 @@ class TermsConditions extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-
-
              // Return to sign Up
             const SizedBox(height: 16),
             TextButton(

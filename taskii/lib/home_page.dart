@@ -314,6 +314,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: currentPageIndex == 0
           ? AppBar(
               title: const Text('Home'),
