@@ -662,7 +662,7 @@ class _HomePageState extends State<HomePage> {
             currentPageIndex = index;
           });
         },
-        indicatorColor: Colors.amber,
+        indicatorColor: Theme.of(context).colorScheme.primary,
         indicatorShape: CircleBorder(),
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
