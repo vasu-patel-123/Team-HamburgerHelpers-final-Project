@@ -20,7 +20,6 @@ jobs:
       with:
         flutter-version: "3.x"
         channel: "stable"
-        cache: true
 
     - name: Clean the Flutter build files
       run: flutter clean
