@@ -26,7 +26,11 @@ jobs:
       - name: Install dependencies
         working-directory: ./taskii
         run: flutter pub get
-
+        
+      - name: Clean the Flutter build files
+        run: flutter clean
+        working-directory: ./taskii
+      
       - name: Analyze project source
         working-directory: ./taskii
         run: flutter analyze --no-suggestions --no-fatal-warnings --no-fatal-infos
