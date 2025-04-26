@@ -255,11 +255,14 @@ class _CalendarPageState extends State<CalendarPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        titleTextStyle: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: Text(
+          'Calendar',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+          ),
         ),
-        title: const Text('Calendar'),
         shape: Border(
           bottom: BorderSide(
             color: Theme.of(context).colorScheme.primary,
@@ -267,7 +270,6 @@ class _CalendarPageState extends State<CalendarPage> {
           ),
         ),
         elevation: 4,
-        // Remove custom titleTextStyle, titleSpacing, toolbarHeight for consistency
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.filter_alt),
@@ -318,14 +320,18 @@ class _CalendarPageState extends State<CalendarPage> {
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, date, events) {
                 if (events.isEmpty) return null;
-                return Positioned(
-                  bottom: 1,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
+                // Place the dot below the day number
+                return Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 0.0), // Adjust as needed
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                 );
