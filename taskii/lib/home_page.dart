@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:uuid/uuid.dart';
 import 'dart:async';
 import '../models/task.dart';
 import '../services/task_service.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/foundation.dart';
 import 'pages/tasks/tasks_page.dart';
-import 'pages/add_task/add_task_page.dart';
 import 'pages/calendar/calendar_page.dart';
 import 'pages/stats/stats_page.dart';
 
