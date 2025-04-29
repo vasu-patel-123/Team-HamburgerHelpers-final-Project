@@ -61,6 +61,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadTasks() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _tasks = []; // Optionally clear tasks before loading
+    });
     await _subscription?.cancel();
     _subscription = _taskService.getUserTasks(_auth.currentUser?.uid ?? '')
         .listen(
