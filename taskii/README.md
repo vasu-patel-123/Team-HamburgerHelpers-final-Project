@@ -23,7 +23,7 @@ This project is a starting point for a Flutter application. Follow the steps bel
    ```bash
    git clone <https://github.com/vasu-patel-123/Team-HamburgerHelpers-final-Project>
 
-2. **Install the required dependencies** by running the following command in your terminal:
+2. **Install the required dependencies** by running the following command in your terminal while in the taskii folder:
 
 `flutter pub get`
 
@@ -49,5 +49,3 @@ This project is a starting point for a Flutter application. Follow the steps bel
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
-
-
