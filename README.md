@@ -1,12 +1,13 @@
 # Team-Hamburger Helpers-final-Project
 Final Project for COS 420
 
-* Vasu Patel - Project Manager 
-* Garrett R - Product Design 
-* Anden Cabral - Dev 1 
-* Benjamin Cobb - Dev 2 
-* Jianer Xuan - Dev 3 
+* Vasu Patel - Project Manager
+* Garrett R - Product Design
+* Anden Cabral - Dev 1
+* Benjamin Cobb - Dev 2
+* Jianer Xuan - Dev 3
 * Jaron Durkee - Dev 4
+
 # Problem Statement 1
 Often people struggle to prioritize their time properly, leading to procrastination and decreased productivity. Many developers have attempted to fix this with planner apps and reminder apps, such as apps like Timo, Neurolist, and general calendar/reminder apps, but none of these solutions work for everyone intuitively. For example, Timo can be very ‘hands on’ with its approach and Neurolist is much too focused on AI generated tasks. These examples can be helpful to some, but a lot of users are pushed away by their difficult and unintuitive design, complicated interfaces, and unreliable or non-existent calendar connections. How can we design a simple and lightweight solution to address these gaps in the existing solutions?
 
