@@ -76,12 +76,32 @@ class TaskItem extends StatelessWidget {
                                 ),
                               ),
                             const SizedBox(height: 4),
-                            Text(
-                              DateFormat('h:mm a').format(task.dueDate),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  DateFormat('h:mm a').format(task.dueDate),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '•',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${task.estimatedTime} min',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),

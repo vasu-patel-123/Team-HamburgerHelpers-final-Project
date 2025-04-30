@@ -106,6 +106,7 @@ class _TasksPageState extends State<TasksPage> {
         category: task.category,
         isCompleted: !task.isCompleted,
         userId: task.userId,
+        estimatedTime: task.estimatedTime,
       );
       
       await _taskService.updateTask(updatedTask);
@@ -285,6 +286,16 @@ class _TasksPageState extends State<TasksPage> {
           return false;
         }
 
+        // Calculate the task's time window
+        final now = DateTime.now();
+        final taskEndTime = task.dueDate.add(Duration(minutes: task.estimatedTime));
+        
+        // If the task is still within its time window, show it in current section
+        if (now.isBefore(taskEndTime)) {
+          return true;
+        }
+
+        // For tasks outside their time window, apply date filters
         if (_filterStartDate != null && task.dueDate.isBefore(_filterStartDate!)) {
           return false;
         }

@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
-  Future<void> _signOut(BuildContext context) async {
-    try {
-      await FirebaseDatabase.instance.goOffline();
-      await FirebaseAuth.instance.signOut();
-      FirebaseDatabase.instance.goOnline();
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
 
-      if (context.mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+class _SettingsPageState extends State<SettingsPage> {
+  Future<void> _handleSignOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/');
       }
     } catch (e) {
-      FirebaseDatabase.instance.goOnline();
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error signing out: ${e.toString()}'),
@@ -137,7 +137,7 @@ class SettingsPage extends StatelessWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: () => _signOut(context),
+                  onPressed: _handleSignOut,
                   style: TextButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -181,14 +181,19 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future<void> _updateDisplayName() async {
+    if (!mounted) return;
+    
     setState(() {
       _isSaving = true;
     });
+    
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null && _nameController.text.trim().isNotEmpty) {
         await user.updateDisplayName(_nameController.text.trim());
         await user.reload();
+        if (!mounted) return;
+        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Name updated!'),
@@ -198,6 +203,8 @@ class _AccountPageState extends State<AccountPage> {
         setState(() {});
       }
     } catch (e) {
+      if (!mounted) return;
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update name: $e'),
@@ -205,9 +212,11 @@ class _AccountPageState extends State<AccountPage> {
         ),
       );
     } finally {
-      setState(() {
-        _isSaving = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
     }
   }
 

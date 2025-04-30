@@ -79,6 +79,7 @@ class _CalendarPageState extends State<CalendarPage> {
         'isCompleted': task.isCompleted,
         'userId': task.userId,
         'category': task.category,
+        'estimatedTime': task.estimatedTime,
       };
       tempEvents[date]!.add(taskMap);
     }
@@ -91,7 +92,22 @@ class _CalendarPageState extends State<CalendarPage> {
   List<Map<String, dynamic>> _getTasksForDay(DateTime day) {
     // Normalize the date to remove time component
     final normalizedDay = DateTime(day.year, day.month, day.day);
-    return _events[normalizedDay] ?? [];
+    final now = DateTime.now();
+    
+    return _events[normalizedDay]?.where((task) {
+      // Calculate the task's time window
+      final taskEndTime = task['dueDate'].add(Duration(minutes: task['estimatedTime'] ?? 30));
+      
+      // If the task is still within its time window, show it in current section
+      if (now.isBefore(taskEndTime)) {
+        return true;
+      }
+      
+      // For tasks outside their time window, only show if they match the selected day
+      return task['dueDate'].year == day.year &&
+             task['dueDate'].month == day.month &&
+             task['dueDate'].day == day.day;
+    }).toList() ?? [];
   }
 
   Color _getPriorityColor(String priority) {
@@ -390,6 +406,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                                 category: task['category'],
                                                 isCompleted: value ?? false,
                                                 userId: task['userId'],
+                                                estimatedTime: task['estimatedTime'] ?? 30,
                                               ));
                                             },
                                           ),
@@ -430,6 +447,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                                 category: task['category'],
                                                 isCompleted: task['isCompleted'],
                                                 userId: task['userId'],
+                                                estimatedTime: task['estimatedTime'] ?? 30,
                                               ));
                                             },
                                           ),

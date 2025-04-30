@@ -1,9 +1,8 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'settings.dart';
@@ -15,6 +14,22 @@ Future<void> main() async {
 
 Future<void> initializeFirebaseAndRun() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  // Initialize App Check
+  await FirebaseAppCheck.instance.activate(
+    webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+    androidProvider: AndroidProvider.debug,
+    appleProvider: AppleProvider.debug,
+  );
+
+  // Disable reCAPTCHA for testing
+  await FirebaseAuth.instance.setSettings(
+    appVerificationDisabledForTesting: true,
+    phoneNumber: null,
+    smsCode: null,
+    forceRecaptchaFlow: false,
+  );
+
   runApp(const Taskii());
 }
 
@@ -27,16 +42,20 @@ class Taskii extends StatelessWidget {
     final auth = firebaseAuth ?? FirebaseAuth.instance;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.light(), // Light theme
-      darkTheme: ThemeData.dark(), // Dark theme
-      themeMode: ThemeMode.system, // Use system setting for dark mode
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
       initialRoute: '/',
       routes: {
         '/': (context) => StreamBuilder<User?>(
           stream: auth.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(body: Center(child: CircularProgressIndicator()));
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
             }
             if (snapshot.hasData) {
               return const HomePage();
@@ -64,6 +83,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
   int _failedAttempts = 0;
   DateTime? _lockoutUntil;
   late SharedPreferences _prefs;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -81,7 +101,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
     if (lockoutTime != null) {
       _lockoutUntil = DateTime.fromMillisecondsSinceEpoch(lockoutTime);
       if (!_isLockedOut()) {
-        // If lockout has expired, clear it
         _lockoutUntil = null;
         _failedAttempts = 0;
         await _prefs.remove('lockout_time');
@@ -103,6 +122,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
   }
 
   void _showSnackBar(String message, {bool isError = true}) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -159,24 +179,52 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
       return;
     }
 
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
     try {
-      showLoadingDialog(context, message: "Signing in...");
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      debugPrint('Attempting to sign in with email: ${_emailController.text.trim()}');
+      
+      // Sign in and wait for user to be fully initialized
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+      
+      // Ensure we have a valid user
+      final user = userCredential.user;
+      if (user == null) {
+        throw FirebaseAuthException(
+          code: 'null-user',
+          message: 'Failed to initialize user after sign in',
+        );
+      }
+      
+      // Wait for the user to be fully loaded
+      await user.reload();
+      
+      debugPrint('Sign in successful for user: ${user.email}');
+      
       _failedAttempts = 0;
       _lockoutUntil = null;
       await _saveLockoutState();
+      
       if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop(); // Remove loading dialog
         setState(() {
           _errorMessage = '';
+          _isLoading = false;
         });
         _showSnackBar('Successfully signed in!', isError: false);
       }
     } on FirebaseAuthException catch (e) {
-      Navigator.of(context, rootNavigator: true).pop(); // Remove loading dialog
+      debugPrint('FirebaseAuthException during sign in: ${e.code} - ${e.message}');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
       String errorMessage;
       switch (e.code) {
         case 'user-not-found':
@@ -199,219 +247,104 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         case 'user-disabled':
           errorMessage = 'This account has been disabled';
           break;
+        case 'network-request-failed':
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+          break;
+        case 'too-many-requests':
+          errorMessage = 'Too many sign-in attempts. Please try again later.';
+          break;
+        case 'operation-not-allowed':
+          errorMessage = 'Email/password sign-in is not enabled. Please contact support.';
+          break;
+        case 'null-user':
+          errorMessage = 'Failed to initialize user after sign in. Please try again.';
+          break;
         default:
           errorMessage = 'An error occurred during sign in: ${e.message}';
       }
-      setState(() {
-        _errorMessage = errorMessage;
-      });
-      _showSnackBar(errorMessage);
-    } catch (e) {
-      Navigator.of(context, rootNavigator: true).pop(); // Remove loading dialog
-      _showSnackBar('An unexpected error occurred: ${e.toString()}');
-    }
-  }
-
-  Future<void> _createTask() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        _showSnackBar('You must be logged in to create tasks');
-        return;
+      if (mounted) {
+        setState(() {
+          _errorMessage = errorMessage;
+        });
+        _showSnackBar(errorMessage);
+        debugPrint('Sign in error message: $errorMessage');
       }
-
-      debugPrint('Creating task for user: ${user.uid}');
-
-      final taskRef = FirebaseDatabase.instance.ref('tasks/${user.uid}').push();
-      await taskRef.set({
-        'title': 'My Task',
-        'description': 'Task Description',
-        'dueDate': '2025-04-23',
-        'priority': 'High',
-        'isComplete': false
-      });
-      _showSnackBar('Task created successfully!', isError: false);
     } catch (e) {
-      _showSnackBar('Failed to create task: $e');
+      debugPrint('Unexpected error during sign in: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        const errorMessage = 'An unexpected error occurred. Please try again.';
+        _showSnackBar(errorMessage);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    debugPrint('Current user: ${user?.uid}');
-    if (user == null) {
-      // Not signed in!
-    }
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            children: [
-              // Status Bar
-              Padding(
-                padding: const EdgeInsets.only(top: 12, bottom: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                  ],
-                ),
-              ),
-              // Logo and Title
-              const SizedBox(height: 80),
-              Icon(
-                Icons.assignment_outlined,
-                size: 48,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Taskii',
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.headlineSmall?.color,
-                  fontSize: 24,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              // Login Form
-              const SizedBox(height: 48),
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFADAEBC),
-                    fontSize: 16,
-                    fontFamily: 'Inter',
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFADAEBC),
-                    fontSize: 16,
-                    fontFamily: 'Inter',
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
-                  ),
-                ),
-              ),
-              if (_errorMessage.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    _errorMessage,
-                    style: const TextStyle(
-                      color: Colors.red,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: _signIn,
-                  style: TextButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Log In',
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 100),
+                  const Text(
+                    'Welcome to Taskii',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 50),
+                  TextField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
                     ),
                   ),
-                ),
-              ),
-              // Forgot Password
-              const SizedBox(height: 24),
-              TextButton(
-                onPressed: () {
-                  debugPrint('Forgot password pressed');
-                },
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const Text(
-                  'Forgot password?',
-                  style: TextStyle(
-                    color: Color(0xFF525252),
-                    fontSize: 14,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w400,
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
                   ),
-                ),
-              ),
-              // Sign Up Section
-              const SizedBox(height: 24),
-              const Text(
-                "Don't have an account?",
-                style: TextStyle(
-                  color: Color(0xFF525252),
-                  fontSize: 16,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 4),
-              TextButton(
-                onPressed: () {
-                  debugPrint('Sign up pressed');
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SignUpPage()),
-                  );
-                },
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const Text(
-                  'Sign up',
-                  style: TextStyle(
-                    color: Color(0xFF171717),
-                    fontSize: 16,
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w400,
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _signIn,
+                    child: Text(_isLoading ? 'Signing in...' : 'Sign In'),
                   ),
-                ),
+                  if (_errorMessage.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text(
+                        _errorMessage,
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withAlpha(128),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
     );
   }

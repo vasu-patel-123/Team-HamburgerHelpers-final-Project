@@ -1,14 +1,16 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/task.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 
 class TaskService {
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   final String _tasksPath = 'tasks';
+  final FirebaseAuth _auth;
 
-  TaskService() {
+  TaskService({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance {
     try {
       // Enable offline persistence only for non-web platforms
       if (!kIsWeb && Firebase.apps.isNotEmpty) {

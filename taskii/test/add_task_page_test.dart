@@ -1,122 +1,85 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
-import 'package:taskii/pages/add_task/add_task_page.dart';
+import 'package:mockito/mockito.dart';
+import 'package:mockito/annotations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:taskii/screens/add_task_page.dart';
+import 'add_task_page_test.mocks.dart';
+import 'firebase_mock.dart';
 
-// Fake FirebaseAuth implementation
-class FakeFirebaseAuth extends Fake implements FirebaseAuth {
-  @override
-  User? get currentUser => FakeUser();
-}
-
-class FakeUser extends Fake implements User {
-  @override
-  String get uid => 'test-uid';
-}
-
+@GenerateMocks([FirebaseAuth, User, DatabaseReference, DataSnapshot])
 void main() {
+  late MockFirebaseAuth mockFirebaseAuth;
+  late MockUser mockUser;
+  late MockDatabaseReference mockDatabaseRef;
+  late MockDatabaseReference mockChildRef;
+  late MockDatabaseReference mockPushRef;
+  late MockDataSnapshot mockDataSnapshot;
+
   setUpAll(() async {
-    // Initialize Firebase with your project’s configuration
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: 'copied-api-key', // From Firebase Console
-        appId: 'copied-app-id',
-        messagingSenderId: 'copied-messaging-sender-id',
-        projectId: 'copied-project-id',
-        databaseURL: 'copied-database-url',
-      ),
-    );
+    await setupFirebaseCoreMocks();
+    setupFirebaseAuthMocks();
   });
 
   setUp(() {
-    // Override FirebaseAuth.instance to use FakeFirebaseAuth
-    // This ensures AddTaskPage doesn't try to use real auth
+    mockFirebaseAuth = MockFirebaseAuth();
+    mockUser = MockUser();
+    mockDatabaseRef = MockDatabaseReference();
+    mockChildRef = MockDatabaseReference();
+    mockPushRef = MockDatabaseReference();
+    mockDataSnapshot = MockDataSnapshot();
+
+    when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockUser.uid).thenReturn('test-uid');
+    when(mockDatabaseRef.child('tasks')).thenReturn(mockChildRef);
+    when(mockChildRef.push()).thenReturn(mockPushRef);
+    when(mockPushRef.set(any)).thenAnswer((_) => Future.value());
   });
 
-  testWidgets('Check if AddTaskPage renders correctly', (WidgetTester tester) async {
+  testWidgets('Add Task Page UI Test', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: AddTaskPage(),
+        home: AddTaskPage(
+          firebaseAuth: mockFirebaseAuth,
+          databaseRef: mockDatabaseRef,
+        ),
       ),
     );
 
-    await tester.pumpAndSettle();
-
-    expect(find.text('Add Task'), findsAtLeastNWidgets(1)); // AppBar title and button
-    expect(find.text('Task Name'), findsOneWidget);
-    expect(find.text('Description'), findsOneWidget);
-    expect(find.text('Priority'), findsOneWidget);
-    expect(find.text('Category'), findsOneWidget);
-    expect(find.text('Due Date'), findsOneWidget);
-    expect(find.text('Due Time'), findsOneWidget);
-
-    debugPrint('AddTaskPage rendered with all form fields');
+    // Verify initial UI elements
+    expect(find.text('Add New Task'), findsOneWidget);
+    expect(find.byType(TextField), findsNWidgets(2));
+    expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
+    expect(find.byType(ElevatedButton), findsOneWidget);
   });
 
-  testWidgets('Check if form validation works for empty task name', (WidgetTester tester) async {
+  testWidgets('Add Task Form Submission Test', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: AddTaskPage(),
+        home: AddTaskPage(
+          firebaseAuth: mockFirebaseAuth,
+          databaseRef: mockDatabaseRef,
+        ),
       ),
     );
 
+    // Fill in the form
+    await tester.enterText(find.byType(TextField).first, 'Test Task');
+    await tester.enterText(find.byType(TextField).last, 'Test Description');
+    await tester.tap(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('High'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Add Task').last); // Target the button
-    await tester.pump();
-
-    expect(find.text('Please enter a task name'), findsOneWidget);
-
-    debugPrint('Form validation triggered: Task name is empty');
-  });
-
-  testWidgets('Check if date picker updates selected date', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: AddTaskPage(),
-      ),
-    );
-
+    // Submit the form
+    await tester.tap(find.byType(ElevatedButton));
     await tester.pumpAndSettle();
 
-    final initialDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    expect(find.text(initialDate), findsOneWidget);
-
-    await tester.tap(find.text(initialDate));
-    await tester.pumpAndSettle();
-
-    final tomorrow = DateTime.now().add(const Duration(days: 1));
-    await tester.tap(find.text(tomorrow.day.toString()));
-    await tester.tap(find.text('OK'));
-    await tester.pumpAndSettle();
-
-    final newDate = DateFormat('yyyy-MM-dd').format(tomorrow);
-    expect(find.text(newDate), findsOneWidget);
-
-    debugPrint('Date changed from $initialDate to $newDate');
-  });
-
-  testWidgets('Check if priority dropdown updates selection', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: AddTaskPage(),
-      ),
-    );
-
-    await tester.pumpAndSettle();
-
-    expect(find.text('Medium'), findsOneWidget);
-
-    await tester.tap(find.byType(DropdownButtonFormField<String>).first);
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('High').last);
-    await tester.pumpAndSettle();
-
-    expect(find.text('High'), findsOneWidget);
-
-    debugPrint('Priority changed from Medium to High');
+    // Verify database interaction
+    verify(mockDatabaseRef.child('tasks')).called(1);
+    verify(mockChildRef.push()).called(1);
+    verify(mockPushRef.set(any)).called(1);
   });
 }

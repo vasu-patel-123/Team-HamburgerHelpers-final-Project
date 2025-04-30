@@ -7,6 +7,7 @@ class Task {
   final String category;
   final bool isCompleted;
   final String userId;
+  final int estimatedTime; // in minutes
 
   Task({
     required this.id,
@@ -17,6 +18,7 @@ class Task {
     required this.category,
     this.isCompleted = false,
     required this.userId,
+    required this.estimatedTime,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,6 +31,7 @@ class Task {
       'category': category,
       'isCompleted': isCompleted,
       'userId': userId,
+      'estimatedTime': estimatedTime,
     };
   }
 
@@ -53,6 +56,7 @@ class Task {
       category: json['category'] ?? 'General',
       isCompleted: json['isCompleted'] ?? false,
       userId: json['userId'] ?? '',
+      estimatedTime: json['estimatedTime'] ?? 30, // Default to 30 minutes
     );
   }
 } 
