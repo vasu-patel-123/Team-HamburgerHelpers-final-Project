@@ -1,4 +1,7 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'sign_up.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,27 +12,56 @@ import 'settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeFirebaseAndRun();
-}
-
-Future<void> initializeFirebaseAndRun() async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  
-  // Initialize App Check
-  await FirebaseAppCheck.instance.activate(
-    webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
-    androidProvider: AndroidProvider.debug,
-    appleProvider: AppleProvider.debug,
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
   );
+  try {
+    // First, try to get the default app
+    try {
+      Firebase.app();
+      // If we get here, Firebase is already initialized
+      debugPrint('Firebase already initialized');
+    } catch (e) {
+      // If getting the default app fails, initialize Firebase
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      // Initialize App Check
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: const bool.fromEnvironment('dart.vm.product')
+            ? AndroidProvider.playIntegrity
+            : AndroidProvider.debug,
+        appleProvider: const bool.fromEnvironment('dart.vm.product')
+            ? AppleProvider.appAttest
+            : AppleProvider.debug,
+      );
+      debugPrint('Firebase initialized successfully');
+    }
+  } catch (e) {
+    if (e.toString().contains('duplicate-app')) {
+      // If we get a duplicate app error, try to get the existing app
+      try {
+        Firebase.app();
+        debugPrint('Using existing Firebase app');
+      } catch (e) {
+        debugPrint('Error accessing existing Firebase app: $e');
+      }
+    } else {
+      debugPrint('Firebase initialization error: $e');
+    }
+  }
 
-  // Disable reCAPTCHA for testing
-  await FirebaseAuth.instance.setSettings(
-    appVerificationDisabledForTesting: true,
-    phoneNumber: null,
-    smsCode: null,
-    forceRecaptchaFlow: false,
-  );
+  // Set up system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.black,
+    statusBarColor: Colors.white,
+    statusBarIconBrightness: Brightness.dark,
+    systemNavigationBarIconBrightness: Brightness.dark,
+  ));
 
+  // Enable hardware acceleration for better performance
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  // Run the app
   runApp(const Taskii());
 }
 
@@ -42,20 +74,13 @@ class Taskii extends StatelessWidget {
     final auth = firebaseAuth ?? FirebaseAuth.instance;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      themeMode: ThemeMode.system,
       initialRoute: '/',
       routes: {
         '/': (context) => StreamBuilder<User?>(
           stream: auth.authStateChanges(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
             }
             if (snapshot.hasData) {
               return const HomePage();
@@ -185,33 +210,17 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
     });
 
     try {
-      debugPrint('Attempting to sign in with email: ${_emailController.text.trim()}');
-      
-      // Sign in and wait for user to be fully initialized
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      
-      // Ensure we have a valid user
-      final user = userCredential.user;
-      if (user == null) {
-        throw FirebaseAuthException(
-          code: 'null-user',
-          message: 'Failed to initialize user after sign in',
-        );
-      }
-      
-      // Wait for the user to be fully loaded
-      await user.reload();
-      
-      debugPrint('Sign in successful for user: ${user.email}');
-      
+      // Reset failed attempts on successful login
       _failedAttempts = 0;
       _lockoutUntil = null;
       await _saveLockoutState();
       
       if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop(); // Remove loading dialog
         setState(() {
           _errorMessage = '';
           _isLoading = false;
@@ -219,12 +228,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         _showSnackBar('Successfully signed in!', isError: false);
       }
     } on FirebaseAuthException catch (e) {
-      debugPrint('FirebaseAuthException during sign in: ${e.code} - ${e.message}');
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
       String errorMessage;
       switch (e.code) {
         case 'user-not-found':
@@ -270,81 +273,203 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         debugPrint('Sign in error message: $errorMessage');
       }
     } catch (e) {
-      debugPrint('Unexpected error during sign in: $e');
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-        const errorMessage = 'An unexpected error occurred. Please try again.';
-        _showSnackBar(errorMessage);
+      _showSnackBar('An unexpected error occurred: ${e.toString()}');
+    }
+  }
+
+  Future<void> _createTask() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        _showSnackBar('You must be logged in to create tasks');
+        return;
       }
+      
+      debugPrint('Creating task for user: ${user.uid}');
+      
+      final taskRef = FirebaseDatabase.instance.ref('tasks/${user.uid}').push();
+      await taskRef.set({
+        'title': 'My Task',
+        'description': 'Task Description',
+        'dueDate': '2025-04-23',
+        'priority': 'High',
+        'isComplete': false
+      });
+      
+      _showSnackBar('Task created successfully!', isError: false);
+    } catch (e) {
+      _showSnackBar('Failed to create task: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          children: [
+            // Status Bar
+            Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(height: 100),
-                  const Text(
-                    'Welcome to Taskii',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 50),
-                  TextField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _signIn,
-                    child: Text(_isLoading ? 'Signing in...' : 'Sign In'),
-                  ),
-                  if (_errorMessage.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Text(
-                        _errorMessage,
-                        style: const TextStyle(color: Colors.red),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
                 ],
               ),
             ),
-          ),
-          if (_isLoading)
-            Container(
-              color: Colors.black.withAlpha(128),
-              child: const Center(
-                child: CircularProgressIndicator(),
+            // Logo and Title
+            const SizedBox(height: 80),
+            const Icon(
+              Icons.assignment_outlined,
+              size: 48,
+              color: Color(0xFF171717),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Taskii',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 24,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
               ),
             ),
-        ],
+            // Login Form
+            const SizedBox(height: 48),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                hintText: 'Email',
+                hintStyle: const TextStyle(
+                  color: Color(0xFFADAEBC),
+                  fontSize: 16,
+                  fontFamily: 'Inter',
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                hintText: 'Password',
+                hintStyle: const TextStyle(
+                  color: Color(0xFFADAEBC),
+                  fontSize: 16,
+                  fontFamily: 'Inter',
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xFFE5E5E5)),
+                ),
+              ),
+            ),
+            if (_errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  _errorMessage,
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: _signIn,
+                style: TextButton.styleFrom(
+                  backgroundColor: const Color(0xFF171717),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Log In',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+            ),
+            // Forgot Password
+            const SizedBox(height: 24),
+            TextButton(
+              onPressed: () {
+                debugPrint('Forgot password pressed');
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Forgot password?',
+                style: TextStyle(
+                  color: Color(0xFF525252),
+                  fontSize: 14,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            // Sign Up Section
+            const SizedBox(height: 24),
+            const Text(
+              "Don't have an account?",
+              style: TextStyle(
+                color: Color(0xFF525252),
+                fontSize: 16,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () {
+                debugPrint('Sign up pressed');
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignUpPage()),
+                );
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Sign up',
+                style: TextStyle(
+                  color: Color(0xFF171717),
+                  fontSize: 16,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

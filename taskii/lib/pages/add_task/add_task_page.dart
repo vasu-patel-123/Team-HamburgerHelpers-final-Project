@@ -8,15 +8,11 @@ import 'package:taskii/services/task_service.dart';
 class AddTaskPage extends StatefulWidget {
   final DateTime? initialDate;
   final TimeOfDay? initialTime;
-  final VoidCallback? onExit;
-  final FirebaseAuth? auth;
 
   const AddTaskPage({
     super.key,
     this.initialDate,
     this.initialTime,
-    this.onExit,
-    this.auth,
   });
 
   @override
@@ -112,7 +108,23 @@ class _AddTaskPageState extends State<AddTaskPage> {
       );
 
       await _taskService.createTask(task);
-      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task added successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      // Clear the form fields
+      _titleController.clear();
+      _descriptionController.clear();
+      setState(() {
+        _selectedDate = DateTime.now();
+        _selectedTime = TimeOfDay.now();
+        _selectedPriority = 'Medium';
+        _selectedCategory = 'General';
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -121,9 +133,8 @@ class _AddTaskPageState extends State<AddTaskPage> {
           ),
         );
         
-        if (widget.onExit != null) {
-          widget.onExit!();
-        } else if (Navigator.of(context).canPop()) {
+        // Check if we can pop the current route
+        if (Navigator.of(context).canPop()) {
           Navigator.pop(context);
         } else {
           _titleController.clear();
@@ -159,11 +170,32 @@ class _AddTaskPageState extends State<AddTaskPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          tooltip: 'Exit',
+          onPressed: () {
+            if (widget.onExit != null) {
+              widget.onExit!();
+            } else if (Navigator.of(context).canPop()) {
+              Navigator.pop(context);
+            } else {
+              // Clear the form fields
+              _titleController.clear();
+              _descriptionController.clear();
+              setState(() {
+                _selectedDate = DateTime.now();
+                _selectedTime = TimeOfDay.now();
+                _selectedPriority = 'Medium';
+                _selectedCategory = 'General';
+              });
+            }
+          },
+        ),
         shape: Border(
           bottom: BorderSide(
             color: const Color.fromARGB(255, 153, 142, 126),
-            width: 4,
-          ),
+            width: 4
+          )
         ),
         elevation: 4,
         title: const Text('Add Task'),
@@ -333,4 +365,4 @@ class _AddTaskPageState extends State<AddTaskPage> {
             ),
     );
   }
-} 
+}
