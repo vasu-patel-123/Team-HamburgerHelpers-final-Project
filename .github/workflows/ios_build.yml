@@ -22,7 +22,9 @@ jobs:
         channel: "stable"
 
     - name: Clean the Flutter build files
-      run: flutter clean
+      run: |
+        flutter clean
+        flutter config --no-cli-animations
       working-directory: ./taskii
 
     - name: Install dependencies
@@ -50,10 +52,19 @@ jobs:
       run: pod install
       working-directory: taskii/ios
 
+    - name: Clean up leftover files before tests
+      run: |
+        rm -rf ./taskii/build
+        rm -rf ./taskii/coverage
+        rm -rf ./taskii/.dart_tool/test
+        rm -f ./taskii/test/widget_test.dart
+      shell: bash
+
     - name: Run tests
       working-directory: ./taskii
-      run: flutter test
+      run: flutter test --coverage
 
-    #- name: Build the project
-    #  working-directory: ./taskii
-    #  run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath $PWD/build/Runner.xcarchive -allowProvisioningUpdates
+# will fix later
+#    - name: Build the project
+#      working-directory: ./taskii
+#      run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath $PWD/build/Runner.xcarchive -allowProvisioningUpdates
