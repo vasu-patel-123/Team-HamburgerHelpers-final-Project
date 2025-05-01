@@ -51,9 +51,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add New Task'),
-      ),
+      appBar: AppBar(title: const Text('Add New Task')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -90,12 +88,15 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   labelText: 'Priority',
                   border: OutlineInputBorder(),
                 ),
-                items: ['Low', 'Medium', 'High']
-                    .map((priority) => DropdownMenuItem(
-                          value: priority,
-                          child: Text(priority),
-                        ))
-                    .toList(),
+                items:
+                    ['Low', 'Medium', 'High']
+                        .map(
+                          (priority) => DropdownMenuItem(
+                            value: priority,
+                            child: Text(priority),
+                          ),
+                        )
+                        .toList(),
                 onChanged: (value) {
                   if (value != null) {
                     setState(() {
@@ -115,4 +116,4 @@ class _AddTaskPageState extends State<AddTaskPage> {
       ),
     );
   }
-} 
+}

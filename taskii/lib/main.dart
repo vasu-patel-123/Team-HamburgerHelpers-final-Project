@@ -1,20 +1,19 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'sign_up.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'sign_up.dart';
 import 'settings.dart';
+import 'home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   try {
     // First, try to get the default app
     try {
@@ -28,12 +27,14 @@ Future<void> main() async {
       );
       // Initialize App Check
       await FirebaseAppCheck.instance.activate(
-        androidProvider: const bool.fromEnvironment('dart.vm.product')
-            ? AndroidProvider.playIntegrity
-            : AndroidProvider.debug,
-        appleProvider: const bool.fromEnvironment('dart.vm.product')
-            ? AppleProvider.appAttest
-            : AppleProvider.debug,
+        androidProvider:
+            const bool.fromEnvironment('dart.vm.product')
+                ? AndroidProvider.playIntegrity
+                : AndroidProvider.debug,
+        appleProvider:
+            const bool.fromEnvironment('dart.vm.product')
+                ? AppleProvider.appAttest
+                : AppleProvider.debug,
       );
       debugPrint('Firebase initialized successfully');
     }
@@ -52,12 +53,14 @@ Future<void> main() async {
   }
 
   // Set up system UI overlay style
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.black,
-    statusBarColor: Colors.white,
-    statusBarIconBrightness: Brightness.dark,
-    systemNavigationBarIconBrightness: Brightness.dark,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.black,
+      statusBarColor: Colors.white,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
 
   // Enable hardware acceleration for better performance
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -76,18 +79,21 @@ class Taskii extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => StreamBuilder<User?>(
-          stream: auth.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(body: Center(child: CircularProgressIndicator()));
-            }
-            if (snapshot.hasData) {
-              return const HomePage();
-            }
-            return const LoginPageSignUp();
-          },
-        ),
+        '/':
+            (context) => StreamBuilder<User?>(
+              stream: auth.authStateChanges(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                if (snapshot.hasData) {
+                  return const HomePage();
+                }
+                return const LoginPageSignUp();
+              },
+            ),
         '/settings': (context) => const SettingsPage(),
       },
     );
@@ -138,7 +144,10 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
 
   Future<void> _saveLockoutState() async {
     if (_lockoutUntil != null) {
-      await _prefs.setInt('lockout_time', _lockoutUntil!.millisecondsSinceEpoch);
+      await _prefs.setInt(
+        'lockout_time',
+        _lockoutUntil!.millisecondsSinceEpoch,
+      );
       await _prefs.setInt('failed_attempts', _failedAttempts);
     } else {
       await _prefs.remove('lockout_time');
@@ -172,8 +181,10 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
 
   String _getLockoutMessage() {
     if (_lockoutUntil == null) return '';
-    final remainingMinutes = _lockoutUntil!.difference(DateTime.now()).inMinutes;
-    final remainingSeconds = _lockoutUntil!.difference(DateTime.now()).inSeconds % 60;
+    final remainingMinutes =
+        _lockoutUntil!.difference(DateTime.now()).inMinutes;
+    final remainingSeconds =
+        _lockoutUntil!.difference(DateTime.now()).inSeconds % 60;
     return 'Account locked. Please try again in $remainingMinutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
@@ -218,9 +229,12 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
       _failedAttempts = 0;
       _lockoutUntil = null;
       await _saveLockoutState();
-      
+
       if (mounted) {
-        Navigator.of(context, rootNavigator: true).pop(); // Remove loading dialog
+        Navigator.of(
+          context,
+          rootNavigator: true,
+        ).pop(); // Remove loading dialog
         setState(() {
           _errorMessage = '';
           _isLoading = false;
@@ -237,10 +251,12 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           _failedAttempts++;
           if (_failedAttempts >= 10) {
             _lockoutUntil = DateTime.now().add(const Duration(minutes: 5));
-            errorMessage = 'Too many failed attempts. Account locked for 5 minutes.';
+            errorMessage =
+                'Too many failed attempts. Account locked for 5 minutes.';
             await _saveLockoutState();
           } else {
-            errorMessage = 'Wrong password. ${10 - _failedAttempts} attempts remaining.';
+            errorMessage =
+                'Wrong password. ${10 - _failedAttempts} attempts remaining.';
             await _prefs.setInt('failed_attempts', _failedAttempts);
           }
           break;
@@ -251,16 +267,19 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           errorMessage = 'This account has been disabled';
           break;
         case 'network-request-failed':
-          errorMessage = 'Network error. Please check your internet connection and try again.';
+          errorMessage =
+              'Network error. Please check your internet connection and try again.';
           break;
         case 'too-many-requests':
           errorMessage = 'Too many sign-in attempts. Please try again later.';
           break;
         case 'operation-not-allowed':
-          errorMessage = 'Email/password sign-in is not enabled. Please contact support.';
+          errorMessage =
+              'Email/password sign-in is not enabled. Please contact support.';
           break;
         case 'null-user':
-          errorMessage = 'Failed to initialize user after sign in. Please try again.';
+          errorMessage =
+              'Failed to initialize user after sign in. Please try again.';
           break;
         default:
           errorMessage = 'An error occurred during sign in: ${e.message}';
@@ -284,18 +303,18 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         _showSnackBar('You must be logged in to create tasks');
         return;
       }
-      
+
       debugPrint('Creating task for user: ${user.uid}');
-      
+
       final taskRef = FirebaseDatabase.instance.ref('tasks/${user.uid}').push();
       await taskRef.set({
         'title': 'My Task',
         'description': 'Task Description',
         'dueDate': '2025-04-23',
         'priority': 'High',
-        'isComplete': false
+        'isComplete': false,
       });
-      
+
       _showSnackBar('Task created successfully!', isError: false);
     } catch (e) {
       _showSnackBar('Failed to create task: $e');
@@ -314,8 +333,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
               padding: const EdgeInsets.only(top: 12, bottom: 24),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                ],
+                children: [],
               ),
             ),
             // Logo and Title
@@ -383,10 +401,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text(
                   _errorMessage,
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
-                  ),
+                  style: const TextStyle(color: Colors.red, fontSize: 14),
                 ),
               ),
             const SizedBox(height: 16),
@@ -448,7 +463,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
             TextButton(
               onPressed: () {
                 debugPrint('Sign up pressed');
-                  Navigator.push(
+                Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const SignUpPage()),
                 );
@@ -480,20 +495,20 @@ void showLoadingDialog(BuildContext context, {String message = "Loading..."}) {
   showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (context) => Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text(message, style: const TextStyle(color: Colors.white)),
-          ],
+    builder:
+        (context) => Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(message, style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+          ),
         ),
-      ),
-    ),
   );
 }
-
