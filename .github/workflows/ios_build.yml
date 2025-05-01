@@ -1,0 +1,59 @@
+name: iOS Build
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: "3.x"
+        channel: "stable"
+
+    - name: Clean the Flutter build files
+      run: flutter clean
+      working-directory: ./taskii
+
+    - name: Install dependencies
+      working-directory: ./taskii
+      run: flutter pub get
+
+    - name: Analyze project source
+      working-directory: ./taskii
+      run: flutter analyze --no-fatal-warnings --no-fatal-infos
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.0
+
+    - name: Ensure iOS project structure exists
+      run: flutter create .
+      working-directory: ./taskii
+
+    - name: Install dependencies
+      working-directory: ./taskii
+      run: flutter pub get
+
+    - name: Install CocoaPods
+      run: pod install
+      working-directory: taskii/ios
+
+    - name: Run tests
+      working-directory: ./taskii
+      run: flutter test
+
+    #- name: Build the project
+    #  working-directory: ./taskii
+    #  run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath $PWD/build/Runner.xcarchive -allowProvisioningUpdates
