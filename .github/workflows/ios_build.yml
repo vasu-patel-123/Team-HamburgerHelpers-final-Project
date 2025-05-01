@@ -57,8 +57,6 @@ jobs:
         rm -rf ./taskii/build
         rm -rf ./taskii/coverage
         rm -rf ./taskii/.dart_tool/test
-        # added just FOR NOW
-        rm -f ./taskii/test/widget_test.dart
       shell: bash
 
     - name: Run tests
