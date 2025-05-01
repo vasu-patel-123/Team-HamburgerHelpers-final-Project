@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
-  Future<void> _signOut(BuildContext context) async {
-    try {
-      await FirebaseDatabase.instance.goOffline();
-      await FirebaseAuth.instance.signOut();
-      FirebaseDatabase.instance.goOnline();
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
 
-      if (context.mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+class _SettingsPageState extends State<SettingsPage> {
+  Future<void> _handleSignOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/');
       }
     } catch (e) {
-      FirebaseDatabase.instance.goOnline();
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error signing out: ${e.toString()}'),
@@ -37,10 +37,7 @@ class SettingsPage extends StatelessWidget {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
           'Settings',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
         ),
         shape: Border(
           bottom: BorderSide(
@@ -72,7 +69,8 @@ class SettingsPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    (user?.displayName != null && user!.displayName!.trim().isNotEmpty)
+                    (user?.displayName != null &&
+                            user!.displayName!.trim().isNotEmpty)
                         ? user.displayName!
                         : (user?.email ?? 'No email'),
                     style: const TextStyle(
@@ -98,9 +96,9 @@ class SettingsPage extends StatelessWidget {
               title: const Text('Account'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AccountPage()),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const AccountPage()));
               },
             ),
             const Divider(),
@@ -133,11 +131,14 @@ class SettingsPage extends StatelessWidget {
             ),
             const Spacer(),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 24.0,
+              ),
               child: SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: () => _signOut(context),
+                  onPressed: _handleSignOut,
                   style: TextButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -181,14 +182,19 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future<void> _updateDisplayName() async {
+    if (!mounted) return;
+
     setState(() {
       _isSaving = true;
     });
+
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null && _nameController.text.trim().isNotEmpty) {
         await user.updateDisplayName(_nameController.text.trim());
         await user.reload();
+        if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Name updated!'),
@@ -198,6 +204,8 @@ class _AccountPageState extends State<AccountPage> {
         setState(() {});
       }
     } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update name: $e'),
@@ -205,9 +213,11 @@ class _AccountPageState extends State<AccountPage> {
         ),
       );
     } finally {
-      setState(() {
-        _isSaving = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
     }
   }
 
@@ -256,13 +266,14 @@ class _AccountPageState extends State<AccountPage> {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: _isSaving ? null : _updateDisplayName,
-              child: _isSaving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Save Name'),
+              child:
+                  _isSaving
+                      ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : const Text('Save Name'),
             ),
             const SizedBox(height: 24),
             ListTile(

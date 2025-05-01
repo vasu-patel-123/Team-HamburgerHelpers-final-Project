@@ -35,8 +35,8 @@ jobs:
 
     - name: Run tests
       working-directory: ./taskii
-      run: flutter test
+      run: flutter test --coverage
 
     - name: Build
       working-directory: ./taskii
-      run: flutter build apk --debug
+      run: flutter build apk --release
