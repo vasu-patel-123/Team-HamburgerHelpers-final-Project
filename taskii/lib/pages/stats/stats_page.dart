@@ -4,7 +4,10 @@ import '../../models/task.dart';
 class StatsPage extends StatelessWidget {
   final List<Task> tasks;
 
-  const StatsPage({super.key, required this.tasks});
+  const StatsPage({
+    super.key,
+    required this.tasks,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,56 +18,28 @@ class StatsPage extends StatelessWidget {
     final thisMonth = DateTime(today.year, today.month, 1);
 
     // Filter tasks for different time periods
-    final todayTasks =
-        tasks.where((task) {
-          final taskDate = DateTime(
-            task.dueDate.year,
-            task.dueDate.month,
-            task.dueDate.day,
-          );
-          return taskDate.isAtSameMomentAs(today);
-        }).toList();
+    final todayTasks = tasks.where((task) {
+      final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+      return taskDate.isAtSameMomentAs(today);
+    }).toList();
 
-    final weekTasks =
-        tasks.where((task) {
-          final taskDate = DateTime(
-            task.dueDate.year,
-            task.dueDate.month,
-            task.dueDate.day,
-          );
-          return taskDate.isAfter(thisWeek.subtract(const Duration(days: 1))) &&
-              taskDate.isBefore(thisWeek.add(const Duration(days: 7)));
-        }).toList();
+    final weekTasks = tasks.where((task) {
+      final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+      return taskDate.isAfter(thisWeek.subtract(const Duration(days: 1))) && taskDate.isBefore(thisWeek.add(const Duration(days: 7)));
+    }).toList();
 
-    final monthTasks =
-        tasks.where((task) {
-          final taskDate = DateTime(
-            task.dueDate.year,
-            task.dueDate.month,
-            task.dueDate.day,
-          );
-          return taskDate.isAfter(
-                thisMonth.subtract(const Duration(days: 1)),
-              ) &&
-              taskDate.isBefore(DateTime(today.year, today.month + 1, 1));
-        }).toList();
+    final monthTasks = tasks.where((task) {
+      final taskDate = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+      return taskDate.isAfter(thisMonth.subtract(const Duration(days: 1))) && taskDate.isBefore(DateTime(today.year, today.month + 1, 1));
+    }).toList();
 
     // Calculate completion rates
-    final todayCompletionRate =
-        todayTasks.isEmpty
-            ? 0.0
-            : todayTasks.where((task) => task.isCompleted).length /
-                todayTasks.length;
-    final weekCompletionRate =
-        weekTasks.isEmpty
-            ? 0.0
-            : weekTasks.where((task) => task.isCompleted).length /
-                weekTasks.length;
-    final monthCompletionRate =
-        monthTasks.isEmpty
-            ? 0.0
-            : monthTasks.where((task) => task.isCompleted).length /
-                monthTasks.length;
+    final todayCompletionRate = todayTasks.isEmpty ? 0.0 :
+        todayTasks.where((task) => task.isCompleted).length / todayTasks.length;
+    final weekCompletionRate = weekTasks.isEmpty ? 0.0 :
+        weekTasks.where((task) => task.isCompleted).length / weekTasks.length;
+    final monthCompletionRate = monthTasks.isEmpty ? 0.0 :
+        monthTasks.where((task) => task.isCompleted).length / monthTasks.length;
 
     // Calculate priority distribution
     final priorityCounts = {
@@ -79,8 +54,8 @@ class StatsPage extends StatelessWidget {
         shape: Border(
           bottom: BorderSide(
             color: Theme.of(context).colorScheme.primary,
-            width: 4,
-          ),
+            width: 4
+          )
         ),
         elevation: 4,
         title: const Text('Stats'),
@@ -102,7 +77,10 @@ class StatsPage extends StatelessWidget {
             // Completion Rates Section
             const Text(
               'Completion Rates',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
             _buildCompletionCard(
@@ -127,7 +105,10 @@ class StatsPage extends StatelessWidget {
             // Priority Distribution Section
             const Text(
               'Priority Distribution',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
             _buildPriorityCard(
@@ -155,7 +136,10 @@ class StatsPage extends StatelessWidget {
             // Task Overview Section
             const Text(
               'Task Overview',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
             _buildOverviewCard(
@@ -191,25 +175,28 @@ class StatsPage extends StatelessWidget {
           children: [
             Text(
               period,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
             ),
             const SizedBox(height: 8),
             LinearProgressIndicator(
               value: rate,
               backgroundColor: Colors.grey[200],
               valueColor: AlwaysStoppedAnimation<Color>(
-                rate >= 0.7
-                    ? Colors.green
-                    : rate >= 0.4
-                    ? Colors.orange
-                    : Colors.red,
+                rate >= 0.7 ? Colors.green : 
+                rate >= 0.4 ? Colors.orange : Colors.red,
               ),
               minHeight: 8,
             ),
             const SizedBox(height: 8),
             Text(
               '${(rate * 100).toStringAsFixed(1)}% ($totalTasks tasks)',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
             ),
           ],
         ),
@@ -217,12 +204,7 @@ class StatsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPriorityCard(
-    String priority,
-    int count,
-    int total,
-    Color color,
-  ) {
+  Widget _buildPriorityCard(String priority, int count, int total, Color color) {
     final percentage = total == 0 ? 0.0 : count / total;
     return Card(
       elevation: 2,
@@ -233,7 +215,10 @@ class StatsPage extends StatelessWidget {
           children: [
             Text(
               priority,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
             ),
             const SizedBox(height: 8),
             LinearProgressIndicator(
@@ -245,7 +230,10 @@ class StatsPage extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '$count tasks (${(percentage * 100).toStringAsFixed(1)}%)',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
             ),
           ],
         ),
@@ -260,7 +248,11 @@ class StatsPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            Icon(icon, size: 24, color: Colors.black),
+            Icon(
+              icon,
+              size: 24,
+              color: Colors.black,
+            ),
             const SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -15,9 +15,7 @@ class TaskService {
       // Enable offline persistence only for non-web platforms
       if (!kIsWeb && Firebase.apps.isNotEmpty) {
         FirebaseDatabase.instance.setPersistenceEnabled(true);
-        FirebaseDatabase.instance.setPersistenceCacheSizeBytes(
-          10000000,
-        ); // 10MB cache
+        FirebaseDatabase.instance.setPersistenceCacheSizeBytes(10000000); // 10MB cache
       }
     } catch (e) {
       debugPrint('Error setting up Firebase persistence: $e');
@@ -54,13 +52,12 @@ class TaskService {
     try {
       // Check if we're only updating the completion status
       final existingTask = await getTaskById(task.id);
-      final isCompletionUpdate =
-          existingTask != null &&
-          existingTask.title == task.title &&
-          existingTask.description == task.description &&
-          existingTask.dueDate == task.dueDate &&
-          existingTask.priority == task.priority &&
-          existingTask.isCompleted != task.isCompleted;
+      final isCompletionUpdate = existingTask != null && 
+        existingTask.title == task.title &&
+        existingTask.description == task.description &&
+        existingTask.dueDate == task.dueDate &&
+        existingTask.priority == task.priority &&
+        existingTask.isCompleted != task.isCompleted;
 
       _validateTask(task, isCompletionUpdate: isCompletionUpdate);
       final taskData = task.toJson();
@@ -88,18 +85,15 @@ class TaskService {
           .equalTo(userId)
           .onValue
           .map((event) {
-            if (event.snapshot.value == null) return [];
-
-            final Map<dynamic, dynamic> tasksMap =
-                event.snapshot.value as Map<dynamic, dynamic>;
-            return tasksMap.values.map((taskData) {
-              // Convert the data to a proper Map<String, dynamic>
-              final Map<String, dynamic> data = Map<String, dynamic>.from(
-                taskData,
-              );
-              return Task.fromJson(data);
-            }).toList();
-          });
+        if (event.snapshot.value == null) return [];
+        
+        final Map<dynamic, dynamic> tasksMap = event.snapshot.value as Map<dynamic, dynamic>;
+        return tasksMap.values.map((taskData) {
+          // Convert the data to a proper Map<String, dynamic>
+          final Map<String, dynamic> data = Map<String, dynamic>.from(taskData);
+          return Task.fromJson(data);
+        }).toList();
+      });
     } catch (e) {
       throw Exception('Failed to fetch tasks: ${e.toString()}');
     }
@@ -108,9 +102,10 @@ class TaskService {
   // Toggle task completion status
   Future<void> toggleTaskCompletion(String taskId, bool isCompleted) async {
     try {
-      await _database.child(_tasksPath).child(taskId).update({
-        'isCompleted': isCompleted,
-      });
+      await _database
+          .child(_tasksPath)
+          .child(taskId)
+          .update({'isCompleted': isCompleted});
     } catch (e) {
       throw Exception('Failed to toggle task completion: ${e.toString()}');
     }
@@ -128,4 +123,4 @@ class TaskService {
       throw Exception('Failed to fetch task: ${e.toString()}');
     }
   }
-}
+} 

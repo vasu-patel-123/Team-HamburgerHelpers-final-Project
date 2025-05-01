@@ -9,7 +9,11 @@ class AddTaskPage extends StatefulWidget {
   final DateTime? initialDate;
   final TimeOfDay? initialTime;
 
-  const AddTaskPage({super.key, this.initialDate, this.initialTime});
+  const AddTaskPage({
+    super.key,
+    this.initialDate,
+    this.initialTime,
+  });
 
   @override
   State<AddTaskPage> createState() => _AddTaskPageState();
@@ -128,7 +132,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             backgroundColor: Colors.green,
           ),
         );
-
+        
         // Check if we can pop the current route
         if (Navigator.of(context).canPop()) {
           Navigator.pop(context);
@@ -190,194 +194,175 @@ class _AddTaskPageState extends State<AddTaskPage> {
         shape: Border(
           bottom: BorderSide(
             color: const Color.fromARGB(255, 153, 142, 126),
-            width: 4,
-          ),
+            width: 4
+          )
         ),
         elevation: 4,
         title: const Text('Add Task'),
       ),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        key: const Key('taskNameField'),
-                        controller: _titleController,
-                        decoration: const InputDecoration(
-                          labelText: 'Task Name',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a task name';
-                          }
-                          if (value.length > 100) {
-                            return 'Task name must be less than 100 characters';
-                          }
-                          return null;
-                        },
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      key: const Key('taskNameField'),
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                        labelText: 'Task Name',
+                        border: OutlineInputBorder(),
                       ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        key: const Key('descriptionField'),
-                        controller: _descriptionController,
-                        decoration: const InputDecoration(
-                          labelText: 'Description',
-                          border: OutlineInputBorder(),
-                        ),
-                        maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a task name';
+                        }
+                        if (value.length > 100) {
+                          return 'Task name must be less than 100 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      key: const Key('descriptionField'),
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                        border: OutlineInputBorder(),
                       ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: _selectedPriority,
-                        decoration: const InputDecoration(
-                          labelText: 'Priority',
-                          border: OutlineInputBorder(),
-                        ),
-                        items:
-                            [
-                              'High',
-                              'Medium',
-                              'Low',
-                            ].map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                        onChanged: (String? newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              _selectedPriority = newValue;
-                            });
-                          }
-                        },
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedPriority,
+                      decoration: const InputDecoration(
+                        labelText: 'Priority',
+                        border: OutlineInputBorder(),
                       ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: _selectedCategory,
-                        decoration: const InputDecoration(
-                          labelText: 'Category',
-                          border: OutlineInputBorder(),
-                        ),
-                        items:
-                            [
-                              'General',
-                              'Work',
-                              'Personal',
-                              'Shopping',
-                              'Health',
-                              'Education',
-                            ].map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                        onChanged: (String? newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              _selectedCategory = newValue;
-                            });
-                          }
-                        },
+                      items: ['High', 'Medium', 'Low']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedPriority = newValue;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedCategory,
+                      decoration: const InputDecoration(
+                        labelText: 'Category',
+                        border: OutlineInputBorder(),
                       ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<int>(
-                        value: _selectedEstimatedTime,
-                        decoration: const InputDecoration(
-                          labelText: 'Estimated Time to Complete',
-                          border: OutlineInputBorder(),
-                        ),
-                        items:
-                            [
-                              15,
-                              30,
-                              45,
-                              60,
-                              90,
-                              120,
-                              150,
-                              180,
-                              210,
-                              240,
-                            ].map<DropdownMenuItem<int>>((int value) {
-                              return DropdownMenuItem<int>(
-                                value: value,
-                                child: Text('${value} minutes'),
-                              );
-                            }).toList(),
-                        onChanged: (int? newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              _selectedEstimatedTime = newValue;
-                            });
-                          }
-                        },
+                      items: [
+                        'General',
+                        'Work',
+                        'Personal',
+                        'Shopping',
+                        'Health',
+                        'Education',
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedCategory = newValue;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<int>(
+                      value: _selectedEstimatedTime,
+                      decoration: const InputDecoration(
+                        labelText: 'Estimated Time to Complete',
+                        border: OutlineInputBorder(),
                       ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: InkWell(
-                              onTap: () => _selectDate(context),
-                              child: InputDecorator(
-                                decoration: const InputDecoration(
-                                  labelText: 'Due Date',
-                                  border: OutlineInputBorder(),
-                                ),
-                                child: Text(
-                                  DateFormat(
-                                    'yyyy-MM-dd',
-                                  ).format(_selectedDate),
-                                ),
+                      items: [
+                        15, 30, 45, 60, 90, 120, 150, 180, 210, 240
+                      ].map<DropdownMenuItem<int>>((int value) {
+                        return DropdownMenuItem<int>(
+                          value: value,
+                          child: Text('${value} minutes'),
+                        );
+                      }).toList(),
+                      onChanged: (int? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedEstimatedTime = newValue;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _selectDate(context),
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Due Date',
+                                border: OutlineInputBorder(),
+                              ),
+                              child: Text(
+                                DateFormat('yyyy-MM-dd').format(_selectedDate),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () => _selectTime(context),
-                              child: InputDecorator(
-                                decoration: const InputDecoration(
-                                  labelText: 'Due Time',
-                                  border: OutlineInputBorder(),
-                                ),
-                                child: Text(_selectedTime.format(context)),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => _selectTime(context),
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Due Time',
+                                border: OutlineInputBorder(),
                               ),
+                              child: Text(_selectedTime.format(context)),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _addTask,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            'Add Task',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _addTask,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Add Task',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
+            ),
     );
   }
 }

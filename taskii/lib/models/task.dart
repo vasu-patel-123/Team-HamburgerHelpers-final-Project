@@ -38,7 +38,7 @@ class Task {
   factory Task.fromJson(Map<String, dynamic> json) {
     var dueDateValue = json['dueDate'];
     DateTime parsedDueDate;
-
+    
     if (dueDateValue is String) {
       parsedDueDate = DateTime.parse(dueDateValue);
     } else if (dueDateValue is int) {
@@ -59,4 +59,4 @@ class Task {
       estimatedTime: json['estimatedTime'] ?? 30, // Default to 30 minutes
     );
   }
-}
+} 
