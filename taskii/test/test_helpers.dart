@@ -15,9 +15,7 @@ class TestHelper {
           DefaultMaterialLocalizations.delegate,
           DefaultWidgetsLocalizations.delegate,
         ],
-        home: AddTaskPage(
-          auth: auth,
-        ),
+        home: AddTaskPage(auth: auth),
       ),
     );
     await tester.pumpAndSettle();
@@ -39,14 +37,16 @@ class TestHelper {
       await tester.enterText(descriptionField, description);
     }
     if (priority != null) {
-      final priorityDropdown = find.byType(DropdownButtonFormField<String>).first;
+      final priorityDropdown =
+          find.byType(DropdownButtonFormField<String>).first;
       await tester.tap(priorityDropdown);
       await tester.pumpAndSettle();
       await tester.tap(find.text(priority).last);
       await tester.pumpAndSettle();
     }
     if (category != null) {
-      final categoryDropdown = find.byType(DropdownButtonFormField<String>).last;
+      final categoryDropdown =
+          find.byType(DropdownButtonFormField<String>).last;
       await tester.tap(categoryDropdown);
       await tester.pumpAndSettle();
       await tester.tap(find.text(category).last);
@@ -55,38 +55,42 @@ class TestHelper {
   }
 
   static Future<void> selectDate(WidgetTester tester, DateTime date) async {
-    final dateField = find.text(DateFormat('yyyy-MM-dd').format(DateTime.now()));
+    final dateField = find.text(
+      DateFormat('yyyy-MM-dd').format(DateTime.now()),
+    );
     await tester.tap(dateField);
     await tester.pumpAndSettle();
-    
+
     final datePicker = find.byType(CalendarDatePicker);
     await tester.pumpAndSettle();
-    
+
     final dayButton = find.text(date.day.toString());
     await tester.tap(dayButton);
     await tester.pumpAndSettle();
-    
+
     final okButton = find.text('OK');
     await tester.tap(okButton);
     await tester.pumpAndSettle();
   }
 
   static Future<void> selectTime(WidgetTester tester, TimeOfDay time) async {
-    final timeField = find.text(TimeOfDay.now().format(TestHelper.getTestContext(tester)));
+    final timeField = find.text(
+      TimeOfDay.now().format(TestHelper.getTestContext(tester)),
+    );
     await tester.tap(timeField);
     await tester.pumpAndSettle();
-    
+
     final timePicker = find.byType(TimePickerDialog);
     await tester.pumpAndSettle();
-    
+
     final hourButton = find.text(time.hour.toString());
     await tester.tap(hourButton);
     await tester.pumpAndSettle();
-    
+
     final minuteButton = find.text(time.minute.toString());
     await tester.tap(minuteButton);
     await tester.pumpAndSettle();
-    
+
     final okButton = find.text('OK');
     await tester.tap(okButton);
     await tester.pumpAndSettle();
@@ -96,4 +100,4 @@ class TestHelper {
     final element = tester.element(find.byType(MaterialApp));
     return element;
   }
-} 
+}

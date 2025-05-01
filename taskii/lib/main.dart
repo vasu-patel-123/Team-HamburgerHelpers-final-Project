@@ -14,7 +14,7 @@ Future<void> main() async {
 
 Future<void> initializeFirebaseAndRun() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  
+
   // Initialize App Check
   await FirebaseAppCheck.instance.activate(
     webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
@@ -47,22 +47,21 @@ class Taskii extends StatelessWidget {
       themeMode: ThemeMode.system,
       initialRoute: '/',
       routes: {
-        '/': (context) => StreamBuilder<User?>(
-          stream: auth.authStateChanges(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-            if (snapshot.hasData) {
-              return const HomePage();
-            }
-            return const LoginPageSignUp();
-          },
-        ),
+        '/':
+            (context) => StreamBuilder<User?>(
+              stream: auth.authStateChanges(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                if (snapshot.hasData) {
+                  return const HomePage();
+                }
+                return const LoginPageSignUp();
+              },
+            ),
         '/settings': (context) => const SettingsPage(),
       },
     );
@@ -113,7 +112,10 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
 
   Future<void> _saveLockoutState() async {
     if (_lockoutUntil != null) {
-      await _prefs.setInt('lockout_time', _lockoutUntil!.millisecondsSinceEpoch);
+      await _prefs.setInt(
+        'lockout_time',
+        _lockoutUntil!.millisecondsSinceEpoch,
+      );
       await _prefs.setInt('failed_attempts', _failedAttempts);
     } else {
       await _prefs.remove('lockout_time');
@@ -147,8 +149,10 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
 
   String _getLockoutMessage() {
     if (_lockoutUntil == null) return '';
-    final remainingMinutes = _lockoutUntil!.difference(DateTime.now()).inMinutes;
-    final remainingSeconds = _lockoutUntil!.difference(DateTime.now()).inSeconds % 60;
+    final remainingMinutes =
+        _lockoutUntil!.difference(DateTime.now()).inMinutes;
+    final remainingSeconds =
+        _lockoutUntil!.difference(DateTime.now()).inSeconds % 60;
     return 'Account locked. Please try again in $remainingMinutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
@@ -185,14 +189,17 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
     });
 
     try {
-      debugPrint('Attempting to sign in with email: ${_emailController.text.trim()}');
-      
-      // Sign in and wait for user to be fully initialized
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+      debugPrint(
+        'Attempting to sign in with email: ${_emailController.text.trim()}',
       );
-      
+
+      // Sign in and wait for user to be fully initialized
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim(),
+          );
+
       // Ensure we have a valid user
       final user = userCredential.user;
       if (user == null) {
@@ -201,16 +208,16 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           message: 'Failed to initialize user after sign in',
         );
       }
-      
+
       // Wait for the user to be fully loaded
       await user.reload();
-      
+
       debugPrint('Sign in successful for user: ${user.email}');
-      
+
       _failedAttempts = 0;
       _lockoutUntil = null;
       await _saveLockoutState();
-      
+
       if (mounted) {
         setState(() {
           _errorMessage = '';
@@ -219,7 +226,9 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         _showSnackBar('Successfully signed in!', isError: false);
       }
     } on FirebaseAuthException catch (e) {
-      debugPrint('FirebaseAuthException during sign in: ${e.code} - ${e.message}');
+      debugPrint(
+        'FirebaseAuthException during sign in: ${e.code} - ${e.message}',
+      );
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -234,10 +243,12 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           _failedAttempts++;
           if (_failedAttempts >= 10) {
             _lockoutUntil = DateTime.now().add(const Duration(minutes: 5));
-            errorMessage = 'Too many failed attempts. Account locked for 5 minutes.';
+            errorMessage =
+                'Too many failed attempts. Account locked for 5 minutes.';
             await _saveLockoutState();
           } else {
-            errorMessage = 'Wrong password. ${10 - _failedAttempts} attempts remaining.';
+            errorMessage =
+                'Wrong password. ${10 - _failedAttempts} attempts remaining.';
             await _prefs.setInt('failed_attempts', _failedAttempts);
           }
           break;
@@ -248,16 +259,19 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           errorMessage = 'This account has been disabled';
           break;
         case 'network-request-failed':
-          errorMessage = 'Network error. Please check your internet connection and try again.';
+          errorMessage =
+              'Network error. Please check your internet connection and try again.';
           break;
         case 'too-many-requests':
           errorMessage = 'Too many sign-in attempts. Please try again later.';
           break;
         case 'operation-not-allowed':
-          errorMessage = 'Email/password sign-in is not enabled. Please contact support.';
+          errorMessage =
+              'Email/password sign-in is not enabled. Please contact support.';
           break;
         case 'null-user':
-          errorMessage = 'Failed to initialize user after sign in. Please try again.';
+          errorMessage =
+              'Failed to initialize user after sign in. Please try again.';
           break;
         default:
           errorMessage = 'An error occurred during sign in: ${e.message}';
@@ -296,10 +310,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                   const SizedBox(height: 100),
                   const Text(
                     'Welcome to Taskii',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 50),
@@ -340,9 +351,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           if (_isLoading)
             Container(
               color: Colors.black.withAlpha(128),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: const Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
@@ -355,20 +364,20 @@ void showLoadingDialog(BuildContext context, {String message = "Loading..."}) {
   showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (context) => Dialog(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text(message, style: const TextStyle(color: Colors.white)),
-          ],
+    builder:
+        (context) => Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(message, style: const TextStyle(color: Colors.white)),
+              ],
+            ),
+          ),
         ),
-      ),
-    ),
   );
 }
-

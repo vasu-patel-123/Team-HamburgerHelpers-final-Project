@@ -37,10 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
           'Settings',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
         ),
         shape: Border(
           bottom: BorderSide(
@@ -72,7 +69,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    (user?.displayName != null && user!.displayName!.trim().isNotEmpty)
+                    (user?.displayName != null &&
+                            user!.displayName!.trim().isNotEmpty)
                         ? user.displayName!
                         : (user?.email ?? 'No email'),
                     style: const TextStyle(
@@ -98,9 +96,9 @@ class _SettingsPageState extends State<SettingsPage> {
               title: const Text('Account'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const AccountPage()),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const AccountPage()));
               },
             ),
             const Divider(),
@@ -133,7 +131,10 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             const Spacer(),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 24.0,
+              ),
               child: SizedBox(
                 width: double.infinity,
                 child: TextButton(
@@ -182,18 +183,18 @@ class _AccountPageState extends State<AccountPage> {
 
   Future<void> _updateDisplayName() async {
     if (!mounted) return;
-    
+
     setState(() {
       _isSaving = true;
     });
-    
+
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null && _nameController.text.trim().isNotEmpty) {
         await user.updateDisplayName(_nameController.text.trim());
         await user.reload();
         if (!mounted) return;
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Name updated!'),
@@ -204,7 +205,7 @@ class _AccountPageState extends State<AccountPage> {
       }
     } catch (e) {
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update name: $e'),
@@ -265,13 +266,14 @@ class _AccountPageState extends State<AccountPage> {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: _isSaving ? null : _updateDisplayName,
-              child: _isSaving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Save Name'),
+              child:
+                  _isSaving
+                      ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : const Text('Save Name'),
             ),
             const SizedBox(height: 24),
             ListTile(

@@ -64,7 +64,11 @@ class _CalendarPageState extends State<CalendarPage> {
 
     for (var task in widget.tasks) {
       // Normalize the date to remove time component
-      DateTime date = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+      DateTime date = DateTime(
+        task.dueDate.year,
+        task.dueDate.month,
+        task.dueDate.day,
+      );
 
       if (!tempEvents.containsKey(date)) {
         tempEvents[date] = [];
@@ -93,21 +97,24 @@ class _CalendarPageState extends State<CalendarPage> {
     // Normalize the date to remove time component
     final normalizedDay = DateTime(day.year, day.month, day.day);
     final now = DateTime.now();
-    
+
     return _events[normalizedDay]?.where((task) {
-      // Calculate the task's time window
-      final taskEndTime = task['dueDate'].add(Duration(minutes: task['estimatedTime'] ?? 30));
-      
-      // If the task is still within its time window, show it in current section
-      if (now.isBefore(taskEndTime)) {
-        return true;
-      }
-      
-      // For tasks outside their time window, only show if they match the selected day
-      return task['dueDate'].year == day.year &&
-             task['dueDate'].month == day.month &&
-             task['dueDate'].day == day.day;
-    }).toList() ?? [];
+          // Calculate the task's time window
+          final taskEndTime = task['dueDate'].add(
+            Duration(minutes: task['estimatedTime'] ?? 30),
+          );
+
+          // If the task is still within its time window, show it in current section
+          if (now.isBefore(taskEndTime)) {
+            return true;
+          }
+
+          // For tasks outside their time window, only show if they match the selected day
+          return task['dueDate'].year == day.year &&
+              task['dueDate'].month == day.month &&
+              task['dueDate'].day == day.day;
+        }).toList() ??
+        [];
   }
 
   Color _getPriorityColor(String priority) {
@@ -147,13 +154,18 @@ class _CalendarPageState extends State<CalendarPage> {
                         labelText: 'Priority',
                         border: OutlineInputBorder(),
                       ),
-                      items: ['All', 'High', 'Medium', 'Low']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                      items:
+                          [
+                            'All',
+                            'High',
+                            'Medium',
+                            'Low',
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
                       onChanged: (String? newValue) {
                         setState(() {
                           selectedPriority = newValue!;
@@ -187,9 +199,11 @@ class _CalendarPageState extends State<CalendarPage> {
                     // Date Range Filter
                     const Text('Date Range:'),
                     ListTile(
-                      title: Text(startDate == null
-                          ? 'Select Start Date'
-                          : DateFormat('yyyy-MM-dd').format(startDate!)),
+                      title: Text(
+                        startDate == null
+                            ? 'Select Start Date'
+                            : DateFormat('yyyy-MM-dd').format(startDate!),
+                      ),
                       trailing: const Icon(Icons.calendar_today),
                       onTap: () async {
                         final DateTime? picked = await showDatePicker(
@@ -206,9 +220,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       },
                     ),
                     ListTile(
-                      title: Text(endDate == null
-                          ? 'Select End Date'
-                          : DateFormat('yyyy-MM-dd').format(endDate!)),
+                      title: Text(
+                        endDate == null
+                            ? 'Select End Date'
+                            : DateFormat('yyyy-MM-dd').format(endDate!),
+                      ),
                       trailing: const Icon(Icons.calendar_today),
                       onTap: () async {
                         final DateTime? picked = await showDatePicker(
@@ -274,10 +290,7 @@ class _CalendarPageState extends State<CalendarPage> {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: Text(
           'Calendar',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
         ),
         shape: Border(
           bottom: BorderSide(
@@ -340,7 +353,9 @@ class _CalendarPageState extends State<CalendarPage> {
                 return Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 0.0), // Adjust as needed
+                    padding: const EdgeInsets.only(
+                      bottom: 0.0,
+                    ), // Adjust as needed
                     child: Container(
                       width: 5,
                       height: 5,
@@ -357,111 +372,133 @@ class _CalendarPageState extends State<CalendarPage> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: widget.onRefresh,
-              child: _selectedDay == null
-                  ? const Center(child: Text('No day selected'))
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(12),
-                      itemCount: _getTasksForDay(_selectedDay!).length,
-                      itemBuilder: (context, index) {
-                        final task = _getTasksForDay(_selectedDay!)[index];
-                        String priority = task['priority'];
-                        Color priorityColor = _getPriorityColor(priority);
+              child:
+                  _selectedDay == null
+                      ? const Center(child: Text('No day selected'))
+                      : ListView.builder(
+                        padding: const EdgeInsets.all(12),
+                        itemCount: _getTasksForDay(_selectedDay!).length,
+                        itemBuilder: (context, index) {
+                          final task = _getTasksForDay(_selectedDay!)[index];
+                          String priority = task['priority'];
+                          Color priorityColor = _getPriorityColor(priority);
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.only(left: 0),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[300]!),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: IntrinsicHeight(
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    decoration: BoxDecoration(
-                                      color: priorityColor,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(7),
-                                        bottomLeft: Radius.circular(7),
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.only(left: 0),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: IntrinsicHeight(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 8,
+                                      decoration: BoxDecoration(
+                                        color: priorityColor,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(7),
+                                          bottomLeft: Radius.circular(7),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Row(
-                                        children: [
-                                          Checkbox(
-                                            value: task['isCompleted'],
-                                            onChanged: (bool? value) {
-                                              widget.onTaskCompletion(Task(
-                                                id: task['id'],
-                                                title: task['title'],
-                                                description: task['description'],
-                                                dueDate: task['dueDate'],
-                                                priority: task['priority'],
-                                                category: task['category'],
-                                                isCompleted: value ?? false,
-                                                userId: task['userId'],
-                                                estimatedTime: task['estimatedTime'] ?? 30,
-                                              ));
-                                            },
-                                          ),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  task['title'],
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                    decoration: task['isCompleted'] 
-                                                      ? TextDecoration.lineThrough 
-                                                      : TextDecoration.none,
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Row(
+                                          children: [
+                                            Checkbox(
+                                              value: task['isCompleted'],
+                                              onChanged: (bool? value) {
+                                                widget.onTaskCompletion(
+                                                  Task(
+                                                    id: task['id'],
+                                                    title: task['title'],
+                                                    description:
+                                                        task['description'],
+                                                    dueDate: task['dueDate'],
+                                                    priority: task['priority'],
+                                                    category: task['category'],
+                                                    isCompleted: value ?? false,
+                                                    userId: task['userId'],
+                                                    estimatedTime:
+                                                        task['estimatedTime'] ??
+                                                        30,
                                                   ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  DateFormat('h:mm a').format(task['dueDate']),
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                ),
-                                              ],
+                                                );
+                                              },
                                             ),
-                                          ),
-                                          IconButton(
-                                            icon: Icon(Icons.delete, color: Colors.red),
-                                            onPressed: () {
-                                              widget.onTaskDelete(Task(
-                                                id: task['id'],
-                                                title: task['title'],
-                                                description: task['description'],
-                                                dueDate: task['dueDate'],
-                                                priority: task['priority'],
-                                                category: task['category'],
-                                                isCompleted: task['isCompleted'],
-                                                userId: task['userId'],
-                                                estimatedTime: task['estimatedTime'] ?? 30,
-                                              ));
-                                            },
-                                          ),
-                                        ],
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    task['title'],
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      decoration:
+                                                          task['isCompleted']
+                                                              ? TextDecoration
+                                                                  .lineThrough
+                                                              : TextDecoration
+                                                                  .none,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    DateFormat(
+                                                      'h:mm a',
+                                                    ).format(task['dueDate']),
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.delete,
+                                                color: Colors.red,
+                                              ),
+                                              onPressed: () {
+                                                widget.onTaskDelete(
+                                                  Task(
+                                                    id: task['id'],
+                                                    title: task['title'],
+                                                    description:
+                                                        task['description'],
+                                                    dueDate: task['dueDate'],
+                                                    priority: task['priority'],
+                                                    category: task['category'],
+                                                    isCompleted:
+                                                        task['isCompleted'],
+                                                    userId: task['userId'],
+                                                    estimatedTime:
+                                                        task['estimatedTime'] ??
+                                                        30,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
             ),
           ),
         ],
