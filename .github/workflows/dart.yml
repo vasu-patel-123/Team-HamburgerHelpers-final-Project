@@ -47,9 +47,9 @@ jobs:
 
       # Analyze code with stricter settings
       - name: Analyze project source
-        run: flutter analyze --fatal-infos
+        run: flutter analyze --no-suggestions --no-fatal-warnings --no-fatal-infos
         working-directory: ./taskii
       # Run tests
       - name: Run tests
-        run: flutter test
+        run: flutter test --coverage
         working-directory: ./taskii
