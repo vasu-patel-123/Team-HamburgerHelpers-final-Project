@@ -38,15 +38,18 @@ jobs:
       # Install dependencies
       - name: Install dependencies
         run: flutter pub get
+        working-directory: ./taskii
 
       # Verify code formatting
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
+        working-directory: ./taskii
 
       # Analyze code with stricter settings
       - name: Analyze project source
         run: flutter analyze --fatal-infos
-
+        working-directory: ./taskii
       # Run tests
       - name: Run tests
         run: flutter test
+        working-directory: ./taskii
