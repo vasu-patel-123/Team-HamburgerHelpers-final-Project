@@ -9,6 +9,7 @@ import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_settings.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart'; // Add this import for kIsWeb
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +28,7 @@ Future<void> main() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
       // Initialize App Check
+      if (!kIsWeb) {
       await FirebaseAppCheck.instance.activate(
         androidProvider: const bool.fromEnvironment('dart.vm.product')
             ? AndroidProvider.playIntegrity
@@ -35,6 +37,7 @@ Future<void> main() async {
             ? AppleProvider.appAttest
             : AppleProvider.debug,
       );
+      }
       debugPrint('Firebase initialized successfully');
     }
   } catch (e) {
@@ -56,7 +59,7 @@ Future<void> main() async {
     databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com/',
   );
 
-
+  if (!kIsWeb) {
   await FirebaseAppCheck.instance.activate(
     androidProvider: const bool.fromEnvironment('dart.vm.product')
         ? AndroidProvider.playIntegrity
@@ -65,6 +68,7 @@ Future<void> main() async {
         ? AppleProvider.appAttest
         : AppleProvider.debug,
   );
+  }
 
   // Set up system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
