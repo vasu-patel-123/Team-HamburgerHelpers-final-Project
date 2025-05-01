@@ -10,25 +10,6 @@
       "client_info": {
         "mobilesdk_app_id": "1:246539347393:android:7e1af2a519a9a64d697b40",
         "android_client_info": {
-          "package_name": "com.example.taskii"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCnrhTb1Wlh0LUT24BlQfXSfLtL8rG0-GA"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:246539347393:android:199e7bab1a4225ba697b40",
-        "android_client_info": {
           "package_name": "io.teamh.taskii"
         }
       },

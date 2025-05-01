@@ -47,7 +47,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-class _HomePageState extends State<HomePage> {
   int currentPageIndex = 0;
   final TaskService _taskService = TaskService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -82,8 +81,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _loadTasks() async {
-    await _subscription?.cancel();
   Future<void> _loadTasks() async {
     await _subscription?.cancel();
     _subscription = _taskService.getUserTasks(_auth.currentUser?.uid ?? '')
