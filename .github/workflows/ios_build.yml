@@ -50,6 +50,13 @@ jobs:
       run: pod install
       working-directory: taskii/ios
 
+    - name: Clean up leftover files before tests
+      run: |
+        rm -rf ./taskii/build
+        rm -rf ./taskii/coverage
+        rm -rf ./taskii/.dart_tool/test
+      shell: bash
+
     - name: Run tests
       working-directory: ./taskii
       run: flutter test --coverage
