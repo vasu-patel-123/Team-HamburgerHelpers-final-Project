@@ -144,6 +144,42 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
     _initializePrefs();
   }
 
+///for forgot password
+  Future<void> _resetPassword() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      _showSnackBar('Please enter your email address');
+      return;
+    }
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      _showSnackBar('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      _showSnackBar('Password reset email sent!', isError: false);
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch (e.code) {
+        case 'user-not-found':
+          message = 'No user found with that email';
+          break;
+        case 'invalid-email':
+          message = 'Invalid email address';
+          break;
+        default:
+          message = 'Error sending reset email: ${e.message}';
+      }
+      _showSnackBar(message);
+    } catch (e) {
+      _showSnackBar('Unexpected error: ${e.toString()}');
+    }
+  }
+
   Future<void> _initializePrefs() async {
     _prefs = await SharedPreferences.getInstance();
     await _loadLockoutState();
@@ -429,6 +465,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
             const SizedBox(height: 24),
             TextButton(
               onPressed: () {
+                _resetPassword();
                 debugPrint('Forgot password pressed');
               },
               style: TextButton.styleFrom(
