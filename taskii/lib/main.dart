@@ -6,6 +6,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'settings.dart';
+import 'forgotpassword.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,42 +89,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
   void initState() {
     super.initState();
     _initializePrefs();
-  }
-
-///for forgot password
-  Future<void> _resetPassword() async {
-    final email = _emailController.text.trim();
-
-    if (email.isEmpty) {
-      _showSnackBar('Please enter your email address');
-      return;
-    }
-
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(email)) {
-      _showSnackBar('Please enter a valid email address');
-      return;
-    }
-
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      _showSnackBar('Password reset email sent!', isError: false);
-    } on FirebaseAuthException catch (e) {
-      String message;
-      switch (e.code) {
-        case 'user-not-found':
-          message = 'No user found with that email';
-          break;
-        case 'invalid-email':
-          message = 'Invalid email address';
-          break;
-        default:
-          message = 'Error sending reset email: ${e.message}';
-      }
-      _showSnackBar(message);
-    } catch (e) {
-      _showSnackBar('Unexpected error: ${e.toString()}');
-    }
   }
 
 
@@ -386,7 +351,10 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                   const SizedBox(height: 24),
                   TextButton(
                     onPressed: () {
-                      _resetPassword();
+                        sendPasswordResetEmail(
+                          context: context,
+                          email: _emailController.text,
+                        );
                       debugPrint('Forgot password pressed');
                     },
                     style: TextButton.styleFrom(
