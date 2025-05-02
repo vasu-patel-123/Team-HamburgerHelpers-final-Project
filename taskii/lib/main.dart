@@ -291,7 +291,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           _isLoading = false;
           _errorMessage = 'An unexpected error occurred. Please try again.';
         });
-        _showSnackBar(_errorMessage!);
+        _showSnackBar(_errorMessage);
       }
     }
   }
