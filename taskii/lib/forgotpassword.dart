@@ -39,7 +39,11 @@ Future<void> sendPasswordResetEmail({
   }
 }
 
-void _showSnackBar(BuildContext context, String message, {bool isError = true}) {
+void _showSnackBar(
+  BuildContext context,
+  String message, {
+  bool isError = true,
+}) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

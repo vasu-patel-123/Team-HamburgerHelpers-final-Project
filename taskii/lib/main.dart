@@ -91,7 +91,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
     _initializePrefs();
   }
 
-
   Future<void> _initializePrefs() async {
     _prefs = await SharedPreferences.getInstance();
     await _loadLockoutState();
@@ -351,10 +350,10 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                   const SizedBox(height: 24),
                   TextButton(
                     onPressed: () {
-                        sendPasswordResetEmail(
-                          context: context,
-                          email: _emailController.text,
-                        );
+                      sendPasswordResetEmail(
+                        context: context,
+                        email: _emailController.text,
+                      );
                       debugPrint('Forgot password pressed');
                     },
                     style: TextButton.styleFrom(
@@ -372,9 +371,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                       ),
                     ),
                   ),
-
-
-
                 ],
               ),
             ),
