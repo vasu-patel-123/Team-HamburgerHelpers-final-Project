@@ -27,9 +27,9 @@ void main() {
     mockDatabaseRef = MockDatabaseReference();
     mockChildRef = MockDatabaseReference();
     mockPushRef = MockDatabaseReference();
-    mockPushRef = MockDatabaseReference();
 
     when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
+    when(mockUser.uid).thenReturn('test-uid'); // <-- Add this line
     when(mockDatabaseRef.child('tasks')).thenReturn(mockChildRef);
     when(mockChildRef.push()).thenReturn(mockPushRef);
     when(mockPushRef.set(any)).thenAnswer((_) => Future.value());
