@@ -9,6 +9,7 @@ class CalendarPage extends StatefulWidget {
   final Function(Task) onTaskDelete;
   final Function(String, bool, bool, DateTime?, DateTime?) onFilterApply;
   final Function() onFilterClear;
+  final Future<void> Function() onRefresh;
 
   const CalendarPage({
     super.key,
@@ -17,6 +18,7 @@ class CalendarPage extends StatefulWidget {
     required this.onTaskDelete,
     required this.onFilterApply,
     required this.onFilterClear,
+    required this.onRefresh,
   });
 
   @override
@@ -29,12 +31,24 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime? _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
   Map<DateTime, List<Map<String, dynamic>>> _events = {};
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
+    _loadInitialEvents();
+  }
+
+  Future<void> _loadInitialEvents() async {
+    setState(() {
+      _isLoading = true;
+    });
+    // Simulate async load if needed, or just generate events
     _generateEvents();
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -50,12 +64,16 @@ class _CalendarPageState extends State<CalendarPage> {
 
     for (var task in widget.tasks) {
       // Normalize the date to remove time component
-      DateTime date = DateTime(task.dueDate.year, task.dueDate.month, task.dueDate.day);
+      DateTime date = DateTime(
+        task.dueDate.year,
+        task.dueDate.month,
+        task.dueDate.day,
+      );
 
       if (!tempEvents.containsKey(date)) {
         tempEvents[date] = [];
       }
-      
+
       Map<String, dynamic> taskMap = {
         'title': task.title,
         'description': task.description,
@@ -65,10 +83,11 @@ class _CalendarPageState extends State<CalendarPage> {
         'isCompleted': task.isCompleted,
         'userId': task.userId,
         'category': task.category,
+        'estimatedTime': task.estimatedTime,
       };
       tempEvents[date]!.add(taskMap);
     }
-    
+
     setState(() {
       _events = tempEvents;
     });
@@ -77,7 +96,25 @@ class _CalendarPageState extends State<CalendarPage> {
   List<Map<String, dynamic>> _getTasksForDay(DateTime day) {
     // Normalize the date to remove time component
     final normalizedDay = DateTime(day.year, day.month, day.day);
-    return _events[normalizedDay] ?? [];
+    final now = DateTime.now();
+
+    return _events[normalizedDay]?.where((task) {
+          // Calculate the task's time window
+          final taskEndTime = task['dueDate'].add(
+            Duration(minutes: task['estimatedTime'] ?? 30),
+          );
+
+          // If the task is still within its time window, show it in current section
+          if (now.isBefore(taskEndTime)) {
+            return true;
+          }
+
+          // For tasks outside their time window, only show if they match the selected day
+          return task['dueDate'].year == day.year &&
+              task['dueDate'].month == day.month &&
+              task['dueDate'].day == day.day;
+        }).toList() ??
+        [];
   }
 
   Color _getPriorityColor(String priority) {
@@ -117,13 +154,18 @@ class _CalendarPageState extends State<CalendarPage> {
                         labelText: 'Priority',
                         border: OutlineInputBorder(),
                       ),
-                      items: ['All', 'High', 'Medium', 'Low']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                      items:
+                          [
+                            'All',
+                            'High',
+                            'Medium',
+                            'Low',
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
                       onChanged: (String? newValue) {
                         setState(() {
                           selectedPriority = newValue!;
@@ -157,9 +199,11 @@ class _CalendarPageState extends State<CalendarPage> {
                     // Date Range Filter
                     const Text('Date Range:'),
                     ListTile(
-                      title: Text(startDate == null
-                          ? 'Select Start Date'
-                          : DateFormat('yyyy-MM-dd').format(startDate!)),
+                      title: Text(
+                        startDate == null
+                            ? 'Select Start Date'
+                            : DateFormat('yyyy-MM-dd').format(startDate!),
+                      ),
                       trailing: const Icon(Icons.calendar_today),
                       onTap: () async {
                         final DateTime? picked = await showDatePicker(
@@ -176,9 +220,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       },
                     ),
                     ListTile(
-                      title: Text(endDate == null
-                          ? 'Select End Date'
-                          : DateFormat('yyyy-MM-dd').format(endDate!)),
+                      title: Text(
+                        endDate == null
+                            ? 'Select End Date'
+                            : DateFormat('yyyy-MM-dd').format(endDate!),
+                      ),
                       trailing: const Icon(Icons.calendar_today),
                       onTap: () async {
                         final DateTime? picked = await showDatePicker(
@@ -234,21 +280,37 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        title: Text(
+          'Calendar',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+        ),
         shape: Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 153, 142, 126),
-            width: 4
-          )
+            color: Theme.of(context).colorScheme.primary,
+            width: 4,
+          ),
         ),
         elevation: 4,
-        title: const Text('Calendar'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.filter_alt),
             onPressed: () {
               _showFilterDialog(context);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () {
+              Navigator.of(context).pushNamed('/settings');
             },
           ),
         ],
@@ -287,126 +349,160 @@ class _CalendarPageState extends State<CalendarPage> {
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, date, events) {
                 if (events.isEmpty) return null;
-                return Positioned(
-                  bottom: 1,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
+                // Place the dot below the day number
+                return Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 0.0,
+                    ), // Adjust as needed
+                    child: Container(
+                      width: 5,
+                      height: 5,
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
                 );
               },
             ),
           ),
-          if (_selectedDay != null)
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.all(12),
-                itemCount: _getTasksForDay(_selectedDay!).length,
-                itemBuilder: (context, index) {
-                  final task = _getTasksForDay(_selectedDay!)[index];
-                  String priority = task['priority'];
-                  Color priorityColor = _getPriorityColor(priority);
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: widget.onRefresh,
+              child:
+                  _selectedDay == null
+                      ? const Center(child: Text('No day selected'))
+                      : ListView.builder(
+                        padding: const EdgeInsets.all(12),
+                        itemCount: _getTasksForDay(_selectedDay!).length,
+                        itemBuilder: (context, index) {
+                          final task = _getTasksForDay(_selectedDay!)[index];
+                          String priority = task['priority'];
+                          Color priorityColor = _getPriorityColor(priority);
 
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(left: 0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[300]!),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IntrinsicHeight(
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 8,
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.only(left: 0),
                               decoration: BoxDecoration(
-                                color: priorityColor,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(7),
-                                  bottomLeft: Radius.circular(7),
-                                ),
+                                border: Border.all(color: Colors.grey[300]!),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
+                              child: IntrinsicHeight(
                                 child: Row(
                                   children: [
-                                    Checkbox(
-                                      value: task['isCompleted'],
-                                      onChanged: (bool? value) {
-                                        widget.onTaskCompletion(Task(
-                                          id: task['id'],
-                                          title: task['title'],
-                                          description: task['description'],
-                                          dueDate: task['dueDate'],
-                                          priority: task['priority'],
-                                          category: task['category'],
-                                          isCompleted: value ?? false,
-                                          userId: task['userId'],
-                                        ));
-                                      },
-                                    ),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            task['title'],
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              decoration: task['isCompleted'] 
-                                                ? TextDecoration.lineThrough 
-                                                : TextDecoration.none,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            DateFormat('h:mm a').format(task['dueDate']),
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                        ],
+                                    Container(
+                                      width: 8,
+                                      decoration: BoxDecoration(
+                                        color: priorityColor,
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(7),
+                                          bottomLeft: Radius.circular(7),
+                                        ),
                                       ),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () {
-                                        widget.onTaskDelete(Task(
-                                          id: task['id'],
-                                          title: task['title'],
-                                          description: task['description'],
-                                          dueDate: task['dueDate'],
-                                          priority: task['priority'],
-                                          category: task['category'],
-                                          isCompleted: task['isCompleted'],
-                                          userId: task['userId'],
-                                        ));
-                                      },
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Row(
+                                          children: [
+                                            Checkbox(
+                                              value: task['isCompleted'],
+                                              onChanged: (bool? value) {
+                                                widget.onTaskCompletion(
+                                                  Task(
+                                                    id: task['id'],
+                                                    title: task['title'],
+                                                    description:
+                                                        task['description'],
+                                                    dueDate: task['dueDate'],
+                                                    priority: task['priority'],
+                                                    category: task['category'],
+                                                    isCompleted: value ?? false,
+                                                    userId: task['userId'],
+                                                    estimatedTime:
+                                                        task['estimatedTime'] ??
+                                                        30,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    task['title'],
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      decoration:
+                                                          task['isCompleted']
+                                                              ? TextDecoration
+                                                                  .lineThrough
+                                                              : TextDecoration
+                                                                  .none,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    DateFormat(
+                                                      'h:mm a',
+                                                    ).format(task['dueDate']),
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.grey[600],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                Icons.delete,
+                                                color: Colors.red,
+                                              ),
+                                              onPressed: () {
+                                                widget.onTaskDelete(
+                                                  Task(
+                                                    id: task['id'],
+                                                    title: task['title'],
+                                                    description:
+                                                        task['description'],
+                                                    dueDate: task['dueDate'],
+                                                    priority: task['priority'],
+                                                    category: task['category'],
+                                                    isCompleted:
+                                                        task['isCompleted'],
+                                                    userId: task['userId'],
+                                                    estimatedTime:
+                                                        task['estimatedTime'] ??
+                                                        30,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
-                    ),
-                  );
-                },
-              ),
             ),
+          ),
         ],
       ),
     );
   }
-} 
+}

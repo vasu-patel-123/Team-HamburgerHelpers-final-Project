@@ -12,16 +12,18 @@ This project is a starting point for a Flutter application. Follow the steps bel
 
 ## Prerequisites
 
-Flutter SDK (latest stable version)
-Dart (included with Flutter)
-An editor such as VS Code or Android Studio
-Android/iOS emulator or physical device for testing
+- **Flutter SDK** (latest stable version)
+- **Dart** (included with Flutter)
+- An editor such as **VS Code** or **Android Studio**
+- Android/iOS emulator or a physical device for testing
 
 ## Installation
 
-1. Clone the repository from its source.
+1. **Clone the repository** from its source:
+   ```bash
+   git clone <https://github.com/vasu-patel-123/Team-HamburgerHelpers-final-Project>
 
-2. Install the required dependencies by running the following command in your terminal:
+2. **Install the required dependencies** by running the following command in your terminal while in the taskii folder:
 
 `flutter pub get`
 

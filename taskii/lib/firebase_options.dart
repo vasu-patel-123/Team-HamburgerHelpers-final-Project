@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCnrhTb1Wlh0LUT24BlQfXSfLtL8rG0-GA',
-    appId: '1:246539347393:android:7e1af2a519a9a64d697b40',
+    appId: '1:246539347393:android:199e7bab1a4225ba697b40',
     messagingSenderId: '246539347393',
     projectId: 'taskii-bf674',
     databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com',
@@ -71,7 +71,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyDpfVUKD7QQzgS4xACDAN57dsXoYdQttvY',
-    appId: '1:246539347393:ios:93f7ce2dc7b2491c697b40',
+    appId: '1:246539347393:ios:887af18b350ab3a3697b40',
     messagingSenderId: '246539347393',
     projectId: 'taskii-bf674',
     databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com',
@@ -88,5 +88,4 @@ class DefaultFirebaseOptions {
     databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com',
     storageBucket: 'taskii-bf674.firebasestorage.app',
   );
-
 }

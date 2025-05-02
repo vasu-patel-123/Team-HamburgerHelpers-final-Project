@@ -7,6 +7,7 @@ class TaskItem extends StatelessWidget {
   final Function(Task) onToggleComplete;
   final Function(Task) onDelete;
   final Color priorityColor;
+  final bool showDescription;
 
   const TaskItem({
     super.key,
@@ -14,6 +15,7 @@ class TaskItem extends StatelessWidget {
     required this.onToggleComplete,
     required this.onDelete,
     required this.priorityColor,
+    required this.showDescription,
   });
 
   @override
@@ -60,18 +62,50 @@ class TaskItem extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                decoration: task.isCompleted 
-                                  ? TextDecoration.lineThrough 
-                                  : TextDecoration.none,
+                                decoration:
+                                    task.isCompleted
+                                        ? TextDecoration.lineThrough
+                                        : TextDecoration.none,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              DateFormat('h:mm a').format(task.dueDate),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
+                            if (showDescription && task.description.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Text(
+                                  task.description,
+                                  style: TextStyle(
+                                    color: Colors.grey[700],
+                                    fontSize: 14,
+                                  ),
+                                ),
                               ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text(
+                                  DateFormat('h:mm a').format(task.dueDate),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '•',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${task.estimatedTime} min',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -92,4 +126,4 @@ class TaskItem extends StatelessWidget {
       ),
     );
   }
-} 
+}

@@ -1,0 +1,55 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support documentation.
+
+name: Flutter CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository code
+      - uses: actions/checkout@v4
+
+      # Set up the Flutter SDK
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      # Cache dependencies to speed up workflows
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      # Install dependencies
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ./taskii
+
+      # Verify code formatting
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+        working-directory: ./taskii
+
+      # Analyze code with stricter settings
+      - name: Analyze project source
+        run: flutter analyze --no-suggestions --no-fatal-warnings --no-fatal-infos
+        working-directory: ./taskii
+      # Run tests
+      - name: Run tests
+        run: flutter test --coverage
+        working-directory: ./taskii
