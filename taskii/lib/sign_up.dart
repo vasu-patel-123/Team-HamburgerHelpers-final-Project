@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'terms_conditions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_page.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});

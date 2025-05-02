@@ -5,7 +5,7 @@
       ".write": "auth != null",
       ".indexOn": ["userId", "dueDate"],
       "$taskId": {
-        ".validate": "newData.hasChildren(['title', 'description', 'dueDate', 'userId', 'priority', 'category'])",
+        ".validate": "newData.hasChildren(['title', 'description', 'dueDate', 'userId', 'priority', 'category', 'creationDate'])",
         "title": {
           ".validate": "newData.isString() && newData.val().length > 0"
         },
@@ -23,6 +23,9 @@
         },
         "category": {
           ".validate": "newData.isString() && (newData.val() === 'General' || newData.val() === 'Work' || newData.val() === 'Personal' || newData.val() === 'Shopping' || newData.val() === 'Health' || newData.val() === 'Education')"
+        },
+        "creationDate": {
+          ".validate": "newData.isString()"
         },
         ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)",
         ".read": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)"

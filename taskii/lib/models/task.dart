@@ -8,6 +8,7 @@ class Task {
   final bool isCompleted;
   final String userId;
   final int estimatedTime; // in minutes
+  final DateTime creationDate;
 
   Task({
     required this.id,
@@ -19,7 +20,8 @@ class Task {
     this.isCompleted = false,
     required this.userId,
     required this.estimatedTime,
-  });
+    DateTime? creationDate,
+  }) : creationDate = creationDate ?? DateTime.now();
 
   Map<String, dynamic> toJson() {
     return {
@@ -32,6 +34,7 @@ class Task {
       'isCompleted': isCompleted,
       'userId': userId,
       'estimatedTime': estimatedTime,
+      'creationDate': creationDate.toIso8601String(),
     };
   }
 
@@ -47,6 +50,24 @@ class Task {
       parsedDueDate = DateTime.now();
     }
 
+    var creationDateValue = json['creationDate'];
+    DateTime parsedCreationDate;
+
+    if (creationDateValue is String) {
+      try {
+        parsedCreationDate = DateTime.parse(creationDateValue);
+      } catch (e) {
+        // If parsing fails, try to get the date from the task ID or due date
+        // This is a fallback for existing tasks that might have invalid creation dates
+        parsedCreationDate = parsedDueDate;
+      }
+    } else if (creationDateValue is int) {
+      parsedCreationDate = DateTime.fromMillisecondsSinceEpoch(creationDateValue);
+    } else {
+      // If no valid creation date is found, use the due date as a fallback
+      parsedCreationDate = parsedDueDate;
+    }
+
     return Task(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
@@ -57,6 +78,7 @@ class Task {
       isCompleted: json['isCompleted'] ?? false,
       userId: json['userId'] ?? '',
       estimatedTime: json['estimatedTime'] ?? 30, // Default to 30 minutes
+      creationDate: parsedCreationDate,
     );
   }
 }

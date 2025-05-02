@@ -192,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                   ),
                                   Text(
-                                    '${(_tasks.where((task) => task.isCompleted).length / _tasks.length * 100).toStringAsFixed(0)}%',
+                                    '${(_tasks.where((task) => task.isCompleted && task.dueDate.year == DateTime.now().year && task.dueDate.month == DateTime.now().month && task.dueDate.day == DateTime.now().day).length / _tasks.where((task) => task.dueDate.year == DateTime.now().year && task.dueDate.month == DateTime.now().month && task.dueDate.day == DateTime.now().day).length * 100).toStringAsFixed(0)}%',
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w500,
@@ -207,10 +207,10 @@ class _HomePageState extends State<HomePage> {
                                         ? 0
                                         : _tasks
                                                 .where(
-                                                  (task) => task.isCompleted,
+                                                  (task) => task.isCompleted && task.dueDate.year == DateTime.now().year && task.dueDate.month == DateTime.now().month && task.dueDate.day == DateTime.now().day,
                                                 )
                                                 .length /
-                                            _tasks.length,
+                                            _tasks.where((task) => task.dueDate.year == DateTime.now().year && task.dueDate.month == DateTime.now().month && task.dueDate.day == DateTime.now().day).length,
                                 minHeight: 8,
                                 backgroundColor: Colors.grey[200],
                                 valueColor: AlwaysStoppedAnimation<Color>(
@@ -270,6 +270,7 @@ class _HomePageState extends State<HomePage> {
                           isCompleted: !task.isCompleted,
                           userId: task.userId,
                           estimatedTime: task.estimatedTime,
+                          creationDate: task.creationDate,
                         );
                         await _taskService.updateTask(updatedTask);
                         _showSnackBar(
@@ -341,6 +342,7 @@ class _HomePageState extends State<HomePage> {
                           isCompleted: !task.isCompleted,
                           userId: task.userId,
                           estimatedTime: task.estimatedTime,
+                          creationDate: task.creationDate,
                         );
                         await _taskService.updateTask(updatedTask);
                         _showSnackBar(

@@ -22,6 +22,8 @@ Future<void> initializeFirebaseAndRun() async {
     //webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
     androidProvider: AndroidProvider.debug,
     appleProvider: AppleProvider.debug,
+    // androidProvider: AndroidProvider.playIntegrity,   ::For Production
+    // appleProvider: AppleProvider.appAttest,           ::For Production 
   );
 
   // Disable reCAPTCHA for testing
