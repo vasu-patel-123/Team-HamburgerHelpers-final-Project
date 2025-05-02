@@ -33,3 +33,4 @@ taskii/pubspec.lock
 taskii/ios/Podfile.lock
 *.xcuserstate
 taskii/ios/Runner.xcworkspace/xcuserdata/jaron.xcuserdatad/UserInterfaceState.xcuserstate
+taskii/firepit-log.txt
