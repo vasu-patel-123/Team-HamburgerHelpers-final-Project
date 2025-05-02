@@ -375,22 +375,26 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
 
                   // Sign Up Section
                   const SizedBox(height: 24),
-                  const Text(
-                    "Don't have an account?",
-                    style: TextStyle(
-                      color: Color(0xFF525252),
-                      fontSize: 16,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.w400,
+                  const Center(
+                    child: const Text(
+                      "Don't have an account?",
+                      style: TextStyle(
+                        color: Color(0xFF525252),
+                        fontSize: 16,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
                   TextButton(
                     onPressed: () {
                       debugPrint('Sign up pressed');
-                        Navigator.push(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SignUpPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const SignUpPage(),
+                        ),
                       );
                     },
                     style: TextButton.styleFrom(
@@ -408,8 +412,6 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                       ),
                     ),
                   ),
-
-
                 ],
               ),
             ),
