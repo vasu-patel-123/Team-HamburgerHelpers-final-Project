@@ -10,4 +10,15 @@ Checking for npm/bin/npm-cli install at C:\Users\jaron\.cache\firebase\tools\lib
 Checking for npm/bin/npm-cli install at C:\Users\jaron\.cache\firebase\tools\node_modules\npm\bin\npm-cli
 Checking for npm/bin/npm-cli install at C:\snapshot\firepit\node_modules\npm\bin\npm-cli
 Found npm/bin/npm-cli install.
-ShellJSInternalError: ENOENT: no such file or directory, stat 'C:\Users\jaron\.cache\firebase\runtime\shell'
+Runtime binaries created.
+C:\Users\jaron\AppData\Local\MICROS~1\WinGet\Links\firebase.exe
+C:\Users\jaron\AppData\Local\MICROS~1\WinGet\Links\firebase.exe,C:\snapshot\firepit\firepit.js,--version
+Checking for npm/bin/npm-cli install at C:\Users\jaron\.cache\firebase\tools\lib\node_modules\npm\bin\npm-cli
+Checking for npm/bin/npm-cli install at C:\Users\jaron\.cache\firebase\tools\node_modules\npm\bin\npm-cli
+Checking for npm/bin/npm-cli install at C:\snapshot\firepit\node_modules\npm\bin\npm-cli
+Found npm/bin/npm-cli install.
+Checking for npm/bin/npm-cli install at C:\Users\jaron\.cache\firebase\tools\lib\node_modules\npm\bin\npm-cli
+Checking for npm/bin/npm-cli install at C:\Users\jaron\.cache\firebase\tools\node_modules\npm\bin\npm-cli
+Checking for npm/bin/npm-cli install at C:\snapshot\firepit\node_modules\npm\bin\npm-cli
+Found npm/bin/npm-cli install.
+ShellJSInternalError: ENOENT: no such file or directory, stat 'C:\Users\jaron\CACHE~1\firebase\runtime\shell'
