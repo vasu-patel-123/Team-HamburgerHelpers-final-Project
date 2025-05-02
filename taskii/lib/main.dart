@@ -7,6 +7,7 @@ import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'settings.dart';
 import 'forgotpassword.dart';
+import 'sign_up.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
