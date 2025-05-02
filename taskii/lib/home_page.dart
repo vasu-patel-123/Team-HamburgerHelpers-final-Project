@@ -505,7 +505,7 @@ class _HomePageState extends State<HomePage> {
                         decoration: BoxDecoration(
                           color: _getPriorityColor(
                             task.priority,
-                          ).withOpacity(0.1),
+                          ).withAlpha(25), // 10% opacity
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
