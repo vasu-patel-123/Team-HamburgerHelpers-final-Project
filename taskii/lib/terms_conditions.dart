@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-
-const String  terms = '''Terms and ConditionsLast Updated: April 3, 2025
+const String terms = '''Terms and ConditionsLast Updated: April 3, 2025
 
 Welcome to Taskii! These Terms and Conditions ("Terms") govern your use of our task management application ("App"). By accessing or using the App, you agree to be bound by these Terms. If you do not agree, please do not use the App.
 
@@ -72,9 +71,8 @@ class TermsConditions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Terms and Conditions'),
-      ),
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(title: const Text('Terms and Conditions')),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -85,11 +83,9 @@ class TermsConditions extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 12, bottom: 24),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                  ],
+                  children: [],
                 ),
               ),
-              
               // Logo and Title
               const SizedBox(height: 80),
               const Icon(
@@ -107,32 +103,30 @@ class TermsConditions extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-
-
-             // Return to sign Up
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                debugPrint('Return to Sign Up Pressed');
-                Navigator.pop(context);
-              },
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              child: const Text(
-                'Return to Sign Up',
-                style: TextStyle(
-                  color: Color(0xFF525252),
-                  fontSize: 14,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w400,
+              // Return to sign Up
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () {
+                  debugPrint('Return to Sign Up Pressed');
+                  Navigator.pop(context);
+                },
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text(
+                  'Return to Sign Up',
+                  style: TextStyle(
+                    color: Color(0xFF525252),
+                    fontSize: 14,
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ),
-            ),
 
-            const Text(
+              const Text(
                 terms,
                 style: TextStyle(
                   color: Color(0xFF525252),
@@ -141,7 +135,6 @@ class TermsConditions extends StatelessWidget {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-            
             ],
           ),
         ),

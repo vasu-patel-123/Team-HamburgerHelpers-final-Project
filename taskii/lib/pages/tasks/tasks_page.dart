@@ -45,7 +45,7 @@ class _TasksPageState extends State<TasksPage> {
   @override
   void initState() {
     super.initState();
-    _loadTasks();
+    _loadTasks(showLoading: true); // Only show loading on first load
   }
 
   @override
@@ -54,12 +54,15 @@ class _TasksPageState extends State<TasksPage> {
     super.dispose();
   }
 
-  void _loadTasks() {
-    setState(() {
-      _isLoading = true;
-    });
+  void _loadTasks({bool showLoading = false}) {
+    if (showLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
-    _subscription = _taskService.getUserTasks(_auth.currentUser?.uid ?? '')
+    _subscription = _taskService
+        .getUserTasks(_auth.currentUser?.uid ?? '')
         .listen(
           (tasks) {
             if (mounted) {
@@ -104,10 +107,11 @@ class _TasksPageState extends State<TasksPage> {
         category: task.category,
         isCompleted: !task.isCompleted,
         userId: task.userId,
+        estimatedTime: task.estimatedTime,
       );
-      
+
       await _taskService.updateTask(updatedTask);
-      
+
       setState(() {
         final index = _tasks.indexWhere((t) => t.id == task.id);
         if (index != -1) {
@@ -115,8 +119,11 @@ class _TasksPageState extends State<TasksPage> {
           _filteredTasks = List.from(_tasks);
         }
       });
-      
-      _showSnackBar('Task ${task.isCompleted ? "uncompleted" : "completed"}!', isError: false);
+
+      _showSnackBar(
+        'Task ${task.isCompleted ? "uncompleted" : "completed"}!',
+        isError: false,
+      );
     } catch (e) {
       _showSnackBar('Failed to update task: ${e.toString()}');
     }
@@ -164,13 +171,18 @@ class _TasksPageState extends State<TasksPage> {
                         labelText: 'Priority',
                         border: OutlineInputBorder(),
                       ),
-                      items: ['All', 'High', 'Medium', 'Low']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
+                      items:
+                          [
+                            'All',
+                            'High',
+                            'Medium',
+                            'Low',
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
                       onChanged: (String? newValue) {
                         setState(() {
                           _selectedPriority = newValue!;
@@ -200,9 +212,13 @@ class _TasksPageState extends State<TasksPage> {
                     const SizedBox(height: 16),
                     const Text('Date Range:'),
                     ListTile(
-                      title: Text(_filterStartDate == null
-                          ? 'Select Start Date'
-                          : DateFormat('yyyy-MM-dd').format(_filterStartDate!)),
+                      title: Text(
+                        _filterStartDate == null
+                            ? 'Select Start Date'
+                            : DateFormat(
+                              'yyyy-MM-dd',
+                            ).format(_filterStartDate!),
+                      ),
                       trailing: const Icon(Icons.calendar_today),
                       onTap: () async {
                         final DateTime? picked = await showDatePicker(
@@ -219,9 +235,11 @@ class _TasksPageState extends State<TasksPage> {
                       },
                     ),
                     ListTile(
-                      title: Text(_filterEndDate == null
-                          ? 'Select End Date'
-                          : DateFormat('yyyy-MM-dd').format(_filterEndDate!)),
+                      title: Text(
+                        _filterEndDate == null
+                            ? 'Select End Date'
+                            : DateFormat('yyyy-MM-dd').format(_filterEndDate!),
+                      ),
                       trailing: const Icon(Icons.calendar_today),
                       onTap: () async {
                         final DateTime? picked = await showDatePicker(
@@ -271,27 +289,43 @@ class _TasksPageState extends State<TasksPage> {
 
   void _applyFilters() {
     setState(() {
-      _filteredTasks = _tasks.where((task) {
-        if (_selectedPriority != 'All' && task.priority != _selectedPriority) {
-          return false;
-        }
+      _filteredTasks =
+          _tasks.where((task) {
+            if (_selectedPriority != 'All' &&
+                task.priority != _selectedPriority) {
+              return false;
+            }
 
-        if (!_showCompleted && task.isCompleted) {
-          return false;
-        }
-        if (!_showIncomplete && !task.isCompleted) {
-          return false;
-        }
+            if (!_showCompleted && task.isCompleted) {
+              return false;
+            }
+            if (!_showIncomplete && !task.isCompleted) {
+              return false;
+            }
 
-        if (_filterStartDate != null && task.dueDate.isBefore(_filterStartDate!)) {
-          return false;
-        }
-        if (_filterEndDate != null && task.dueDate.isAfter(_filterEndDate!)) {
-          return false;
-        }
+            // Calculate the task's time window
+            final now = DateTime.now();
+            final taskEndTime = task.dueDate.add(
+              Duration(minutes: task.estimatedTime),
+            );
 
-        return true;
-      }).toList();
+            // If the task is still within its time window, show it in current section
+            if (now.isBefore(taskEndTime)) {
+              return true;
+            }
+
+            // For tasks outside their time window, apply date filters
+            if (_filterStartDate != null &&
+                task.dueDate.isBefore(_filterStartDate!)) {
+              return false;
+            }
+            if (_filterEndDate != null &&
+                task.dueDate.isAfter(_filterEndDate!)) {
+              return false;
+            }
+
+            return true;
+          }).toList();
     });
   }
 
@@ -304,6 +338,13 @@ class _TasksPageState extends State<TasksPage> {
       _filterEndDate = null;
       _filteredTasks = List.from(_tasks);
     });
+  }
+
+  Future<void> _refreshTasks() async {
+    _loadTasks(
+      showLoading: false,
+    ); // Don't show full loading on pull-to-refresh
+    setState(() {});
   }
 
   @override
@@ -331,42 +372,60 @@ class _TasksPageState extends State<TasksPage> {
     }
 
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
       appBar: AppBar(
         shape: Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 153, 142, 126),
-            width: 4
-          )
+            color: Theme.of(context).colorScheme.primary,
+            width: 4,
+          ),
         ),
         elevation: 4,
+        centerTitle: true,
         title: const Text('Tasks'),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.filter_alt),
             onPressed: _showFilterDialog,
-            color: Colors.black,
+            tooltip: 'Filter',
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).pushNamed('/settings');
+            },
+            tooltip: 'Settings',
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: _filteredTasks.length,
-        itemBuilder: (context, index) {
-          final task = _filteredTasks[index];
-          return TaskItem(
-            task: task,
-            priorityColor: _getPriorityColor(task.priority),
-            onToggleComplete: _toggleTaskCompletion,
-            onDelete: _deleteTask,
-          );
-        },
+      body: RefreshIndicator(
+        onRefresh: _refreshTasks,
+        child: ListView.builder(
+          padding: const EdgeInsets.fromLTRB(
+            12,
+            28,
+            12,
+            12,
+          ), // <-- Add top padding here
+          itemCount: _filteredTasks.length,
+          itemBuilder: (context, index) {
+            final task = _filteredTasks[index];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: TaskItem(
+                task: task,
+                priorityColor: _getPriorityColor(task.priority),
+                onToggleComplete: _toggleTaskCompletion,
+                onDelete: _deleteTask,
+                showDescription: true, // <-- Pass this to TaskItem
+              ),
+            );
+          },
+        ),
       ),
     );
   }
-} 
+}
