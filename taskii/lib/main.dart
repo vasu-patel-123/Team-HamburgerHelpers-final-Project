@@ -276,7 +276,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         default:
           errorMessage = 'An error occurred during sign in: ${e.message}';
       }
-      
+
       if (mounted) {
         setState(() {
           _errorMessage = errorMessage;
