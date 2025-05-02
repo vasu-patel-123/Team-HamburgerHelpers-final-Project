@@ -674,18 +674,6 @@ class _HomePageState extends State<HomePage> {
 
     return Column(
       children: [
-        // Add a helper text to explain the free time slots
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Text(
-            'Free time slots are calculated based on incomplete tasks only',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ),
         ...availableSlots.map(
           (TimeSlot slot) => Card(
             margin: const EdgeInsets.only(bottom: 8.0),
