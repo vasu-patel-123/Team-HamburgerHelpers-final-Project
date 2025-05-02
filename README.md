@@ -1,5 +1,5 @@
-# Team-Hamburger Helpers-final-Project
-Final Project for COS 420
+# Taskii
+Team H's Final Project for COS 420
 
 * Vasu Patel - Project Manager
 * Garrett R - Product Design
