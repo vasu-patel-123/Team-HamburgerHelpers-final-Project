@@ -293,7 +293,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
           _isLoading = false;
           _errorMessage = 'An unexpected error occurred. Please try again.';
         });
-        _showSnackBar(_errorMessage!);
+        _showSnackBar(_errorMessage);
       }
     }
   }
@@ -377,7 +377,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                   // Sign Up Section
                   const SizedBox(height: 24),
                   const Center(
-                    child: const Text(
+                    child: Text(
                       "Don't have an account?",
                       style: TextStyle(
                         color: Color(0xFF525252),

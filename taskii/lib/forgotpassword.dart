@@ -8,19 +8,25 @@ Future<void> sendPasswordResetEmail({
   final emailTrimmed = email.trim();
 
   if (emailTrimmed.isEmpty) {
-    _showSnackBar(context, 'Please enter your email address');
+    if (context.mounted) {
+      _showSnackBar(context, 'Please enter your email address');
+    }
     return;
   }
 
   final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
   if (!emailRegex.hasMatch(emailTrimmed)) {
-    _showSnackBar(context, 'Please enter a valid email address');
+    if (context.mounted) {
+      _showSnackBar(context, 'Please enter a valid email address');
+    }
     return;
   }
 
   try {
     await FirebaseAuth.instance.sendPasswordResetEmail(email: emailTrimmed);
-    _showSnackBar(context, 'Password reset email sent!', isError: false);
+    if (context.mounted) {
+      _showSnackBar(context, 'Password reset email sent!', isError: false);
+    }
   } on FirebaseAuthException catch (e) {
     String message;
     switch (e.code) {
@@ -33,9 +39,13 @@ Future<void> sendPasswordResetEmail({
       default:
         message = 'Error sending reset email: ${e.message}';
     }
-    _showSnackBar(context, message);
+    if (context.mounted) {
+      _showSnackBar(context, message);
+    }
   } catch (e) {
-    _showSnackBar(context, 'Unexpected error: ${e.toString()}');
+    if (context.mounted) {
+      _showSnackBar(context, 'Unexpected error: ${e.toString()}');
+    }
   }
 }
 
