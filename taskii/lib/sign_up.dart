@@ -175,6 +175,10 @@ class SignUpPage extends StatelessWidget {
                       await credential.user?.sendEmailVerification();
                       debugPrint('Verification email sent to ${credential.user?.email}');
                       
+                      // Sign out the user immediately
+                      await FirebaseAuth.instance.signOut();
+                      debugPrint('User signed out after verification email sent');
+                      
                       debugPrint(
                         'User signed up successfully: ${credential.user?.email}',
                       );
@@ -189,7 +193,6 @@ class SignUpPage extends StatelessWidget {
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  Navigator.pop(context);
                                   Navigator.pop(context); // Return to sign in page
                                 },
                                 child: const Text('OK'),
