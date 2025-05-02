@@ -17,7 +17,7 @@ Future<void> initializeFirebaseAndRun() async {
 
   // Initialize App Check
   await FirebaseAppCheck.instance.activate(
-    webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+    // webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
     androidProvider: AndroidProvider.debug,
     appleProvider: AppleProvider.debug,
   );
@@ -276,6 +276,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
         default:
           errorMessage = 'An error occurred during sign in: ${e.message}';
       }
+
       if (mounted) {
         setState(() {
           _errorMessage = errorMessage;
@@ -288,9 +289,9 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _errorMessage = 'An unexpected error occurred. Please try again.';
         });
-        const errorMessage = 'An unexpected error occurred. Please try again.';
-        _showSnackBar(errorMessage);
+        _showSnackBar(_errorMessage!);
       }
     }
   }
