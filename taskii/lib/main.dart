@@ -371,6 +371,44 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                       ),
                     ),
                   ),
+
+                  // Sign Up Section
+                  const SizedBox(height: 24),
+                  const Text(
+                    "Don't have an account?",
+                    style: TextStyle(
+                      color: Color(0xFF525252),
+                      fontSize: 16,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('Sign up pressed');
+                        Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SignUpPage()),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      'Sign up',
+                      style: TextStyle(
+                        color: Color(0xFF171717),
+                        fontSize: 16,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+
+
                 ],
               ),
             ),
