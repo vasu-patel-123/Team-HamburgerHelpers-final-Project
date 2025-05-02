@@ -6,16 +6,60 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'settings.dart';
+import 'profile_settings.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart'; // Add this import for kIsWeb
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeFirebaseAndRun();
-}
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  try {
+    // First, try to get the default app
+    try {
+      Firebase.app();
+      // If we get here, Firebase is already initialized
+      debugPrint('Firebase already initialized');
+    } catch (e) {
+      // If getting the default app fails, initialize Firebase
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      // Initialize App Check
+      if (!kIsWeb) {
+      await FirebaseAppCheck.instance.activate(
+        androidProvider: const bool.fromEnvironment('dart.vm.product')
+            ? AndroidProvider.playIntegrity
+            : AndroidProvider.debug,
+        appleProvider: const bool.fromEnvironment('dart.vm.product')
+            ? AppleProvider.appAttest
+            : AppleProvider.debug,
+      );
+      }
+      debugPrint('Firebase initialized successfully');
+    }
+  } catch (e) {
+    if (e.toString().contains('duplicate-app')) {
+      // If we get a duplicate app error, try to get the existing app
+      try {
+        Firebase.app();
+        debugPrint('Using existing Firebase app');
+      } catch (e) {
+        debugPrint('Error accessing existing Firebase app: $e');
+      }
+    } else {
+      debugPrint('Firebase initialization error: $e');
+    }
+  }
 
-Future<void> initializeFirebaseAndRun() async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseDatabase.instanceFor(
+    app: Firebase.app(),
+    databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com/',
+  );
 
-  // Initialize App Check
+  if (!kIsWeb) {
+
   await FirebaseAppCheck.instance.activate(
     webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
     androidProvider: AndroidProvider.debug,
@@ -29,6 +73,7 @@ Future<void> initializeFirebaseAndRun() async {
     smsCode: null,
     forceRecaptchaFlow: false,
   );
+  }
 
   runApp(const Taskii());
 }
@@ -88,6 +133,42 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
   void initState() {
     super.initState();
     _initializePrefs();
+  }
+
+///for forgot password
+  Future<void> _resetPassword() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      _showSnackBar('Please enter your email address');
+      return;
+    }
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      _showSnackBar('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      _showSnackBar('Password reset email sent!', isError: false);
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch (e.code) {
+        case 'user-not-found':
+          message = 'No user found with that email';
+          break;
+        case 'invalid-email':
+          message = 'Invalid email address';
+          break;
+        default:
+          message = 'Error sending reset email: ${e.message}';
+      }
+      _showSnackBar(message);
+    } catch (e) {
+      _showSnackBar('Unexpected error: ${e.toString()}');
+    }
   }
 
   Future<void> _initializePrefs() async {
@@ -330,6 +411,7 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                     ),
                     obscureText: true,
                   ),
+
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _isLoading ? null : _signIn,
@@ -345,6 +427,41 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                       ),
                     ),
                 ],
+
+                ),
+              ),
+            ),
+            // Forgot Password
+            const SizedBox(height: 24),
+            TextButton(
+              onPressed: () {
+                _resetPassword();
+                debugPrint('Forgot password pressed');
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Forgot password?',
+                style: TextStyle(
+                  color: Color(0xFF525252),
+                  fontSize: 14,
+                  fontFamily: 'Inter',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+            // Sign Up Section
+            const SizedBox(height: 24),
+            const Text(
+              "Don't have an account?",
+              style: TextStyle(
+                color: Color(0xFF525252),
+                fontSize: 16,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
               ),
             ),
           ),
