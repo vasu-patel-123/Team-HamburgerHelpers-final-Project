@@ -288,7 +288,7 @@ class _CalendarPageState extends State<CalendarPage> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: Text(
+        title: const Text(
           'Calendar',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
         ),
@@ -340,7 +340,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 _focusedDay = focusedDay;
               });
             },
-            calendarStyle: CalendarStyle(
+            calendarStyle: const CalendarStyle(
               markerDecoration: BoxDecoration(
                 color: Colors.blue,
                 shape: BoxShape.circle,
@@ -355,7 +355,7 @@ class _CalendarPageState extends State<CalendarPage> {
                   child: Padding(
                     padding: const EdgeInsets.only(
                       bottom: 0.0,
-                    ), // Adjust as needed
+                    ),
                     child: Container(
                       width: 5,
                       height: 5,
@@ -399,7 +399,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                       width: 8,
                                       decoration: BoxDecoration(
                                         color: priorityColor,
-                                        borderRadius: BorderRadius.only(
+                                        borderRadius: const BorderRadius.only(
                                           topLeft: Radius.circular(7),
                                           bottomLeft: Radius.circular(7),
                                         ),
@@ -464,7 +464,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                               ),
                                             ),
                                             IconButton(
-                                              icon: Icon(
+                                              icon: const Icon(
                                                 Icons.delete,
                                                 color: Colors.red,
                                               ),

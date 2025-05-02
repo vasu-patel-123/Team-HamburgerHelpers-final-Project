@@ -159,9 +159,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        shape: Border(
+        shape: const Border(
           bottom: BorderSide(
-            color: const Color.fromARGB(255, 153, 142, 126),
+            color: Color.fromARGB(255, 153, 142, 126),
             width: 4,
           ),
         ),
@@ -282,7 +282,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                             ].map<DropdownMenuItem<int>>((int value) {
                               return DropdownMenuItem<int>(
                                 value: value,
-                                child: Text('${value} minutes'),
+                                child: Text('$value minutes'),
                               );
                             }).toList(),
                         onChanged: (int? newValue) {

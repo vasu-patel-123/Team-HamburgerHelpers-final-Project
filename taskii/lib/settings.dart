@@ -35,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        title: Text(
+        title: const Text(
           'Settings',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
         ),

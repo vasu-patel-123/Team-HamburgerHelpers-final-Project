@@ -7,10 +7,10 @@ class AddTaskPage extends StatefulWidget {
   final DatabaseReference databaseRef;
 
   const AddTaskPage({
-    Key? key,
+    super.key,
     required this.firebaseAuth,
     required this.databaseRef,
-  }) : super(key: key);
+  });
 
   @override
   State<AddTaskPage> createState() => _AddTaskPageState();
