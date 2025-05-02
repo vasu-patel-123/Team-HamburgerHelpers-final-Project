@@ -19,8 +19,8 @@ class SignUpPage extends StatelessWidget {
           child: Column(
             children: [
               // Status Bar
-              Padding(
-                padding: const EdgeInsets.only(top: 12, bottom: 24),
+              const Padding(
+                padding: EdgeInsets.only(top: 12, bottom: 24),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [],

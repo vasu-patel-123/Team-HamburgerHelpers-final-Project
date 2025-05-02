@@ -32,3 +32,4 @@ taskii/windows/flutter/generated_plugins.cmake
 taskii/pubspec.lock
 taskii/ios/Podfile.lock
 *.xcuserstate
+taskii/ios/Runner.xcworkspace/xcuserdata/jaron.xcuserdatad/UserInterfaceState.xcuserstate

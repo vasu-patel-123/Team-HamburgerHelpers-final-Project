@@ -61,7 +61,6 @@ class TestHelper {
     await tester.tap(dateField);
     await tester.pumpAndSettle();
 
-    final datePicker = find.byType(CalendarDatePicker);
     await tester.pumpAndSettle();
 
     final dayButton = find.text(date.day.toString());
@@ -80,7 +79,6 @@ class TestHelper {
     await tester.tap(timeField);
     await tester.pumpAndSettle();
 
-    final timePicker = find.byType(TimePickerDialog);
     await tester.pumpAndSettle();
 
     final hourButton = find.text(time.hour.toString());

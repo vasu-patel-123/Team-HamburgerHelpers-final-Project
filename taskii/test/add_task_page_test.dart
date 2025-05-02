@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:taskii/screens/add_task_page.dart';
@@ -16,7 +15,6 @@ void main() {
   late MockDatabaseReference mockDatabaseRef;
   late MockDatabaseReference mockChildRef;
   late MockDatabaseReference mockPushRef;
-  late MockDataSnapshot mockDataSnapshot;
 
   setUpAll(() async {
     await setupFirebaseCoreMocks();
@@ -29,10 +27,9 @@ void main() {
     mockDatabaseRef = MockDatabaseReference();
     mockChildRef = MockDatabaseReference();
     mockPushRef = MockDatabaseReference();
-    mockDataSnapshot = MockDataSnapshot();
 
     when(mockFirebaseAuth.currentUser).thenReturn(mockUser);
-    when(mockUser.uid).thenReturn('test-uid');
+    when(mockUser.uid).thenReturn('test-uid'); // <-- Add this line
     when(mockDatabaseRef.child('tasks')).thenReturn(mockChildRef);
     when(mockChildRef.push()).thenReturn(mockPushRef);
     when(mockPushRef.set(any)).thenAnswer((_) => Future.value());

@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart' show debugPrint;
 class TaskService {
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   final String _tasksPath = 'tasks';
+  // ignore: unused_field
   final FirebaseAuth _auth;
 
   TaskService({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance {

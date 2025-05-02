@@ -668,7 +668,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "\"Alpha AppIcon\" \"Release AppIcon\" \"Debug AppIcon\" \"Beta AppIcon\"";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "Debug AppIcon";
-				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=*]" = "Release AppIcon";
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=*]" = "Debug AppIcon";
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = Y8P8M5Y2K8;
@@ -696,7 +696,7 @@
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "\"Alpha AppIcon\" \"Release AppIcon\" \"Debug AppIcon\" \"Beta AppIcon\"";
-				ASSETCATALOG_COMPILER_APPICON_NAME = "Release AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = "Debug AppIcon";
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = Y8P8M5Y2K8;
