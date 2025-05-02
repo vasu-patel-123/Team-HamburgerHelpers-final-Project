@@ -686,68 +686,66 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-        ...availableSlots
-            .map(
-              (TimeSlot slot) => Card(
-                margin: const EdgeInsets.only(bottom: 8.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
+        ...availableSlots.map(
+          (TimeSlot slot) => Card(
+            margin: const EdgeInsets.only(bottom: 8.0),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            slot.formattedStartTime(context),
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                          Text(
-                            slot.formattedEndTime(context),
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
                       Text(
-                        slot.formattedDuration,
-                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                        slot.formattedStartTime(context),
+                        style: const TextStyle(fontSize: 18),
                       ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => AddTaskPage(
-                                      initialDate: slot.start,
-                                      initialTime: TimeOfDay(
-                                        hour: slot.start.hour,
-                                        minute: slot.start.minute,
-                                      ),
-                                      onExit: _loadTasks,
-                                    ),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                          child: const Text(
-                            'Schedule Task',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
+                      Text(
+                        slot.formattedEndTime(context),
+                        style: const TextStyle(fontSize: 18),
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Text(
+                    slot.formattedDuration,
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => AddTaskPage(
+                                  initialDate: slot.start,
+                                  initialTime: TimeOfDay(
+                                    hour: slot.start.hour,
+                                    minute: slot.start.minute,
+                                  ),
+                                  onExit: _loadTasks,
+                                ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Schedule Task',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            )
-            ,
+            ),
+          ),
+        ),
       ],
     );
   }

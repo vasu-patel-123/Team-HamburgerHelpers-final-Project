@@ -353,9 +353,7 @@ class _CalendarPageState extends State<CalendarPage> {
                 return Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 0.0,
-                    ),
+                    padding: const EdgeInsets.only(bottom: 0.0),
                     child: Container(
                       width: 5,
                       height: 5,
