@@ -89,7 +89,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   border: OutlineInputBorder(),
                 ),
                 items:
-                    ['Low', 'Medium', 'High']
+                    ['Low', 'Medium', 'Luigi Mario']
                         .map(
                           (priority) => DropdownMenuItem(
                             value: priority,
