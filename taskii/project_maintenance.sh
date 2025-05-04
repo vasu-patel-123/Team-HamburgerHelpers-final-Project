@@ -17,6 +17,7 @@ function show_help {
   echo "Options:"
   echo "  -q, --quick      Skip Dart fixes, format, pod update, FlutterFire configure, analyze, and tests"
   echo "      --no-ios     Skip all iOS pod-related steps"
+  echo "  -d, --debug      Print every command and its output"
   echo "  -h, --help       Show this help message and exit"
   echo ""
   echo "Examples:"
@@ -24,11 +25,13 @@ function show_help {
   echo "  $0 --quick        # Run in quick mode"
   echo "  $0 --no-ios       # Skip iOS pod steps"
   echo "  $0 -q --no-ios    # Quick mode, no iOS steps"
+  echo "  $0 -d             # Debug mode"
 }
 
 # Parse arguments
 SKIP_IOS=false
 QUICK_MODE=false
+DEBUG_MODE=false
 for arg in "$@"; do
   if [[ "$arg" == "--no-ios" ]]; then
     SKIP_IOS=true
@@ -36,11 +39,18 @@ for arg in "$@"; do
   if [[ "$arg" == "--quick" || "$arg" == "-q" ]]; then
     QUICK_MODE=true
   fi
+  if [[ "$arg" == "--debug" || "$arg" == "-d" ]]; then
+    DEBUG_MODE=true
+  fi
   if [[ "$arg" == "--help" || "$arg" == "-h" ]]; then
     show_help
     exit 0
   fi
 done
+
+if [[ "$DEBUG_MODE" == true ]]; then
+  set -x
+fi
 
 # Calculate total steps dynamically
 TOTAL_STEPS=2 # flutter clean, build_runner
@@ -86,6 +96,9 @@ fi
 if [[ "$SKIP_IOS" == true ]]; then
   echo "             (iOS Steps Skipped)"
 fi
+if [[ "$DEBUG_MODE" == true ]]; then
+  echo "             (Debug Mode Enabled)"
+fi
 echo -e "${NC}"
 
 # Check for required tools
@@ -117,7 +130,11 @@ function run_step {
   shift
   echo -e "${YELLOW}[${STEP}/${TOTAL_STEPS}]${NC} ${BLUE}${desc}${NC}"
   local start_time=$(date +%s)
-  "$@"
+  if [[ "$DEBUG_MODE" == true ]]; then
+    "$@"
+  else
+    "$@" > >(tee /dev/tty) 2>&1
+  fi
   local end_time=$(date +%s)
   local duration=$((end_time - start_time))
   echo -e "${GREEN}✔ Completed in ${duration}s${NC}\n"
@@ -154,14 +171,15 @@ if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
     '
     run_step "iOS: Flutter pub get" bash -c 'cd ios && flutter pub get && cd ..'
     run_step "iOS: Pod update" bash -c 'cd ios && pod update && cd ..'
+    run_step "iOS: Pod install" bash -c 'cd ios && pod install && cd ..'
   else
     run_step "iOS: Remove Pods and Podfile.lock" bash -c '
       cd ios || { echo -e "${RED}Failed to cd into ios directory.${NC}"; exit 1; }
       rm -rf Pods Podfile.lock
       cd ..
     '
+    run_step "iOS: Pod install" bash -c 'cd ios && pod install && cd ..'
   fi
-  run_step "iOS: Pod install" bash -c 'cd ios && pod install && cd ..'
 fi
 
 run_step "Flutter re-clean" flutter clean
