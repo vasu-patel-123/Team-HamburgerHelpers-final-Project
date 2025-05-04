@@ -64,7 +64,7 @@ if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
   if [[ "$QUICK_MODE" == false ]]; then
     TOTAL_STEPS=$((TOTAL_STEPS + 4)) # pod cache clean, flutter pub get, pod update, pod install
   else
-    TOTAL_STEPS=$((TOTAL_STEPS + 2)) # remove Pods/Podfile.lock, pod install
+    TOTAL_STEPS=$((TOTAL_STEPS + 3)) # remove Pods/Podfile.lock, flutter pub get, pod install
   fi
 fi
 
@@ -178,6 +178,7 @@ if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
       rm -rf Pods Podfile.lock
       cd ..
     '
+    run_step "iOS: Flutter pub get" bash -c 'cd ios && flutter pub get && cd ..'
     run_step "iOS: Pod install" bash -c 'cd ios && pod install && cd ..'
   fi
 fi
