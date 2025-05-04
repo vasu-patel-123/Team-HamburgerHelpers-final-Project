@@ -17,6 +17,7 @@ function show_help {
   echo "Options:"
   echo "  -q, --quick      Skip Dart fixes, format, pod update, FlutterFire configure, analyze, and tests"
   echo "      --no-ios     Skip all iOS pod-related steps"
+  echo "  -c, --clean      Only clean everything (including iOS pods), skip all other steps"
   echo "  -d, --debug      Print every command and its output"
   echo "  -h, --help       Show this help message and exit"
   echo ""
@@ -32,6 +33,7 @@ function show_help {
 SKIP_IOS=false
 QUICK_MODE=false
 DEBUG_MODE=false
+CLEAN_ONLY=false
 for arg in "$@"; do
   if [[ "$arg" == "--no-ios" ]]; then
     SKIP_IOS=true
@@ -41,6 +43,9 @@ for arg in "$@"; do
   fi
   if [[ "$arg" == "--debug" || "$arg" == "-d" ]]; then
     DEBUG_MODE=true
+  fi
+  if [[ "$arg" == "--clean" || "$arg" == "-c" ]]; then
+    CLEAN_ONLY=true
   fi
   if [[ "$arg" == "--help" || "$arg" == "-h" ]]; then
     show_help
@@ -52,26 +57,65 @@ if [[ "$DEBUG_MODE" == true ]]; then
   set -x
 fi
 
+# Define run_step function BEFORE any use
+function run_step {
+  local desc="$1"
+  shift
+  echo -e "${YELLOW}[${STEP}/${TOTAL_STEPS}]${NC} ${BLUE}${desc}${NC}"
+  local start_time=$(date +%s)
+  "$@"
+  local end_time=$(date +%s)
+  local duration=$((end_time - start_time))
+  echo -e "${GREEN}✔ Completed in ${duration}s${NC}\n"
+  STEP=$((STEP+1))
+}
+
 # Calculate total steps dynamically
-TOTAL_STEPS=2 # flutter clean, build_runner
-
-if [[ "$QUICK_MODE" == false ]]; then
-  TOTAL_STEPS=$((TOTAL_STEPS + 3)) # dart fix dry, dart fix apply, dart format
-fi
-
-# iOS steps (only on macOS and not --no-ios)
-if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
-  if [[ "$QUICK_MODE" == false ]]; then
-    TOTAL_STEPS=$((TOTAL_STEPS + 4)) # pod cache clean, flutter pub get, pod update, pod install
+if [[ "$CLEAN_ONLY" == true ]]; then
+  # Only cleaning: Flutter clean + (optional) iOS pod clean
+  if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
+    TOTAL_STEPS=4  # flutter clean, remove Pods/Podfile.lock, flutter pub get, pod install
   else
-    TOTAL_STEPS=$((TOTAL_STEPS + 3)) # remove Pods/Podfile.lock, flutter pub get, pod install
+    TOTAL_STEPS=1  # flutter clean only
   fi
-fi
+  STEP=1
+  echo -e "${BLUE}Cleaning project...${NC}"
+  run_step "Flutter clean" flutter clean
+  if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
+    run_step "iOS: Remove Pods and Podfile.lock" bash -c '
+      cd ios || { echo -e "${RED}Failed to cd into ios directory.${NC}"; exit 1; }
+      rm -rf Pods Podfile.lock
+      cd ..
+    '
+    run_step "iOS: Flutter pub get" bash -c 'cd ios && flutter pub get && cd ..'
+    run_step "iOS: Pod install" bash -c 'cd ios && pod install && cd ..'
+  fi
+  echo -e "${GREEN}=============================================="
+  echo -e "✅  Clean completed successfully!"
+  echo -e "${GREEN}==============================================${NC}"
+  exit 0
+else
+  TOTAL_STEPS=1 # flutter clean
 
-TOTAL_STEPS=$((TOTAL_STEPS + 1)) # flutter re-clean
+  if [[ "$QUICK_MODE" == false ]]; then
+    TOTAL_STEPS=$((TOTAL_STEPS + 1)) # build_runner
+    TOTAL_STEPS=$((TOTAL_STEPS + 3)) # dart fix dry, dart fix apply, dart format
+  fi
 
-if [[ "$QUICK_MODE" == false ]]; then
-  TOTAL_STEPS=$((TOTAL_STEPS + 3)) # flutterfire configure, analyze, tests
+  # iOS steps (only on macOS and not --no-ios)
+  if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
+    if [[ "$QUICK_MODE" == false ]]; then
+      TOTAL_STEPS=$((TOTAL_STEPS + 4)) # pod cache clean, flutter pub get, pod update, pod install
+    else
+      TOTAL_STEPS=$((TOTAL_STEPS + 3)) # remove Pods/Podfile.lock, flutter pub get, pod install
+    fi
+  fi
+
+  TOTAL_STEPS=$((TOTAL_STEPS + 1)) # flutter re-clean
+
+  if [[ "$QUICK_MODE" == false ]]; then
+    TOTAL_STEPS=$((TOTAL_STEPS + 3)) # flutterfire configure, analyze, tests
+  fi
 fi
 
 STEP=1
@@ -90,15 +134,30 @@ echo -e "${BLUE}"
 echo "=============================================="
 echo "     🛠️  Taskii Project Maintenance Script    "
 echo "=============================================="
-if [[ "$QUICK_MODE" == true ]]; then
-  echo "             (Quick Mode Enabled)"
+
+# Output enabled modes
+if [[ "$QUICK_MODE" == true || "$SKIP_IOS" == true || "$CLEAN_ONLY" == true || "$DEBUG_MODE" == true ]]; then
+  echo "             Enabled Modes:"
+  [[ "$QUICK_MODE" == true ]] && echo "               - Quick Mode"
+  [[ "$SKIP_IOS" == true ]] && echo "               - iOS Steps Skipped"
+  [[ "$CLEAN_ONLY" == true ]] && echo "               - Clean Only Mode"
+  [[ "$CLEAN_ONLY" == true && "$QUICK_MODE" == true ]] && echo "               - Quick Clean Mode"
+  [[ "$DEBUG_MODE" == true ]] && echo "               - Debug Mode"
 fi
-if [[ "$SKIP_IOS" == true ]]; then
-  echo "             (iOS Steps Skipped)"
+
+# Output platform info
+if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
+  echo "             Platform: macOS (iOS Steps Included)"
+elif [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == true ]]; then
+  echo "             Platform: macOS (iOS Steps Skipped)"
+else
+  echo "             Platform: Non-macOS"
 fi
-if [[ "$DEBUG_MODE" == true ]]; then
-  echo "             (Debug Mode Enabled)"
+
+if [[ "$CLEAN_ONLY" == false ]]; then
+  echo "             Full Maintenance Mode"
 fi
+
 echo -e "${NC}"
 
 # Check for required tools
@@ -125,22 +184,6 @@ if [ "$(basename "$PWD")" != "taskii" ]; then
 fi
 
 # Step numbers and timing
-function run_step {
-  local desc="$1"
-  shift
-  echo -e "${YELLOW}[${STEP}/${TOTAL_STEPS}]${NC} ${BLUE}${desc}${NC}"
-  local start_time=$(date +%s)
-  if [[ "$DEBUG_MODE" == true ]]; then
-    "$@"
-  else
-    "$@" > >(tee /dev/tty) 2>&1
-  fi
-  local end_time=$(date +%s)
-  local duration=$((end_time - start_time))
-  echo -e "${GREEN}✔ Completed in ${duration}s${NC}\n"
-  STEP=$((STEP+1))
-}
-
 run_step "Flutter clean" bash -c '
   FLUTTER_CLEAN_OUTPUT=$(flutter clean 2>&1) || true
   if echo "$FLUTTER_CLEAN_OUTPUT" | grep -q "not a Flutter project"; then
@@ -153,11 +196,7 @@ run_step "Flutter clean" bash -c '
 if [[ "$QUICK_MODE" == false ]]; then
   run_step "Dart fix (dry run)" dart fix --dry-run
   run_step "Dart fix (apply)" dart fix --apply
-fi
-
-run_step "Build runner for tests (delete conflicting outputs)" dart run build_runner build --delete-conflicting-outputs
-
-if [[ "$QUICK_MODE" == false ]]; then
+  run_step "Build runner for tests (delete conflicting outputs)" dart run build_runner build --delete-conflicting-outputs
   run_step "Dart format" dart format .
 fi
 
@@ -197,6 +236,7 @@ if [[ "$QUICK_MODE" == false ]]; then
   fi
   '
 fi
+
 echo -e "${GREEN}=============================================="
 echo -e "✅  All maintenance steps completed successfully!"
 echo -e "==============================================${NC}"
