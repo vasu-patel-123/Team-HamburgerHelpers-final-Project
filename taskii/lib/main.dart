@@ -6,6 +6,8 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'settings.dart';
+import 'forgotpassword.dart';
+import 'sign_up.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +19,7 @@ Future<void> initializeFirebaseAndRun() async {
 
   // Initialize App Check
   await FirebaseAppCheck.instance.activate(
-    // webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+    //webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
     androidProvider: AndroidProvider.debug,
     appleProvider: AppleProvider.debug,
   );
@@ -345,6 +347,72 @@ class _LoginPageSignUpState extends State<LoginPageSignUp> {
                         textAlign: TextAlign.center,
                       ),
                     ),
+
+                  // Forgot Password
+                  const SizedBox(height: 24),
+                  TextButton(
+                    onPressed: () {
+                      sendPasswordResetEmail(
+                        context: context,
+                        email: _emailController.text,
+                      );
+                      debugPrint('Forgot password pressed');
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      'Forgot password?',
+                      style: TextStyle(
+                        color: Color(0xFF525252),
+                        fontSize: 14,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+
+                  // Sign Up Section
+                  const SizedBox(height: 24),
+                  const Center(
+                    child: Text(
+                      "Don't have an account?",
+                      style: TextStyle(
+                        color: Color(0xFF525252),
+                        fontSize: 16,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('Sign up pressed');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SignUpPage(),
+                        ),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      'Sign up',
+                      style: TextStyle(
+                        color: Color(0xFF171717),
+                        fontSize: 16,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
