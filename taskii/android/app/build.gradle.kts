@@ -19,10 +19,16 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
         // Optionally, you can add:
         // apiVersion = "2.1"
         // languageVersion = "2.1"
+        jvmTarget = JavaVersion.VERSION_11.toString()
+    }
+
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(11))
+        }
     }
 
     defaultConfig {

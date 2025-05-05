@@ -88,4 +88,5 @@ class DefaultFirebaseOptions {
     databaseURL: 'https://taskii-bf674-default-rtdb.firebaseio.com',
     storageBucket: 'taskii-bf674.firebasestorage.app',
   );
+
 }
