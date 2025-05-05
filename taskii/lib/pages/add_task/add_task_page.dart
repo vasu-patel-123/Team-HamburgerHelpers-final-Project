@@ -159,9 +159,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        shape: const Border(
+        shape: Border(
           bottom: BorderSide(
-            color: Color.fromARGB(255, 153, 142, 126),
+            color: Theme.of(context).colorScheme.primary,
             width: 4,
           ),
         ),
