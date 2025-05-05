@@ -33,10 +33,6 @@ class TaskService {
     if (task.userId.isEmpty) {
       throw Exception('User ID cannot be empty');
     }
-    // Skip due date validation if we're only updating completion status
-    if (!isCompletionUpdate && task.dueDate.isBefore(DateTime.now())) {
-      throw Exception('Due date cannot be in the past');
-    }
   }
 
   // Create a new task
