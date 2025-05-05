@@ -86,6 +86,8 @@ if [[ "$CLEAN_ONLY" == true ]]; then
   else
     TOTAL_STEPS=1  # flutter clean only
   fi
+  # Add 1 for dart format
+  TOTAL_STEPS=$((TOTAL_STEPS + 1))
   STEP=1
   echo -e "${BLUE}Cleaning project...${NC}"
   run_step "Flutter clean" flutter clean
@@ -98,6 +100,7 @@ if [[ "$CLEAN_ONLY" == true ]]; then
     run_step "iOS: Flutter pub get" bash -c 'cd ios && flutter pub get && cd ..'
     run_step "iOS: Pod install" bash -c 'cd ios && pod install && cd ..'
   fi
+  run_step "Dart format" dart format .
   echo -e "${GREEN}=============================================="
   echo -e "✅  Clean completed successfully!"
   echo -e "${GREEN}==============================================${NC}"
@@ -124,6 +127,9 @@ else
   if [[ "$QUICK_MODE" == false ]]; then
     TOTAL_STEPS=$((TOTAL_STEPS + 3)) # flutterfire configure --platforms=android,ios,macos,windows --project=taskii-bf674 --yes, analyze, tests
   fi
+
+  # Always add 1 for dart format at the end
+  TOTAL_STEPS=$((TOTAL_STEPS + 1))
 fi
 
 STEP=1
@@ -244,6 +250,8 @@ if [[ "$QUICK_MODE" == false ]]; then
   fi
   '
 fi
+
+run_step "Dart format" dart format .
 
 echo -e "${GREEN}=============================================="
 echo -e "✅  All maintenance steps completed successfully!"
