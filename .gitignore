@@ -29,10 +29,11 @@ taskii/macos/Flutter/GeneratedPluginRegistrant.swift
 taskii/windows/flutter/generated_plugin_registrant.cc
 taskii/windows/flutter/generated_plugin_registrant.h
 taskii/windows/flutter/generated_plugins.cmake
-taskii/pubspec.lock
 taskii/ios/Podfile.lock
 *.xcuserstate
 taskii/ios/Runner.xcworkspace/xcuserdata/jaron.xcuserdatad/UserInterfaceState.xcuserstate
 taskii/firepit-log.txt
 taskii/android/gradle.properties
 Podfile.lock
+taskii/ios/Pods
+taskii/macos/Pods
