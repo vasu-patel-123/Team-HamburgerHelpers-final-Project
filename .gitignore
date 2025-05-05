@@ -1,27 +1,28 @@
+# IDE and Editor files
 .vscode
-.dart_tool
 .idea
 .DS_Store
+
+# Dart & Flutter
+.dart_tool
 pubspec.lock
-build
+
+# Build outputs
+build/
+taskii/build
 
 # Generated plugin/project files
 /taskii/windows/flutter
 /taskii/linux/flutter
 /taskii/ios/flutter
 /taskii/macos/Flutter
-/taskii/build
-# Annoying CMake cache files
+
+# CMake cache and build files
 build/CMakeCache.txt
-build/CMakeFiles/cmake.check_cache
-build/CMakeFiles/4.0.0/CMakeCXXCompiler.cmake
-build/CMakeFiles/CMakeConfigureLog.yaml
-build/CMakeFiles/4.0.0/CompilerIdCXX/CMakeCXXCompilerId.cpp
-build/CMakeFiles/4.0.0/CompilerIdCXX/a.exe
-build/CMakeFiles/4.0.0/CMakeSystem.cmake
-build/CMakeFiles/4.0.0/CMakeRCCompiler.cmake
-build/CMakeFiles/4.0.0/CMakeDetermineCompilerABI_CXX.bin
-build/.cmake/api/v1/query/client-vscode/query.json
+build/CMakeFiles/
+build/.cmake/
+
+# Flutter generated files
 taskii/linux/flutter/generated_plugin_registrant.cc
 taskii/linux/flutter/generated_plugin_registrant.h
 taskii/linux/flutter/generated_plugins.cmake
@@ -29,11 +30,15 @@ taskii/macos/Flutter/GeneratedPluginRegistrant.swift
 taskii/windows/flutter/generated_plugin_registrant.cc
 taskii/windows/flutter/generated_plugin_registrant.h
 taskii/windows/flutter/generated_plugins.cmake
-taskii/ios/Podfile.lock
+
+# Xcode user state
 *.xcuserstate
 taskii/ios/Runner.xcworkspace/xcuserdata/jaron.xcuserdatad/UserInterfaceState.xcuserstate
+
+# Miscellaneous
 taskii/firepit-log.txt
 taskii/android/gradle.properties
 Podfile.lock
 taskii/ios/Pods
 taskii/macos/Pods
+
