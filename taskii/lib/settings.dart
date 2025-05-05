@@ -110,9 +110,9 @@ class _SettingsPageState extends State<SettingsPage> {
               title: const Text('Preferences'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => const PreferencesPage()));
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PreferencesPage()),
+                );
               },
             ),
             const Divider(),
@@ -393,9 +393,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
       appBar: AppBar(
@@ -421,15 +419,18 @@ class _PreferencesPageState extends State<PreferencesPage> {
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: _selectedDateFormat,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-              items: _dateFormats
-                  .map((format) => DropdownMenuItem(
-                        value: format,
-                        child: Text(DateFormat(format).format(DateTime.now())),
-                      ))
-                  .toList(),
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              items:
+                  _dateFormats
+                      .map(
+                        (format) => DropdownMenuItem(
+                          value: format,
+                          child: Text(
+                            DateFormat(format).format(DateTime.now()),
+                          ),
+                        ),
+                      )
+                      .toList(),
               onChanged: (value) {
                 setState(() {
                   _selectedDateFormat = value;
@@ -444,16 +445,18 @@ class _PreferencesPageState extends State<PreferencesPage> {
             const SizedBox(height: 8),
             DropdownButtonFormField<Locale>(
               value: _selectedLocale,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-              items: _supportedLocales
-                  .map((locale) => DropdownMenuItem(
-                        value: locale,
-                        child: Text(
-                            '${locale.languageCode.toUpperCase()} (${locale.countryCode})'),
-                      ))
-                  .toList(),
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              items:
+                  _supportedLocales
+                      .map(
+                        (locale) => DropdownMenuItem(
+                          value: locale,
+                          child: Text(
+                            '${locale.languageCode.toUpperCase()} (${locale.countryCode})',
+                          ),
+                        ),
+                      )
+                      .toList(),
               onChanged: (value) {
                 setState(() {
                   _selectedLocale = value;
