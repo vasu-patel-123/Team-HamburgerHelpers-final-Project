@@ -438,7 +438,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Language',
+              'Language (Non-functional)',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 8),
