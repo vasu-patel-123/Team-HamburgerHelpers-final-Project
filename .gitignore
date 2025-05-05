@@ -15,7 +15,6 @@ taskii/build
 /taskii/windows/flutter
 /taskii/linux/flutter
 /taskii/ios/flutter
-/taskii/macos/Flutter
 
 # CMake cache and build files
 build/CMakeCache.txt
@@ -26,7 +25,6 @@ build/.cmake/
 taskii/linux/flutter/generated_plugin_registrant.cc
 taskii/linux/flutter/generated_plugin_registrant.h
 taskii/linux/flutter/generated_plugins.cmake
-taskii/macos/Flutter/GeneratedPluginRegistrant.swift
 taskii/windows/flutter/generated_plugin_registrant.cc
 taskii/windows/flutter/generated_plugin_registrant.h
 taskii/windows/flutter/generated_plugins.cmake
