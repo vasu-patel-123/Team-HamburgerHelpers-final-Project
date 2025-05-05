@@ -15,7 +15,7 @@ function show_help {
   echo "Usage: $0 [options]"
   echo ""
   echo "Options:"
-  echo "  -q, --quick      Skip Dart fixes, format, pod update, FlutterFire configure, analyze, and tests"
+  echo "  -q, --quick      Skip Dart fixes, format, pod update, flutterfire configure --platforms=android,ios,macos,windows --project=taskii-bf674 --yes, analyze, and tests"
   echo "      --no-ios     Skip all iOS pod-related steps"
   echo "  -c, --clean      Only clean everything (including iOS pods), skip all other steps"
   echo "  -d, --debug      Print every command and its output"
@@ -69,6 +69,14 @@ function run_step {
   echo -e "${GREEN}✔ Completed in ${duration}s${NC}\n"
   STEP=$((STEP+1))
 }
+# TODO: Add a check for gradle and implement gradle functions
+function check_gradle {
+  if ! command -v gradle &> /dev/null; then
+    echo -e "${RED}Error: Gradle is not installed or not in PATH.${NC}"
+    exit 1
+  fi
+}
+#check_gradle
 
 # Calculate total steps dynamically
 if [[ "$CLEAN_ONLY" == true ]]; then
@@ -114,7 +122,7 @@ else
   TOTAL_STEPS=$((TOTAL_STEPS + 1)) # flutter re-clean
 
   if [[ "$QUICK_MODE" == false ]]; then
-    TOTAL_STEPS=$((TOTAL_STEPS + 3)) # flutterfire configure, analyze, tests
+    TOTAL_STEPS=$((TOTAL_STEPS + 3)) # flutterfire configure --platforms=android,ios,macos,windows --project=taskii-bf674 --yes, analyze, tests
   fi
 fi
 
@@ -225,7 +233,7 @@ fi
 run_step "Flutter re-clean" flutter clean
 
 if [[ "$QUICK_MODE" == false ]]; then
-  run_step "Reconfigure FlutterFire" flutterfire configure
+  run_step "Reconfigure FlutterFire" flutterfire_with_timeout
   run_step "Analyze Project" flutter analyze
   run_step "Run tests" bash -c '
   if [ -d "test" ]; then
