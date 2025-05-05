@@ -92,11 +92,11 @@ if [[ "$CLEAN_ONLY" == true ]]; then
   echo -e "${BLUE}Cleaning project...${NC}"
   run_step "Flutter clean" flutter clean
   if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
-    run_step "iOS: Remove Pods and Podfile.lock" bash -c '
-      cd ios || { echo -e "${RED}Failed to cd into ios directory.${NC}"; exit 1; }
+    run_step "iOS: Remove Pods and Podfile.lock" bash -c "
+      cd ios || { echo -e \"${RED}Failed to cd into ios directory.${NC}\"; exit 1; }
       rm -rf Pods Podfile.lock
       cd ..
-    '
+    "
     run_step "iOS: Flutter pub get" bash -c 'cd ios && flutter pub get && cd ..'
     run_step "iOS: Pod install" bash -c 'cd ios && pod install && cd ..'
   fi
@@ -216,12 +216,12 @@ fi
 
 if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
   if [[ "$QUICK_MODE" == false ]]; then
-    run_step "iOS: Pod cache clean, remove Pods and Podfile.lock" bash -c '
-      cd ios || { echo -e "${RED}Failed to cd into ios directory.${NC}"; exit 1; }
+    run_step "iOS: Pod cache clean, remove Pods and Podfile.lock" bash -c "
+      cd ios || { echo -e \"${RED}Failed to cd into ios directory.${NC}\"; exit 1; }
       pod cache clean --all
       rm -rf Pods Podfile.lock
       cd ..
-    '
+    "
     run_step "iOS: Flutter pub get" bash -c 'cd ios && flutter pub get && cd ..'
     run_step "iOS: Pod update" bash -c 'cd ios && pod update && cd ..'
     run_step "iOS: Pod install" bash -c 'cd ios && pod install && cd ..'
