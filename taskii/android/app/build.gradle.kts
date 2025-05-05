@@ -7,15 +7,12 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
-
-import dev.flutter.plugins.FlutterPluginExtension
-
-val flutter: FlutterPluginExtension by extensions
-    ndkVersion = project.extra["flutter.ndkVersion"] as String
+val flutter by extensions.getByName("flutter")
+ndkVersion = project.extra["flutter.ndkVersion"] as String
 android {
     namespace = "io.teamh.taskii"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = project.extra["flutter.ndkVersion"] as String
     buildToolsVersion = flutter.buildToolsVersion ?: "33.0.0"
     defaultConfig {
         ndk {
@@ -65,6 +62,12 @@ flutter {
     source = "../../.."
 }
     }
+    sourceSets["main"].java.srcDirs("src/main/kotlin")
+}
+
+compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 flutter {
