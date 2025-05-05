@@ -35,3 +35,4 @@ taskii/ios/Podfile.lock
 taskii/ios/Runner.xcworkspace/xcuserdata/jaron.xcuserdatad/UserInterfaceState.xcuserstate
 taskii/firepit-log.txt
 taskii/android/gradle.properties
+Podfile.lock
