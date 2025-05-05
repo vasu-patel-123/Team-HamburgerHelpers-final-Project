@@ -233,7 +233,7 @@ fi
 run_step "Flutter re-clean" flutter clean
 
 if [[ "$QUICK_MODE" == false ]]; then
-  run_step "Reconfigure FlutterFire" flutterfire_with_timeout
+  run_step "Reconfigure FlutterFire" flutterfire configure --platforms=android,ios,macos,windows --project=taskii-bf674 --yes
   run_step "Analyze Project" flutter analyze
   run_step "Run tests" bash -c '
   if [ -d "test" ]; then
