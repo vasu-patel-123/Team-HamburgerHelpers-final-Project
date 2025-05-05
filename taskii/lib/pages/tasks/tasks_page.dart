@@ -224,7 +224,7 @@ class _TasksPageState extends State<TasksPage> {
                         final DateTime? picked = await showDatePicker(
                           context: context,
                           initialDate: _filterStartDate ?? DateTime.now(),
-                          firstDate: DateTime(2020),
+                          firstDate: DateTime(1970),
                           lastDate: DateTime(2100),
                         );
                         if (picked != null) {
