@@ -11,6 +11,10 @@ jobs:
   build:
     runs-on: macos-latest
 
+    defaults:
+      run:
+        working-directory: ./taskii
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -21,14 +25,18 @@ jobs:
         flutter-version: "3.x"
         channel: "stable"
 
+    - name: Set FLUTTER_ROOT
+      run: |
+        mkdir -p ${{ github.workspace }}/flutter
+        ln -s "$(flutter --version | grep 'Flutter' | awk '{print $2}')" ${{ github.workspace }}/flutter
+      shell: bash
+
     - name: Clean the Flutter build files
       run: |
         flutter clean
         flutter config --no-cli-animations
-      working-directory: ./taskii
 
     - name: Analyze project source
-      working-directory: ./taskii
       run: flutter analyze --no-fatal-warnings --no-fatal-infos
 
     - name: Set up Ruby
@@ -36,17 +44,17 @@ jobs:
       with:
         ruby-version: 3.4
 
-    - name: Ensure iOS project structure exists
-      run: flutter create .
-      working-directory: ./taskii
-
     - name: Install dependencies
-      working-directory: ./taskii
       run: flutter pub get
+
+    - name: Install CocoaPods prerequisites
+      run: |
+        sudo gem install cocoapods
+        pod setup
 
     - name: Install CocoaPods
       run: pod install
-      working-directory: taskii/ios
+      working-directory: ../ios
 
     - name: Clean up leftover files before tests
       run: |
@@ -56,11 +64,9 @@ jobs:
       shell: bash
 
     - name: Run tests
-      working-directory: ./taskii
       run: flutter test --coverage
 
     - name: Build iOS app
-      working-directory: ./taskii
       run: flutter build ios --release --no-codesign
       env:
         FLUTTER_ROOT: ${{ github.workspace }}/flutter
@@ -74,5 +80,5 @@ jobs:
     - name: Upload iOS build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ios-build
+        name: ios-build-release
         path: ./taskii/build/ios/iphoneos/
