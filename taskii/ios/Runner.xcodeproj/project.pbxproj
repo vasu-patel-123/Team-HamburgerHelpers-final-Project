@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -71,69 +71,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		9AAFC12A2DC977CB00F24542 /* Taskii-debug */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			path = "Taskii-debug";
-			sourceTree = "<group>";
-		};
-		9AAFC13B2DC977CD00F24542 /* Taskii-debugTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			path = "Taskii-debugTests";
-			sourceTree = "<group>";
-		};
-		9AAFC1452DC977CD00F24542 /* Taskii-debugUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			path = "Taskii-debugUITests";
-			sourceTree = "<group>";
-		};
-		9AAFC15B2DC9784B00F24542 /* Taskii MacOS */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			path = "Taskii MacOS";
-			sourceTree = "<group>";
-		};
-		9AAFC16B2DC9784C00F24542 /* Taskii MacOSTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			path = "Taskii MacOSTests";
-			sourceTree = "<group>";
-		};
-		9AAFC1752DC9784C00F24542 /* Taskii MacOSUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			path = "Taskii MacOSUITests";
-			sourceTree = "<group>";
-		};
-		9AAFC18B2DC9790000F24542 /* Taskii MacOS */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			path = "Taskii MacOS";
-			sourceTree = "<group>";
-		};
-		9AAFC19C2DC9790100F24542 /* Taskii MacOSTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			path = "Taskii MacOSTests";
-			sourceTree = "<group>";
-		};
-		9AAFC1A62DC9790100F24542 /* Taskii MacOSUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
-			path = "Taskii MacOSUITests";
-			sourceTree = "<group>";
-		};
+		9AAFC12A2DC977CB00F24542 /* Taskii-debug */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Taskii-debug"; sourceTree = "<group>"; };
+		9AAFC13B2DC977CD00F24542 /* Taskii-debugTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Taskii-debugTests"; sourceTree = "<group>"; };
+		9AAFC1452DC977CD00F24542 /* Taskii-debugUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Taskii-debugUITests"; sourceTree = "<group>"; };
+		9AAFC15B2DC9784B00F24542 /* Taskii MacOS */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Taskii MacOS"; sourceTree = "<group>"; };
+		9AAFC16B2DC9784C00F24542 /* Taskii MacOSTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Taskii MacOSTests"; sourceTree = "<group>"; };
+		9AAFC1752DC9784C00F24542 /* Taskii MacOSUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Taskii MacOSUITests"; sourceTree = "<group>"; };
+		9AAFC18B2DC9790000F24542 /* Taskii MacOS */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Taskii MacOS"; sourceTree = "<group>"; };
+		9AAFC19C2DC9790100F24542 /* Taskii MacOSTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Taskii MacOSTests"; sourceTree = "<group>"; };
+		9AAFC1A62DC9790100F24542 /* Taskii MacOSUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Taskii MacOSUITests"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -310,6 +256,7 @@
 				};
 			};
 			buildConfigurationList = 97C146E91CF9000F007C117D /* Build configuration list for PBXProject "Runner" */;
+			compatibilityVersion = "Xcode 15.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -317,7 +264,6 @@
 				Base,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -426,9 +372,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
