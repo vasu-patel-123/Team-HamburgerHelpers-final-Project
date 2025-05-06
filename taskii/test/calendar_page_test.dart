@@ -42,29 +42,38 @@ void main() {
 
     // Tap today's date in the calendar
     final dayFinder = find.text(testDate.day.toString());
-    expect(dayFinder, findsWidgets);
+    expect(dayFinder, findsWidgets, reason: 'Could not find the day number in the calendar');
     await tester.tap(dayFinder.first);
     await tester.pumpAndSettle();
 
     // The task title should appear in the list for that day
-    expect(find.text(testTitle), findsOneWidget);
+    expect(find.text(testTitle), findsOneWidget, reason: 'Could not find the task title');
 
-    // Find the Row containing the task title
+    // Find the task item container
+    final taskItemContainer = find.ancestor(
+      of: find.text(testTitle),
+      matching: find.byType(Container),
+    ).first;
+
+    // Find the Row that contains the task title
     final taskRow = find.ancestor(
       of: find.text(testTitle),
       matching: find.byType(Row),
     ).first;
 
-    // Find the first Container in that Row (which should be the priority color container)
-    final priorityContainer = find.descendant(
+    // Find all Containers in the Row
+    final containerFinder = find.descendant(
       of: taskRow,
       matching: find.byType(Container),
-    ).first;
+    );
     
+    expect(containerFinder, findsWidgets, reason: 'No containers found in the task row');
+    
+    final priorityContainer = containerFinder.first;
     final container = tester.widget<Container>(priorityContainer);
     final decoration = container.decoration as BoxDecoration;
     
     // High priority should be red
-    expect(decoration.color, equals(Colors.red));
+    expect(decoration.color, equals(Colors.red), reason: 'Priority color should be red for High priority tasks');
   });
 } 
