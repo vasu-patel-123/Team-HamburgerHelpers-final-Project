@@ -207,13 +207,6 @@ run_step "Flutter clean" bash -c '
   echo "$FLUTTER_CLEAN_OUTPUT"
 '
 
-if [[ "$QUICK_MODE" == false ]]; then
-  run_step "Dart fix (dry run)" dart fix --dry-run
-  run_step "Dart fix (apply)" dart fix --apply
-  run_step "Build runner for tests (delete conflicting outputs)" dart run build_runner build --delete-conflicting-outputs
-  run_step "Dart format" dart format .
-fi
-
 if [[ "$OSTYPE" == "darwin"* && "$SKIP_IOS" == false ]]; then
   if [[ "$QUICK_MODE" == false ]]; then
     run_step "iOS: Pod cache clean, remove Pods and Podfile.lock" bash -c "
@@ -251,8 +244,12 @@ if [[ "$QUICK_MODE" == false ]]; then
   '
 fi
 
+if [[ "$QUICK_MODE" == false ]]; then
+  run_step "Dart fix (dry run)" dart fix --dry-run
+  run_step "Dart fix (apply)" dart fix --apply
+  run_step "Build runner for tests (delete conflicting outputs)" dart run build_runner build --delete-conflicting-outputs
+fi
 run_step "Dart format" dart format .
-
 echo -e "${GREEN}=============================================="
 echo -e "✅  All maintenance steps completed successfully!"
 echo -e "==============================================${NC}"
