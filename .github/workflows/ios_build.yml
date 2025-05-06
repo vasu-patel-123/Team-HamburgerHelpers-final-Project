@@ -2,9 +2,9 @@ name: iOS Build
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "master"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "master"]
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
@@ -27,10 +27,6 @@ jobs:
         flutter config --no-cli-animations
       working-directory: ./taskii
 
-    - name: Install dependencies
-      working-directory: ./taskii
-      run: flutter pub get
-
     - name: Analyze project source
       working-directory: ./taskii
       run: flutter analyze --no-fatal-warnings --no-fatal-infos
@@ -38,7 +34,7 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 3.0
+        ruby-version: 3.4
 
     - name: Ensure iOS project structure exists
       run: flutter create .
@@ -57,14 +53,19 @@ jobs:
         rm -rf ./taskii/build
         rm -rf ./taskii/coverage
         rm -rf ./taskii/.dart_tool/test
-        rm -f ./taskii/test/widget_test.dart
       shell: bash
 
     - name: Run tests
       working-directory: ./taskii
       run: flutter test --coverage
 
-# will fix later
+    - name: Build iOS app
+      working-directory: ./taskii
+      run: flutter build ios --release --no-codesign
+      env:
+        FLUTTER_ROOT: ${{ github.workspace }}/flutter
+        FLUTTER_VERSION: 3.x
+        FLUTTER_CHANNEL: stable
 #    - name: Build the project
 #      working-directory: ./taskii
 #      run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath $PWD/build/Runner.xcarchive -allowProvisioningUpdates
