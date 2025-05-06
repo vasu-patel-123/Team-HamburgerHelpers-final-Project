@@ -107,6 +107,14 @@ class TaskItem extends StatelessWidget {
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Created: ${DateFormat('MMM d, y').format(task.creationDate)}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
                           ],
                         ),
                       ),

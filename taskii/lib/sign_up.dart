@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'terms_conditions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_page.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -170,10 +169,46 @@ class SignUpPage extends StatelessWidget {
                             email: email,
                             password: password,
                           );
+
+                      // Send verification email
+                      await credential.user?.sendEmailVerification();
+                      debugPrint(
+                        'Verification email sent to ${credential.user?.email}',
+                      );
+
+                      // Sign out the user immediately
+                      await FirebaseAuth.instance.signOut();
+                      debugPrint(
+                        'User signed out after verification email sent',
+                      );
+
                       debugPrint(
                         'User signed up successfully: ${credential.user?.email}',
                       );
-                      MaterialPageRoute(builder: (context) => const HomePage());
+
+                      // Show a dialog to inform the user about the verification email
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder:
+                              (context) => AlertDialog(
+                                title: const Text('Verify Your Email'),
+                                content: const Text(
+                                  'A verification email has been sent to your email address. Please check your inbox and verify your email before signing in.',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(
+                                        context,
+                                      ); // Return to sign in page
+                                    },
+                                    child: const Text('OK'),
+                                  ),
+                                ],
+                              ),
+                        );
+                      }
                     } on FirebaseAuthException catch (e) {
                       if (e.code == 'weak-password') {
                         debugPrint('The password provided is too weak.');
