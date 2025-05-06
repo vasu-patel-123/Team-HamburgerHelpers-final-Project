@@ -49,18 +49,20 @@ void main() {
     // The task title should appear in the list for that day
     expect(find.text(testTitle), findsOneWidget);
 
-    // Find the task's container and verify its priority color
-    final taskContainer = find.ancestor(
+    // Find the priority color container by looking for a Container with width 8
+    final priorityContainer = find.ancestor(
       of: find.text(testTitle),
-      matching: find.byType(Container),
+      matching: find.byWidgetPredicate(
+        (Widget widget) => widget is Container && 
+          widget.constraints?.maxWidth == 8 &&
+          widget.decoration is BoxDecoration
+      ),
     ).first;
     
-    final container = tester.widget<Container>(taskContainer);
+    final container = tester.widget<Container>(priorityContainer);
     final decoration = container.decoration as BoxDecoration;
-    final border = decoration.border as Border;
-    final leftBorder = border.left as BorderSide;
     
     // High priority should be red
-    expect(leftBorder.color, equals(Colors.red));
+    expect(decoration.color, equals(Colors.red));
   });
 } 
