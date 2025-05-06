@@ -49,14 +49,16 @@ void main() {
     // The task title should appear in the list for that day
     expect(find.text(testTitle), findsOneWidget);
 
-    // Find the priority color container by looking for a Container with width 8
-    final priorityContainer = find.ancestor(
+    // Find the Row containing the task title
+    final taskRow = find.ancestor(
       of: find.text(testTitle),
-      matching: find.byWidgetPredicate(
-        (Widget widget) => widget is Container && 
-          widget.constraints?.maxWidth == 8 &&
-          widget.decoration is BoxDecoration
-      ),
+      matching: find.byType(Row),
+    ).first;
+
+    // Find the first Container in that Row (which should be the priority color container)
+    final priorityContainer = find.descendant(
+      of: taskRow,
+      matching: find.byType(Container),
     ).first;
     
     final container = tester.widget<Container>(priorityContainer);
