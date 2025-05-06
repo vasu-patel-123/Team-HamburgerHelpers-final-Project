@@ -45,4 +45,4 @@ jobs:
 
     - name: Build
       working-directory: ./taskii
-      run: flutter build apk --release
+      run: flutter build apk --release --build-number $GITHUB_RUN_NUMBER
