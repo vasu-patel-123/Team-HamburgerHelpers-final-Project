@@ -4,6 +4,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../lib/pages/calendar/calendar_page.dart';
 import '../lib/models/task.dart';
 
+/// This test makes sure that tasks appear on the calendar page on the correct date and correct priority level.
 void main() {
   testWidgets('Task appears on correct date in CalendarPage with correct priority', (WidgetTester tester) async {
     // Use today's date to ensure the calendar shows the correct month
