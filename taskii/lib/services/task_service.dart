@@ -60,7 +60,16 @@ class TaskService {
           existingTask.isCompleted != task.isCompleted;
 
       _validateTask(task, isCompletionUpdate: isCompletionUpdate);
+
+      // Get the existing task's creation date
+      final existingCreationDate = existingTask?.creationDate;
+
+      // Create task data with preserved creation date
       final taskData = task.toJson();
+      if (existingCreationDate != null) {
+        taskData['creationDate'] = existingCreationDate.toIso8601String();
+      }
+
       await _database.child(_tasksPath).child(task.id).update(taskData);
     } catch (e) {
       throw Exception('Failed to update task: ${e.toString()}');

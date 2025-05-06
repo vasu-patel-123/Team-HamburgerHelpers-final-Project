@@ -109,6 +109,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
         isCompleted: false,
         userId: userId,
         estimatedTime: _selectedEstimatedTime,
+        creationDate: DateTime.now(),
       );
 
       await _taskService.createTask(task);

@@ -84,6 +84,7 @@ class _CalendarPageState extends State<CalendarPage> {
         'userId': task.userId,
         'category': task.category,
         'estimatedTime': task.estimatedTime,
+        'creationDate': task.creationDate,
       };
       tempEvents[date]!.add(taskMap);
     }
@@ -425,6 +426,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                                     estimatedTime:
                                                         task['estimatedTime'] ??
                                                         30,
+                                                    creationDate:
+                                                        task['creationDate'] ??
+                                                        DateTime.now(),
                                                   ),
                                                 );
                                               },
@@ -482,6 +486,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                                     estimatedTime:
                                                         task['estimatedTime'] ??
                                                         30,
+                                                    creationDate:
+                                                        task['creationDate'] ??
+                                                        DateTime.now(),
                                                   ),
                                                 );
                                               },

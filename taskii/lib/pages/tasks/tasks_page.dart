@@ -108,6 +108,7 @@ class _TasksPageState extends State<TasksPage> {
         isCompleted: !task.isCompleted,
         userId: task.userId,
         estimatedTime: task.estimatedTime,
+        creationDate: task.creationDate,
       );
 
       await _taskService.updateTask(updatedTask);
