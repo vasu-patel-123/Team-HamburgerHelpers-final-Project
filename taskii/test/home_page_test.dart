@@ -7,11 +7,7 @@ class MockAddTaskPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Mock Add Task Page'),
-      ),
-    );
+    return const Scaffold(body: Center(child: Text('Mock Add Task Page')));
   }
 }
 
@@ -22,20 +18,14 @@ class TestHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
-      body: const Center(
-        child: Text('Home Page Content'),
-      ),
+      appBar: AppBar(title: const Text('Home')),
+      body: const Center(child: Text('Home Page Content')),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int index) {
           if (index == 2) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const MockAddTaskPage(),
-              ),
+              MaterialPageRoute(builder: (context) => const MockAddTaskPage()),
             );
           }
         },
@@ -44,7 +34,10 @@ class TestHomePage extends StatelessWidget {
           NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
           NavigationDestination(icon: Icon(Icons.task), label: 'Tasks'),
           NavigationDestination(icon: Icon(Icons.add, size: 44), label: ''),
-          NavigationDestination(icon: Icon(Icons.calendar_today), label: 'Calendar'),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_today),
+            label: 'Calendar',
+          ),
           NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Stats'),
         ],
       ),
@@ -53,13 +46,11 @@ class TestHomePage extends StatelessWidget {
 }
 
 void main() {
-  testWidgets('Schedule task button exists and navigates to AddTaskPage', (WidgetTester tester) async {
+  testWidgets('Schedule task button exists and navigates to AddTaskPage', (
+    WidgetTester tester,
+  ) async {
     // Build our app and trigger a frame
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: TestHomePage(),
-      ),
-    );
+    await tester.pumpWidget(const MaterialApp(home: TestHomePage()));
 
     // Wait for the page to load
     await tester.pumpAndSettle();
@@ -76,4 +67,4 @@ void main() {
     expect(find.byType(MockAddTaskPage), findsOneWidget);
     expect(find.text('Mock Add Task Page'), findsOneWidget);
   });
-} 
+}

@@ -23,7 +23,7 @@ Future<void> initializeFirebaseAndRun() async {
     androidProvider: AndroidProvider.debug,
     appleProvider: AppleProvider.debug,
     // androidProvider: AndroidProvider.playIntegrity,   ::For Production
-    // appleProvider: AppleProvider.appAttest,           ::For Production 
+    // appleProvider: AppleProvider.appAttest,           ::For Production
   );
 
   // Disable reCAPTCHA for testing

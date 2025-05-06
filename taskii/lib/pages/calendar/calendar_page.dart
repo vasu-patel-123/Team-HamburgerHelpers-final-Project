@@ -426,7 +426,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                                     estimatedTime:
                                                         task['estimatedTime'] ??
                                                         30,
-                                                    creationDate: task['creationDate'] ?? DateTime.now(),
+                                                    creationDate:
+                                                        task['creationDate'] ??
+                                                        DateTime.now(),
                                                   ),
                                                 );
                                               },
@@ -484,7 +486,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                                     estimatedTime:
                                                         task['estimatedTime'] ??
                                                         30,
-                                                    creationDate: task['creationDate'] ?? DateTime.now(),
+                                                    creationDate:
+                                                        task['creationDate'] ??
+                                                        DateTime.now(),
                                                   ),
                                                 );
                                               },

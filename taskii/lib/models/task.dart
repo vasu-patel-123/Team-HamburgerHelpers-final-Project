@@ -62,7 +62,9 @@ class Task {
         parsedCreationDate = parsedDueDate;
       }
     } else if (creationDateValue is int) {
-      parsedCreationDate = DateTime.fromMillisecondsSinceEpoch(creationDateValue);
+      parsedCreationDate = DateTime.fromMillisecondsSinceEpoch(
+        creationDateValue,
+      );
     } else {
       // If no valid creation date is found, use the due date as a fallback
       parsedCreationDate = parsedDueDate;

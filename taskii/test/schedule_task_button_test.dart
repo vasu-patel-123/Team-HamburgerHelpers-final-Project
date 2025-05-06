@@ -7,11 +7,7 @@ class MockAddTaskPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Mock Add Task Page'),
-      ),
-    );
+    return const Scaffold(body: Center(child: Text('Mock Add Task Page')));
   }
 }
 
@@ -27,9 +23,7 @@ class TestHomePage extends StatelessWidget {
           if (index == 2) {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const MockAddTaskPage(),
-              ),
+              MaterialPageRoute(builder: (context) => const MockAddTaskPage()),
             );
           }
         },
@@ -38,7 +32,10 @@ class TestHomePage extends StatelessWidget {
           NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
           NavigationDestination(icon: Icon(Icons.task), label: 'Tasks'),
           NavigationDestination(icon: Icon(Icons.add, size: 44), label: ''),
-          NavigationDestination(icon: Icon(Icons.calendar_today), label: 'Calendar'),
+          NavigationDestination(
+            icon: Icon(Icons.calendar_today),
+            label: 'Calendar',
+          ),
           NavigationDestination(icon: Icon(Icons.bar_chart), label: 'Stats'),
         ],
       ),
@@ -48,12 +45,10 @@ class TestHomePage extends StatelessWidget {
 
 void main() {
   group('Schedule Task Button Tests', () {
-    testWidgets('Schedule task button exists in bottom navigation bar', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: TestHomePage(),
-        ),
-      );
+    testWidgets('Schedule task button exists in bottom navigation bar', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: TestHomePage()));
 
       await tester.pumpAndSettle();
 
@@ -62,12 +57,10 @@ void main() {
       expect(scheduleButton, findsOneWidget);
     });
 
-    testWidgets('Schedule task button navigates to AddTaskPage', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: TestHomePage(),
-        ),
-      );
+    testWidgets('Schedule task button navigates to AddTaskPage', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: TestHomePage()));
 
       await tester.pumpAndSettle();
 
@@ -81,12 +74,10 @@ void main() {
       expect(find.text('Mock Add Task Page'), findsOneWidget);
     });
 
-    testWidgets('Schedule task button is centered in bottom navigation bar', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: TestHomePage(),
-        ),
-      );
+    testWidgets('Schedule task button is centered in bottom navigation bar', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: TestHomePage()));
 
       await tester.pumpAndSettle();
 
@@ -100,10 +91,12 @@ void main() {
 
       // Get the position of the button
       final buttonPosition = tester.getCenter(scheduleButton);
-      final screenWidth = tester.binding.window.physicalSize.width / tester.binding.window.devicePixelRatio;
-      
+      final screenWidth =
+          tester.binding.window.physicalSize.width /
+          tester.binding.window.devicePixelRatio;
+
       // Verify the button is roughly centered (allowing for some margin of error)
       expect(buttonPosition.dx, closeTo(screenWidth / 2, 50));
     });
   });
-} 
+}

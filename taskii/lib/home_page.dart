@@ -207,10 +207,29 @@ class _HomePageState extends State<HomePage> {
                                         ? 0
                                         : _tasks
                                                 .where(
-                                                  (task) => task.isCompleted && task.dueDate.year == DateTime.now().year && task.dueDate.month == DateTime.now().month && task.dueDate.day == DateTime.now().day,
+                                                  (task) =>
+                                                      task.isCompleted &&
+                                                      task.dueDate.year ==
+                                                          DateTime.now().year &&
+                                                      task.dueDate.month ==
+                                                          DateTime.now()
+                                                              .month &&
+                                                      task.dueDate.day ==
+                                                          DateTime.now().day,
                                                 )
                                                 .length /
-                                            _tasks.where((task) => task.dueDate.year == DateTime.now().year && task.dueDate.month == DateTime.now().month && task.dueDate.day == DateTime.now().day).length,
+                                            _tasks
+                                                .where(
+                                                  (task) =>
+                                                      task.dueDate.year ==
+                                                          DateTime.now().year &&
+                                                      task.dueDate.month ==
+                                                          DateTime.now()
+                                                              .month &&
+                                                      task.dueDate.day ==
+                                                          DateTime.now().day,
+                                                )
+                                                .length,
                                 minHeight: 8,
                                 backgroundColor: Colors.grey[200],
                                 valueColor: AlwaysStoppedAnimation<Color>(
