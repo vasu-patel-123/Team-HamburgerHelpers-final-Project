@@ -54,7 +54,7 @@ jobs:
 
     - name: Install CocoaPods
       run: pod install
-      working-directory: ios
+      working-directory: ./taskii/ios
 
     - name: Clean up leftover files before tests
       run: |
