@@ -56,7 +56,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime.now(),
+      firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
     if (picked != null && picked != _selectedDate) {
@@ -160,9 +160,9 @@ class _AddTaskPageState extends State<AddTaskPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        shape: const Border(
+        shape: Border(
           bottom: BorderSide(
-            color: Color.fromARGB(255, 153, 142, 126),
+            color: Theme.of(context).colorScheme.primary,
             width: 4,
           ),
         ),

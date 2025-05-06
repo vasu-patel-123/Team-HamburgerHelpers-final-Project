@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:table_calendar/table_calendar.dart';
-import '../lib/pages/calendar/calendar_page.dart';
-import '../lib/models/task.dart';
+import 'package:taskii/pages/calendar/calendar_page.dart';
+import 'package:taskii/models/task.dart';
 
 /// This test makes sure that tasks appear on the calendar page on the correct date and correct priority level.
 void main() {

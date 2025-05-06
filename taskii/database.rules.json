@@ -30,6 +30,12 @@
         ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)",
         ".read": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)"
       }
+    },
+    "user_settings": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
     }
   }
 }

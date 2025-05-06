@@ -2,14 +2,18 @@ name: iOS Build
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "master"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "master"]
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
   build:
     runs-on: macos-latest
+
+    defaults:
+      run:
+        working-directory: ./taskii
 
     steps:
     - name: Checkout code
@@ -21,50 +25,60 @@ jobs:
         flutter-version: "3.x"
         channel: "stable"
 
+    - name: Set FLUTTER_ROOT
+      run: |
+        mkdir -p ${{ github.workspace }}/flutter
+        ln -s "$(flutter --version | grep 'Flutter' | awk '{print $2}')" ${{ github.workspace }}/flutter
+      shell: bash
+
     - name: Clean the Flutter build files
       run: |
         flutter clean
         flutter config --no-cli-animations
-      working-directory: ./taskii
-
-    - name: Install dependencies
-      working-directory: ./taskii
-      run: flutter pub get
 
     - name: Analyze project source
-      working-directory: ./taskii
       run: flutter analyze --no-fatal-warnings --no-fatal-infos
 
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 3.0
-
-    - name: Ensure iOS project structure exists
-      run: flutter create .
-      working-directory: ./taskii
+        ruby-version: 3.4
 
     - name: Install dependencies
-      working-directory: ./taskii
       run: flutter pub get
+
+    - name: Install CocoaPods prerequisites
+      run: |
+        sudo gem install cocoapods
+        pod setup
 
     - name: Install CocoaPods
       run: pod install
-      working-directory: taskii/ios
+      working-directory: ./taskii/ios
 
     - name: Clean up leftover files before tests
       run: |
         rm -rf ./taskii/build
         rm -rf ./taskii/coverage
         rm -rf ./taskii/.dart_tool/test
-        rm -f ./taskii/test/widget_test.dart
       shell: bash
 
     - name: Run tests
-      working-directory: ./taskii
       run: flutter test --coverage
 
-# will fix later
-#    - name: Build the project
-#      working-directory: ./taskii
-#      run: xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath $PWD/build/Runner.xcarchive -allowProvisioningUpdates
+    - name: Build iOS app
+      run: flutter build ios --release --no-codesign
+      env:
+        FLUTTER_ROOT: ${{ github.workspace }}/flutter
+        FLUTTER_VERSION: 3.x
+        FLUTTER_CHANNEL: stable
+        FLUTTER_BUILD_MODE: release
+        FLUTTER_BUILD_DIR: build
+        FLUTTER_BUILD_NAME: 1.0.0
+        FLUTTER_BUILD_NUMBER: ${{ github.run_number }}
+
+    - name: Upload iOS build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-build-release
+        path: ./taskii/build/ios/iphoneos/

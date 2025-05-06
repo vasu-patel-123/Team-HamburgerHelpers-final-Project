@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -99,6 +102,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 Navigator.of(
                   context,
                 ).push(MaterialPageRoute(builder: (_) => const AccountPage()));
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Preferences'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PreferencesPage()),
+                );
               },
             ),
             const Divider(),
@@ -280,6 +294,192 @@ class _AccountPageState extends State<AccountPage> {
               leading: const Icon(Icons.email_outlined),
               title: const Text('Email'),
               subtitle: Text(user?.email ?? 'No email'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PreferencesPage extends StatefulWidget {
+  const PreferencesPage({super.key});
+
+  @override
+  State<PreferencesPage> createState() => _PreferencesPageState();
+}
+
+class _PreferencesPageState extends State<PreferencesPage> {
+  final List<String> _dateFormats = [
+    'yyyy-MM-dd',
+    'MM/dd/yyyy',
+    'dd/MM/yyyy',
+    'MMM d, yyyy',
+  ];
+  final List<Locale> _supportedLocales = [
+    Locale('en', 'US'),
+    Locale('es', 'ES'),
+    Locale('fr', 'FR'),
+    Locale('de', 'DE'),
+  ];
+
+  String? _selectedDateFormat;
+  Locale? _selectedLocale;
+  bool _loading = true;
+  final _db = FirebaseDatabase.instance.ref();
+  final _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final user = _auth.currentUser;
+    if (user != null) {
+      // Try to load from Firebase first
+      final snap = await _db.child('user_settings/${user.uid}').get();
+      if (snap.exists) {
+        final data = Map<String, dynamic>.from(snap.value as Map);
+        _selectedDateFormat = data['dateFormat'] ?? _dateFormats[0];
+        final localeCode = data['locale'] ?? 'en_US';
+        _selectedLocale = _supportedLocales.firstWhere(
+          (l) => '${l.languageCode}_${l.countryCode}' == localeCode,
+          orElse: () => _supportedLocales[0],
+        );
+        // Save to local cache
+        await prefs.setString('dateFormat', _selectedDateFormat!);
+        await prefs.setString('locale', localeCode);
+      } else {
+        // Fallback to local cache
+        _selectedDateFormat = prefs.getString('dateFormat') ?? _dateFormats[0];
+        final localeCode = prefs.getString('locale') ?? 'en_US';
+        _selectedLocale = _supportedLocales.firstWhere(
+          (l) => '${l.languageCode}_${l.countryCode}' == localeCode,
+          orElse: () => _supportedLocales[0],
+        );
+      }
+    }
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final user = _auth.currentUser;
+    final localeCode =
+        '${_selectedLocale!.languageCode}_${_selectedLocale!.countryCode}';
+    await prefs.setString('dateFormat', _selectedDateFormat!);
+    await prefs.setString('locale', localeCode);
+    if (user != null) {
+      await _db.child('user_settings/${user.uid}').set({
+        'dateFormat': _selectedDateFormat,
+        'locale': localeCode,
+      });
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Preferences saved!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Preferences'),
+        shape: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 4,
+          ),
+        ),
+        elevation: 4,
+        centerTitle: true,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            const Text(
+              'Date Format',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: _selectedDateFormat,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              items:
+                  _dateFormats
+                      .map(
+                        (format) => DropdownMenuItem(
+                          value: format,
+                          child: Text(
+                            DateFormat(format).format(DateTime.now()),
+                          ),
+                        ),
+                      )
+                      .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedDateFormat = value;
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Language (Non-functional)',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<Locale>(
+              value: _selectedLocale,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
+              items:
+                  _supportedLocales
+                      .map(
+                        (locale) => DropdownMenuItem(
+                          value: locale,
+                          child: Text(
+                            '${locale.languageCode.toUpperCase()} (${locale.countryCode})',
+                          ),
+                        ),
+                      )
+                      .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedLocale = value;
+                });
+              },
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _savePreferences,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Save Preferences',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
             ),
           ],
         ),
