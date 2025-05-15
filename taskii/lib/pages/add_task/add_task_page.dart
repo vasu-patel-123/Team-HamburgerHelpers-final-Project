@@ -215,7 +215,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                         ),
                         items:
                             [
-                              'High',
+                              'Dark Souls',
                               'Medium',
                               'Low',
                             ].map<DropdownMenuItem<String>>((String value) {
